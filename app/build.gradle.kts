@@ -5,11 +5,11 @@ plugins {
 }
 
 android {
-    namespace = "com.example.uxuiapplication"
+    namespace = "com.group10.uxuiapp"
     compileSdk = 34
 
     defaultConfig {
-        applicationId = "com.example.uxuiapplication"
+        applicationId = "com.group10.uxuiapp"
         minSdk = 24
         targetSdk = 34
         versionCode = 1
