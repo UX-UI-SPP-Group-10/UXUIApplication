@@ -1,4 +1,4 @@
-package com.example.uxuiapplication
+package com.group10.uxuiapp
 
 import org.junit.Test
 

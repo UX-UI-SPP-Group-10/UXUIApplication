@@ -1,4 +1,4 @@
-package com.example.uxuiapplication
+package com.group10.uxuiapp
 
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.ext.junit.runners.AndroidJUnit4

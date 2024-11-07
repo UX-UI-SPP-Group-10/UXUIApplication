@@ -1,6 +1,5 @@
-package com.example.uxuiapplication.ui.theme
+package com.group10.uxuiapp.ui.theme
 
-import android.app.Activity
 import android.os.Build
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
