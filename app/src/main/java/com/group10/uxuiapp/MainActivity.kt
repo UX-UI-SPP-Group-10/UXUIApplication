@@ -13,25 +13,17 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import com.group10.uxuiapp.ui.theme.UXUIApplicationTheme
-import com.group10.uxuiapp.view.ListViewPage
+import com.group10.uxuiapp.view.ListOverviewPage
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            MaterialTheme {
-                ListViewPage()
+            UXUIApplicationTheme {
+                MainNavigation()
             }
         }
 
-    }
-}
-
-@Preview(showBackground = true)
-@Composable
-fun PreviewListViewPage() {
-    UXUIApplicationTheme {
-        ListViewPage()
     }
 }

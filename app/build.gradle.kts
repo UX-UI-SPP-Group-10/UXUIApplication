@@ -40,6 +40,7 @@ android {
 }
 
 dependencies {
+    val navVersion = "2.8.3"
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
@@ -56,4 +57,16 @@ dependencies {
     androidTestImplementation(libs.androidx.ui.test.junit4)
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
+
+    // Essential for Jetpack Compose navigation
+    implementation("androidx.navigation:navigation-compose:$navVersion")
+
+    // Optional: ViewModel integration for Compose navigation
+    implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.6.0")
+
+    // Optional: Navigation animations
+    implementation("com.google.accompanist:accompanist-navigation-animation:0.33.0-alpha")
+
+    // Testing Navigation (optional but already included)
+    androidTestImplementation("androidx.navigation:navigation-testing:$navVersion")
 }
