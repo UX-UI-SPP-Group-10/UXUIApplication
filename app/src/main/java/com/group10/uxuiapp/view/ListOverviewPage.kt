@@ -17,6 +17,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -33,12 +34,18 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.uxuiapplication.ChangeButton
 import com.group10.uxuiapp.R
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -46,6 +53,7 @@ fun ListOverviewPage(navController: NavController) {
     val context = LocalContext.current
     val coroutineScope = rememberCoroutineScope()
     var selectedIndex by remember { mutableStateOf<Int?>(null) }
+    val expanded = remember { mutableStateOf(false) }
 
     Scaffold(
         topBar = {
@@ -57,6 +65,40 @@ fun ListOverviewPage(navController: NavController) {
                         Toast.makeText(context, "Search clicked", Toast.LENGTH_SHORT).show()
                     }) {
                         Icon(Icons.Filled.Search, contentDescription = "Search")
+                    }
+                    IconButton(onClick =  {
+                        expanded.value = true
+                    }){
+                        Icon(Icons.Filled.Settings, contentDescription = "Settings")
+                    }
+                    DropdownMenu(
+                        expanded = expanded.value,
+                        onDismissRequest = { expanded.value = false }
+                    ) {
+                        DropdownMenuItem(
+                            text = { Text("Option 1") },
+                            onClick = {
+                                expanded.value = false
+                                Toast.makeText(context, "Option 1 clicked", Toast.LENGTH_SHORT).show()
+                            },
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                        DropdownMenuItem(
+                            text = { Text("Option 2") },
+                            onClick = {
+                                expanded.value = false
+                                Toast.makeText(context, "Option 2 clicked", Toast.LENGTH_SHORT).show()
+                            },
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                        DropdownMenuItem(
+                            text = { Text("Option 3") },
+                            onClick = {
+                                expanded.value = false
+                                Toast.makeText(context, "Option 3 clicked", Toast.LENGTH_SHORT).show()
+                            },
+                            modifier = Modifier.fillMaxWidth()
+                        )
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(),
