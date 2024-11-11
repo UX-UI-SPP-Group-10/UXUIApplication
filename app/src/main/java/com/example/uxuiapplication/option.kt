@@ -42,7 +42,8 @@ fun ChangeButton() {
                 Icon(
                     painter = painterResource(id = R.drawable.close),
                     contentDescription = "Close",
-                    modifier = Modifier.size(30.dp).background(MaterialTheme.colorScheme.secondary) // Set icon size as desired
+                    modifier = Modifier.size(30.dp).background(MaterialTheme.colorScheme.secondary), // Set icon size as desired
+                    tint = MaterialTheme.colorScheme.onSecondary
                 )
             }
 
@@ -61,7 +62,8 @@ fun ChangeButton() {
                 Icon(
                     painter = painterResource(id = R.drawable.gif),
                     contentDescription = "GIF",
-                    modifier = Modifier.size(60.dp).background(MaterialTheme.colorScheme.secondary) // Set icon size as desired
+                    modifier = Modifier.size(60.dp).background(MaterialTheme.colorScheme.secondary), // Set icon size as desired
+                    tint = MaterialTheme.colorScheme.onSecondary
                 )
             }
 
@@ -80,7 +82,8 @@ fun ChangeButton() {
                 Icon(
                     painter = painterResource(id = R.drawable.edit),
                     contentDescription = "Edit text",
-                    modifier = Modifier.size(30.dp).background(MaterialTheme.colorScheme.secondary) // Set icon size as desired
+                    modifier = Modifier.size(30.dp).background(MaterialTheme.colorScheme.secondary), // Set icon size as desired
+                    tint = MaterialTheme.colorScheme.onSecondary
                 )
             }
 
@@ -99,7 +102,8 @@ fun ChangeButton() {
                 Icon(
                     painter = painterResource(id = R.drawable.delete),
                     contentDescription = "Delete",
-                    modifier = Modifier.size(30.dp).background(MaterialTheme.colorScheme.secondary) // Set icon size as desired
+                    modifier = Modifier.size(30.dp).background(MaterialTheme.colorScheme.secondary), // Set icon size as desired
+                    tint = MaterialTheme.colorScheme.onSecondary
                 )
             }
         }
