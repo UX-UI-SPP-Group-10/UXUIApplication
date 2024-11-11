@@ -47,7 +47,7 @@ fun ListOverviewPage(navController: NavController) {
         LazyColumn(contentPadding = innerPadding) {
             items(100) { index ->
                 Text(
-                    text = "Item $index",
+                    text = "list $index",
                     modifier = Modifier
                         .padding(16.dp)
                         .clickable {
