@@ -117,6 +117,9 @@ fun ListOverviewPage(navController: NavController) {
                     navController.navigate("taskList/$index") }
                     .pointerInput(Unit) {
                         detectTapGestures(
+                            onTap = {
+                                navController.navigate("taskList/$index")
+                            },
                             onLongPress = {
                                 selectedIndex = index
                             }
