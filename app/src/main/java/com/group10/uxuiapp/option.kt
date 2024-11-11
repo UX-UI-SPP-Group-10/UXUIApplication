@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -25,13 +26,15 @@ import androidx.compose.ui.unit.dp
 import com.group10.uxuiapp.R
 
 @Composable
-fun ChangeButton() {
+fun ChangeButton(onClose: () -> Unit) {
     Box(modifier = Modifier
         .clip(RoundedCornerShape(16.dp))
-        .background(MaterialTheme.colorScheme.secondary)) {
+        .background(MaterialTheme.colorScheme.secondary)
+        .padding(8.dp)
+    ) {
         Row {
             Button(
-                onClick = {},
+                onClick = onClose,
                 modifier = Modifier
                     .width(45.dp) // Set button width
                     .height(38.dp), // Set button height
@@ -109,10 +112,4 @@ fun ChangeButton() {
             }
         }
     }
-}
-
-@Preview
-@Composable
-fun SeeChangeButton(){
-    ChangeButton()
 }
