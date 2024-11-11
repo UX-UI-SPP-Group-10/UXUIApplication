@@ -72,37 +72,25 @@ fun ListOverviewPage(navController: NavController) {
                     .clip(RoundedCornerShape(20.dp))
                     .background(MaterialTheme.colorScheme.secondary)
                     .clickable {
-                    navController.navigate("taskList/$index")
-                }) {
+                    navController.navigate("taskList/$index") }
+                    .pointerInput(Unit) {
+                        detectTapGestures(
+                            onLongPress = {
+                                selectedIndex = index
+                            }
+                        )
+                    }) {
                     Text(
                         text = "list $index",
                         modifier = Modifier
                             .padding(16.dp)
                     )
+                        // Show ChangeButton if this item is selected
+                        if (selectedIndex == index) {
+                            ChangeButton(onClose = { selectedIndex = null })
+                        }
                 }
               Spacer(modifier = Modifier.height(8.dp))
-            items(20) { index ->
-                Column(
-                    modifier = Modifier
-                        .padding(16.dp)
-                        .clickable {
-                            navController.navigate("taskList/$index")
-                        }
-                        .pointerInput(Unit) {
-                            detectTapGestures(
-                                onLongPress = {
-                                    selectedIndex = index
-                                }
-                            )
-                        }
-                ) {
-                    Text(text = "List $index")
-
-                    // Show ChangeButton if this item is selected
-                    if (selectedIndex == index) {
-                        ChangeButton(onClose = { selectedIndex = null })
-                    }
-                }
             }
         }
     }
