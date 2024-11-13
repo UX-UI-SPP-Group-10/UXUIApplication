@@ -3,6 +3,8 @@ package com.group10.uxuiapp.view
 import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
@@ -34,6 +36,10 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.group10.uxuiapp.R
 import kotlinx.coroutines.Job
+import androidx.compose.material3.Checkbox
+import androidx.compose.material3.Text
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
 
 data class TaskItems (val label: String, val isComplete: Boolean = false)
 
@@ -70,17 +76,31 @@ fun TaskPage(navController: NavController, taskId: String, onNavigateBack: () ->
             )
         }
     ) { innerPadding ->
-        LazyColumn(contentPadding = innerPadding) {
+        LazyColumn(modifier = Modifier.fillMaxSize(), contentPadding = innerPadding) {
+
             items(n) { index ->
-                // Remember state for each TextField
-                val text = remember { mutableStateOf("") }
-                TextField(
-                    value = text.value,
-                    onValueChange = { newText -> text.value = newText },
+                Row (
                     modifier = Modifier
-                        .padding(10.dp)
                         .fillMaxWidth()
-                )
+                        .padding(vertical = 6.dp)
+                ) {
+                    var isChecked by remember { mutableStateOf(false) }
+
+                    Checkbox(
+                        checked = isChecked,
+                        onCheckedChange = {isChecked = it},
+                        modifier = Modifier.padding(end = 5.dp)
+                        )
+                    // Remember state for each TextField
+                    val text = remember { mutableStateOf("") }
+                    TextField(
+                        value = text.value,
+                        onValueChange = { newText -> text.value = newText },
+                        modifier = Modifier
+                            .padding(10.dp)
+                            .fillMaxWidth()
+                    )
+                }
             }
         }
     }
