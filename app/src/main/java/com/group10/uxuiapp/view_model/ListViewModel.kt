@@ -22,4 +22,9 @@ class ListViewModel : ViewModel() {
         listManager.removeList(index)
         lists.value = listManager.getLists()
     }
+
+    fun updateTitle(index: Int, title: String) {
+        listManager.updateTitle(index, title)
+        lists.value = listManager.getLists()
+    }
 }

@@ -14,4 +14,9 @@ class ListManager {
     fun removeList(index: Int) {
         _allLists.removeIf { it.index == index }
     }
+
+    fun updateTitle(index: Int, title: String) {
+        val list = _allLists.find { it.index == index }
+        list?.title = title
+    }
 }

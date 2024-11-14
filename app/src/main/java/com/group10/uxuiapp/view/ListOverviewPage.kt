@@ -70,7 +70,6 @@ fun ListOverviewPage(navController: NavController, viewModel: ListViewModel = vi
     val showDialog = remember { mutableStateOf(false) }
     val listNameState = remember { mutableStateOf("") }
     val context = LocalContext.current
-    val listitems = remember { mutableStateListOf<String>() } // UI display of the list
     val coroutineScope = rememberCoroutineScope()
     val expanded = remember { mutableStateOf(false) }
 
