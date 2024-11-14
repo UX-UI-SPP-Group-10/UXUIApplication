@@ -18,4 +18,13 @@ class ListViewModel : ViewModel() {
         listManager.addList(title) // add new list with name
         lists.value = listManager.getLists() // Update UI lists
     }
+    fun removeList(index: Int) {
+        listManager.removeList(index)
+        lists.value = listManager.getLists()
+    }
+
+    fun updateTitle(index: Int, title: String) {
+        listManager.updateTitle(index, title)
+        lists.value = listManager.getLists()
+    }
 }

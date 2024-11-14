@@ -65,7 +65,7 @@ import com.group10.uxuiapp.view_model.ListViewModel
 // Main ListOverviewPage with Scaffold and LazyColumn
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ListOverviewPage(navController: NavController, viewModel: ListViewModel = viewModel()) {
+fun ListOverviewPage(navController: NavController, viewModel: ListViewModel) {
     val selectedIndex = remember { mutableStateOf<Int?>(null) }
     val showDialog = remember { mutableStateOf(false) }
     val listNameState = remember { mutableStateOf("") }
@@ -207,7 +207,7 @@ private fun ListItem(
                 verticalAlignment = Alignment.Top
             ) {
                 Text(
-                    text = "List $index: " + title
+                    text = title
                 )
 
                 Icon(
@@ -279,9 +279,3 @@ private fun AddNewListButton(onClick: () -> Unit) {
     }
 }
 
-
-@Preview (showBackground = true)
-@Composable
-fun ListOverviewPagePreview() {
-    ListOverviewPage(navController = NavController(LocalContext.current))
-}

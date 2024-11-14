@@ -5,5 +5,5 @@ import kotlin.collections.List
 data class TaskList(
     var index: Int,
     var title: String,
-    var task: List<TaskItem> = emptyList() // Default to empty list
+    var task: List<TaskItem> = emptyList()
 )

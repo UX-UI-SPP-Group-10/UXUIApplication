@@ -40,17 +40,22 @@ import androidx.compose.material3.Checkbox
 import androidx.compose.material3.Text
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
+import com.group10.uxuiapp.view_model.ListViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun TaskPage(navController: NavController, taskId: String, onNavigateBack: () -> Unit) {
+fun TaskPage(navController: NavController, taskId: String, onNavigateBack: () -> Unit, viewModel: ListViewModel) {
     val context = LocalContext.current
     var n: Int = 1
-
+    val task = viewModel.lists.value.find { it.index.toString() == taskId }
+    if(task == null) {
+        Toast.makeText(context, "Task not found", Toast.LENGTH_SHORT).show()
+        onNavigateBack()
+    }
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Task $taskId") },  // Display the task ID in the title
+                title = { Text(task?.title ?: "ERROR LOADING TITLE") },  // Display the task ID in the title
                 modifier = Modifier.padding(8.dp),
                 navigationIcon = {
                     IconButton(onClick = {
