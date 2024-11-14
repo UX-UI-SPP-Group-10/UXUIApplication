@@ -88,7 +88,8 @@ fun ListOverviewPage(navController: NavController, viewModel: ListViewModel = vi
                     index = taskList.index,
                     title = taskList.title,
                     navController = navController,
-                    selectedIndex = selectedIndex
+                    selectedIndex = selectedIndex,
+                    viewModel = viewModel
                 )
             }
         }
@@ -173,7 +174,8 @@ private fun ListItem(
     index: Int,
     title: String,
     navController: NavController,
-    selectedIndex: MutableState<Int?>
+    selectedIndex: MutableState<Int?>,
+    viewModel: ListViewModel
 ) {
     val isLiked = remember { mutableStateOf(false) }
     Box(
@@ -231,7 +233,8 @@ private fun ListItem(
                     .align(Alignment.BottomCenter)
                     .offset(y = 24.dp)
             ) {
-                ChangeButton(onClose = { selectedIndex.value = null })
+                ChangeButton(onClose = { selectedIndex.value = null },
+                    onDelete =  {})
             }
 
         }
