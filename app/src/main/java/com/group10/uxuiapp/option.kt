@@ -29,7 +29,7 @@ import com.group10.uxuiapp.R
 fun ChangeButton(onClose: () -> Unit) {
     Box(modifier = Modifier
         .clip(RoundedCornerShape(16.dp))
-        .background(MaterialTheme.colorScheme.secondary)
+        .background(Color(0xFF000000))
         .padding(8.dp)
     ) {
         Row {
@@ -41,13 +41,13 @@ fun ChangeButton(onClose: () -> Unit) {
                     .height(38.dp), // Set button height
                 contentPadding = PaddingValues(0.dp), // Remove default padding
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = MaterialTheme.colorScheme.secondary
+                    containerColor = Color(0xFF000000)
                 )
             ) {
                 Icon(
                     painter = painterResource(id = R.drawable.close),
                     contentDescription = "Close",
-                    modifier = Modifier.size(30.dp).background(MaterialTheme.colorScheme.secondary), // Set icon size as desired
+                    modifier = Modifier.size(30.dp).background(Color(0xFF000000)), // Set icon size as desired
                     tint = MaterialTheme.colorScheme.onSecondary
                 )
             }
@@ -62,13 +62,13 @@ fun ChangeButton(onClose: () -> Unit) {
                     .height(38.dp), // Set button height
                 contentPadding = PaddingValues(0.dp), // Remove default padding
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = MaterialTheme.colorScheme.secondary // Set button background color
+                    containerColor = Color(0xFF000000) // Set button background color
                 )
             ) {
                 Icon(
                     painter = painterResource(id = R.drawable.gif),
                     contentDescription = "GIF",
-                    modifier = Modifier.size(60.dp).background(MaterialTheme.colorScheme.secondary), // Set icon size as desired
+                    modifier = Modifier.size(60.dp).background(Color(0xFF000000)), // Set icon size as desired
                     tint = MaterialTheme.colorScheme.onSecondary
                 )
             }
@@ -83,13 +83,13 @@ fun ChangeButton(onClose: () -> Unit) {
                     .height(38.dp), // Set button height
                 contentPadding = PaddingValues(0.dp), // Remove default padding
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = MaterialTheme.colorScheme.secondary // Set button background color
+                    containerColor = Color(0xFF000000) // Set button background color
                 )
             ) {
                 Icon(
                     painter = painterResource(id = R.drawable.edit),
                     contentDescription = "Edit text",
-                    modifier = Modifier.size(30.dp).background(MaterialTheme.colorScheme.secondary), // Set icon size as desired
+                    modifier = Modifier.size(30.dp).background(Color(0xFF000000)), // Set icon size as desired
                     tint = MaterialTheme.colorScheme.onSecondary
                 )
             }
@@ -104,13 +104,13 @@ fun ChangeButton(onClose: () -> Unit) {
                     .height(38.dp), // Set button height
                 contentPadding = PaddingValues(0.dp), // Remove default padding
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = MaterialTheme.colorScheme.secondary // Set button background color
+                    containerColor = Color(0xFF000000) // Set button background color
                 )
             ) {
                 Icon(
                     painter = painterResource(id = R.drawable.delete),
                     contentDescription = "Delete",
-                    modifier = Modifier.size(30.dp).background(MaterialTheme.colorScheme.secondary), // Set icon size as desired
+                    modifier = Modifier.size(30.dp).background(Color(0xFF000000)), // Set icon size as desired
                     tint = MaterialTheme.colorScheme.onSecondary
                 )
             }
