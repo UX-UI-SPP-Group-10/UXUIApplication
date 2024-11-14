@@ -54,18 +54,22 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.sp
+import com.group10.uxuiapp.view.component.ListNameInputDialog
 
 // Main ListOverviewPage with Scaffold and LazyColumn
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ListOverviewPage(navController: NavController) {
     val selectedIndex = remember { mutableStateOf<Int?>(null) }
+    val showDialog = remember { mutableStateOf(false) }
+    val listNameState = remember { mutableStateOf("") }
+    val context = LocalContext.current
 
     Scaffold(
         topBar = { TopAppBarWithMenu() },
         floatingActionButton = {
             AddNewListButton {
-                navController.navigate("taskList/new")
+                showDialog.value = true // activate add list name popup
             }
         }
     ) { innerPadding ->
@@ -79,7 +83,24 @@ fun ListOverviewPage(navController: NavController) {
             }
         }
     }
+
+    // Show the ListNamePopup when the button is clicked
+    if (showDialog.value) {
+        ListNameInputDialog(
+            onDismiss = { showDialog.value = false },
+            onConfirm = { name ->
+                if (name.isNotBlank()) {
+                    listNameState.value = name
+                    showDialog.value = false
+                    Toast.makeText(context, "List '$name' created", Toast.LENGTH_SHORT).show()
+                } else {
+                    Toast.makeText(context, "Please enter a valid name", Toast.LENGTH_SHORT).show()
+                }
+            }
+        )
+    }
 }
+
 
 // Top app bar with search and settings icons and dropdown menu
 @OptIn(ExperimentalMaterial3Api::class)
