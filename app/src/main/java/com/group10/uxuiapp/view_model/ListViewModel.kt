@@ -20,8 +20,8 @@ class ListViewModel : ViewModel() {
         lists.value = listManager.getLists() // Update UI lists
     }
 
-    fun addTaskToList(title: String, taskItem: TaskItem){
-        listManager.addTaskToList(title, taskItem)
+    fun addTaskToList(title: String){
+        listManager.addTaskToList(title)
         lists.value = listManager.getLists()
     }
 

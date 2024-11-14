@@ -12,12 +12,12 @@ class ListManager {
     }
     fun getLists(): List<TaskList> = _allLists
 
-    fun addTaskToList(title: String, taskItem: TaskItem){
+    fun addTaskToList(title: String){
         val taskList = _allLists.find { it.title == title }
 
         if(taskList != null) {
-            val updateTask = taskList.task + taskItem
-            taskList.task = updateTask
+            val newTask = TaskItem("", false)
+            taskList.task += newTask
         }
     }
 

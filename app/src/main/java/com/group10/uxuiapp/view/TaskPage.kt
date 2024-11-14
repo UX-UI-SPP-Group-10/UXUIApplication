@@ -7,9 +7,11 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.outlined.AddCircle
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -77,32 +79,43 @@ fun TaskPage(navController: NavController, taskId: String, onNavigateBack: () ->
                 colors = TopAppBarDefaults.topAppBarColors(),
                 scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
             )
+        },
+        bottomBar = {
+            IconButton(onClick = {
+                viewModel.addTaskToList(taskId)
+            }) {
+                Icon(Icons.Outlined.AddCircle,
+                    contentDescription = "Add Task",
+                    modifier = Modifier.size(40.dp))
+                }
         }
     ) { innerPadding ->
         LazyColumn(modifier = Modifier.fillMaxSize(), contentPadding = innerPadding) {
-
-            items(n) { index ->
-                Row (
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(vertical = 6.dp)
-                ) {
-                    var isChecked by remember { mutableStateOf(false) }
-
-                    Checkbox(
-                        checked = isChecked,
-                        onCheckedChange = {isChecked = it},
-                        modifier = Modifier.padding(end = 5.dp)
-                        )
-                    // Remember state for each TextField
-                    val text = remember { mutableStateOf("") }
-                    TextField(
-                        value = text.value,
-                        onValueChange = { newText -> text.value = newText },
+            if (task != null) {
+                var size = task.task.size
+                items(size) { index ->
+                    Row(
                         modifier = Modifier
-                            .padding(10.dp)
                             .fillMaxWidth()
-                    )
+                            .padding(vertical = 6.dp)
+                    ) {
+                        var isChecked by remember { mutableStateOf(false) }
+
+                        Checkbox(
+                            checked = isChecked,
+                            onCheckedChange = { isChecked = it },
+                            modifier = Modifier.padding(end = 5.dp)
+                        )
+                        // Remember state for each TextField
+                        val text = remember { mutableStateOf("") }
+                        TextField(
+                            value = text.value,
+                            onValueChange = { newText -> text.value = newText },
+                            modifier = Modifier
+                                .padding(10.dp)
+                                .fillMaxWidth()
+                        )
+                    }
                 }
             }
         }
