@@ -4,25 +4,23 @@ import com.group10.uxuiapp.data.TaskList
 
 class ListManager {
     private val _allLists = mutableListOf<TaskList>()
+    fun getLists(): List<TaskList> = _allLists
 
     fun addList(title: String) {
-        val newIndex = _allLists.size + 1
+        val newIndex = _allLists.size // Use the size directly
         val newList = TaskList(index = newIndex, title = title)
         _allLists.add(newList)
     }
-    fun getLists(): List<TaskList> = _allLists
 
     fun removeList(index: Int) {
         _allLists.removeIf { it.index == index }
 
-        var startIndex = _allLists.indexOfFirst { it.index == index + 1 }
-
-        if (startIndex != -1) {
-            for (i in startIndex until _allLists.size) {
-                _allLists[i].index = _allLists[i].index - 1
-            }
+        // Reorder indices after removal to avoid gaps
+        _allLists.forEachIndexed { i, taskList ->
+            taskList.index = i
         }
     }
+
 
 
 

@@ -1,6 +1,6 @@
 package com.group10.uxuiapp.view
 
-import android.widget.Toast
+
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -61,6 +61,8 @@ import androidx.compose.ui.unit.sp
 import com.group10.uxuiapp.view.component.ListNameInputDialog
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.group10.uxuiapp.view_model.ListViewModel
+import android.util.Log
+import android.widget.Toast
 
 // Main ListOverviewPage with Scaffold and LazyColumn
 @OptIn(ExperimentalMaterial3Api::class)
@@ -70,9 +72,18 @@ fun ListOverviewPage(navController: NavController, viewModel: ListViewModel) {
     val showDialog = remember { mutableStateOf(false) }
     val listNameState = remember { mutableStateOf("") }
     val context = LocalContext.current
-    val listitems = remember { mutableStateListOf<String>() } // UI display of the list
-    val coroutineScope = rememberCoroutineScope()
     val expanded = remember { mutableStateOf(false) }
+
+    // Debugging statement for selectedIndex and list size
+    Log.d("ListOverviewPage", "Initial selectedIndex: ${selectedIndex.value}, list size: ${viewModel.lists.value.size}")
+
+    // Use LaunchedEffect to reset selectedIndex if list size changes
+    LaunchedEffect(viewModel.lists.value.size) {
+        if (selectedIndex.value != null && selectedIndex.value!! >= viewModel.lists.value.size) {
+            Log.d("ListOverviewPage", "Resetting selectedIndex because it's out of bounds")
+            selectedIndex.value = null
+        }
+    }
 
     Scaffold(
         topBar = { TopAppBarWithMenu() },
@@ -112,7 +123,6 @@ fun ListOverviewPage(navController: NavController, viewModel: ListViewModel) {
         )
     }
 }
-
 
 // Top app bar with search and settings icons and dropdown menu
 @OptIn(ExperimentalMaterial3Api::class)
@@ -178,12 +188,13 @@ private fun ListItem(
     viewModel: ListViewModel
 ) {
     val isLiked = remember { mutableStateOf(false) }
+
+    // Wrapper Box for list item
     Box(
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = 16.dp, vertical = 4.dp)
     ) {
-        // Main list item box
         Box(
             modifier = Modifier
                 .fillMaxWidth()
@@ -196,7 +207,7 @@ private fun ListItem(
                             navController.navigate("taskList/$index")
                         },
                         onLongPress = {
-                            selectedIndex.value = index
+                            selectedIndex.value = index // Set selectedIndex on long press
                         }
                     )
                 }
@@ -209,38 +220,44 @@ private fun ListItem(
                 verticalAlignment = Alignment.Top
             ) {
                 Text(
-                    text = title
+                    text = title,
+                    color = Color.White
                 )
 
                 Icon(
-                    imageVector =
-                    if (isLiked.value) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
-                    contentDescription = if (isLiked.value) "Liked " else "Add Favourite",
+                    imageVector = if (isLiked.value) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
+                    contentDescription = if (isLiked.value) "Liked" else "Add Favorite",
                     modifier = Modifier
                         .size(25.dp)
                         .clickable {
                             isLiked.value = !isLiked.value
-                        }
+                        },
+                    tint = if (isLiked.value) Color.Red else Color.White
                 )
             }
         }
 
-        // Space for ChangeButton if this item is selected
+        // Show ChangeButton when the item is selected
         if (selectedIndex.value == index) {
-            // Place the ChangeButton in the extra space at the bottom center
             Box(
                 modifier = Modifier
                     .align(Alignment.BottomCenter)
                     .offset(y = 24.dp)
             ) {
-                ChangeButton(onClose = { selectedIndex.value = null },
-                    onDelete =  {})
+                ChangeButton(
+                    onClose = {
+                        selectedIndex.value = null
+                    },
+                    onDelete = {
+                        viewModel.removeList(index)
+                        selectedIndex.value = null
+                    }
+                )
             }
-
         }
     }
 
-    // Pushes the next list further down to fully show the changebutton
+    // Spacer to push next list item down when selected
     if (selectedIndex.value == index) {
         Spacer(modifier = Modifier.height(24.dp))
     }
@@ -281,4 +298,5 @@ private fun AddNewListButton(onClick: () -> Unit) {
         }
     }
 }
+
 
