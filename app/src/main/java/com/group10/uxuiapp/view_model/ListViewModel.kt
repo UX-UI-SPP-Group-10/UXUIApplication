@@ -2,6 +2,7 @@ package com.group10.uxuiapp.view_model
 
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
+import com.group10.uxuiapp.data.TaskItem
 import com.group10.uxuiapp.domain.ListManager
 import com.group10.uxuiapp.data.TaskList
 
@@ -18,6 +19,12 @@ class ListViewModel : ViewModel() {
         listManager.addList(title) // add new list with name
         lists.value = listManager.getLists() // Update UI lists
     }
+
+    fun addTaskToList(title: String, taskItem: TaskItem){
+        listManager.addTaskToList(title, taskItem)
+        lists.value = listManager.getLists()
+    }
+
     fun removeList(index: Int) {
         listManager.removeList(index)
         lists.value = listManager.getLists()
