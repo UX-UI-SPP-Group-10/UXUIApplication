@@ -207,7 +207,7 @@ private fun ListItem(
                 verticalAlignment = Alignment.Top
             ) {
                 Text(
-                    text = "List $index: " + title
+                    text = "List $index: $title"
                 )
 
                 Icon(
