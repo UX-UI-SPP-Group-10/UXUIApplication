@@ -40,8 +40,7 @@ import androidx.compose.material3.Checkbox
 import androidx.compose.material3.Text
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
-
-data class TaskItems (val label: String, val isComplete: Boolean = false)
+import com.group10.uxuiapp.data.List
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
