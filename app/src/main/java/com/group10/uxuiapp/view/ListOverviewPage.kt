@@ -46,10 +46,12 @@ import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.group10.uxuiapp.view_model.ListViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ListOverviewPage(navController: NavController) {
+fun ListOverviewPage(navController: NavController, viewModel: ListViewModel = viewModel()) {
     val context = LocalContext.current
     val coroutineScope = rememberCoroutineScope()
     var selectedIndex by remember { mutableStateOf<Int?>(null) }
