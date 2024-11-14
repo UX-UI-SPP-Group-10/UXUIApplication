@@ -50,7 +50,7 @@ fun TaskPage(navController: NavController, taskId: String, onNavigateBack: () ->
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Task $taskId") },  // Display the task ID in the title
+                title = { Text(taskId) },  // Display the task ID in the title
                 modifier = Modifier.padding(8.dp),
                 navigationIcon = {
                     IconButton(onClick = {

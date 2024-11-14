@@ -10,4 +10,8 @@ class ListManager {
         _allLists.add(newList)
     }
     fun getLists(): List<TaskList> = _allLists
+
+    fun removeList(index: Int) {
+        _allLists.removeIf { it.index == index }
+    }
 }
