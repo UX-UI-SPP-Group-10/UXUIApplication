@@ -1,6 +1,5 @@
 package com.group10.uxuiapp.view
 
-import android.R.attr.font
 import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -167,34 +166,53 @@ private fun ListItem(
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 16.dp)
-            .height(100.dp)
-            .clip(RoundedCornerShape(20.dp))
-            .background(MaterialTheme.colorScheme.secondary)
-            .clickable {
-                navController.navigate("taskList/$index")
-            }
-            .pointerInput(Unit) {
-                detectTapGestures(
-                    onTap = {
-                        navController.navigate("taskList/$index")
-                    },
-                    onLongPress = {
-                        selectedIndex.value = index
-                    }
-                )
-            }
+            .padding(horizontal = 16.dp, vertical = 4.dp)
     ) {
-        Text(
-            text = "list $index",
-            modifier = Modifier.padding(16.dp)
-        )
-        // Show ChangeButton if this item is selected
+        // Main list item box
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(100.dp)
+                .clip(RoundedCornerShape(20.dp))
+                .background(MaterialTheme.colorScheme.secondary)
+                .clickable {
+                    navController.navigate("taskList/$index")
+                }
+                .pointerInput(Unit) {
+                    detectTapGestures(
+                        onTap = {
+                            navController.navigate("taskList/$index")
+                        },
+                        onLongPress = {
+                            selectedIndex.value = index
+                        }
+                    )
+                }
+        ) {
+            Text(
+                text = "list $index",
+                modifier = Modifier.padding(16.dp)
+            )
+        }
+
+        // Space for ChangeButton if this item is selected
         if (selectedIndex.value == index) {
-            ChangeButton(onClose = { selectedIndex.value = null })
+            // Place the ChangeButton in the extra space at the bottom center
+            Box(
+                modifier = Modifier
+                    .align(Alignment.BottomCenter)
+                    .offset(y = 24.dp)
+            ) {
+                ChangeButton(onClose = { selectedIndex.value = null })
+            }
+
         }
     }
-    Spacer(modifier = Modifier.height(8.dp))
+
+    // Pushes the next list further down to fully show the changebutton
+    if (selectedIndex.value == index) {
+        Spacer(modifier = Modifier.height(24.dp))
+    }
 }
 
 // Floating Action Button composable for adding a new list item
