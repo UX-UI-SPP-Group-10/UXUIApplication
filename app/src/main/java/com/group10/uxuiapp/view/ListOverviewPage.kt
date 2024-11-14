@@ -55,15 +55,21 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.sp
 import com.group10.uxuiapp.view.component.ListNameInputDialog
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.group10.uxuiapp.view_model.ListViewModel
 
 // Main ListOverviewPage with Scaffold and LazyColumn
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
+fun ListOverviewPage(navController: NavController, viewModel: ListViewModel = viewModel()) {
 fun ListOverviewPage(navController: NavController) {
     val selectedIndex = remember { mutableStateOf<Int?>(null) }
     val showDialog = remember { mutableStateOf(false) }
     val listNameState = remember { mutableStateOf("") }
     val context = LocalContext.current
+    val coroutineScope = rememberCoroutineScope()
+    var selectedIndex by remember { mutableStateOf<Int?>(null) }
+    val expanded = remember { mutableStateOf(false) }
 
     Scaffold(
         topBar = { TopAppBarWithMenu() },
