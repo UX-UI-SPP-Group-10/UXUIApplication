@@ -20,6 +20,7 @@ fun MainNavigation() {
             val taskId = backStackEntry.arguments?.getString("taskId") ?: "Unknown"
             TaskPage(navController = navController, taskId = taskId, onNavigateBack = { navController.popBackStack() })
         }
+
     }
 }
 
