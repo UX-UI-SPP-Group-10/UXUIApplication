@@ -154,9 +154,6 @@ private fun ListItem(
                 .height(100.dp)
                 .clip(RoundedCornerShape(20.dp))
                 .background(MaterialTheme.colorScheme.secondary)
-                .clickable {
-                    navController.navigate("taskList/$index")
-                }
                 .pointerInput(Unit) {
                     detectTapGestures(
                         onTap = {
