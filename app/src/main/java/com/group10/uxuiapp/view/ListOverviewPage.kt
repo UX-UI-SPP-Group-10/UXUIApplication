@@ -47,96 +47,117 @@ import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 
+// Main ListOverviewPage with Scaffold and LazyColumn
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ListOverviewPage(navController: NavController) {
-    val context = LocalContext.current
-    val coroutineScope = rememberCoroutineScope()
-    var selectedIndex by remember { mutableStateOf<Int?>(null) }
-    val expanded = remember { mutableStateOf(false) }
+    val selectedIndex = remember { mutableStateOf<Int?>(null) }
 
     Scaffold(
-        topBar = {
-            TopAppBar(
-                title = { Text("List Overview") },
-                modifier = Modifier.padding(8.dp),
-                actions = {
-                    IconButton(onClick = {
-                        Toast.makeText(context, "Search clicked", Toast.LENGTH_SHORT).show()
-                    }) {
-                        Icon(Icons.Filled.Search, contentDescription = "Search")
-                    }
-                    IconButton(onClick =  {
-                        expanded.value = true
-                    }){
-                        Icon(Icons.Filled.Settings, contentDescription = "Settings")
-                    }
-                    DropdownMenu(
-                        expanded = expanded.value,
-                        onDismissRequest = { expanded.value = false }
-                    ) {
-                        DropdownMenuItem(
-                            text = { Text("Option 1") },
-                            onClick = {
-                                expanded.value = false
-                                Toast.makeText(context, "Option 1 clicked", Toast.LENGTH_SHORT).show()
-                            },
-                            modifier = Modifier.fillMaxWidth()
-                        )
-                        DropdownMenuItem(
-                            text = { Text("Option 2") },
-                            onClick = {
-                                expanded.value = false
-                                Toast.makeText(context, "Option 2 clicked", Toast.LENGTH_SHORT).show()
-                            },
-                            modifier = Modifier.fillMaxWidth()
-                        )
-                        DropdownMenuItem(
-                            text = { Text("Option 3") },
-                            onClick = {
-                                expanded.value = false
-                                Toast.makeText(context, "Option 3 clicked", Toast.LENGTH_SHORT).show()
-                            },
-                            modifier = Modifier.fillMaxWidth()
-                        )
-                    }
-                },
-                colors = TopAppBarDefaults.topAppBarColors(),
-                scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
-            )
-        }
+        topBar = { TopAppBarWithMenu() }
     ) { innerPadding ->
         LazyColumn(contentPadding = innerPadding) {
             items(10) { index ->
-                Box(Modifier.fillMaxWidth()
-                    .padding(horizontal = 16.dp)
-                    .height(100.dp)
-                    .clip(RoundedCornerShape(20.dp))
-                    .background(MaterialTheme.colorScheme.secondary)
-                    .clickable {
-                    navController.navigate("taskList/$index") }
-                    .pointerInput(Unit) {
-                        detectTapGestures(
-                            onTap = {
-                                navController.navigate("taskList/$index")
-                            },
-                            onLongPress = {
-                                selectedIndex = index
-                            }
-                        )
-                    }) {
-                    Text(
-                        text = "list $index",
-                        modifier = Modifier
-                            .padding(16.dp)
-                    )
-                        // Show ChangeButton if this item is selected
-                        if (selectedIndex == index) {
-                            ChangeButton(onClose = { selectedIndex = null })
-                        }
-                }
-              Spacer(modifier = Modifier.height(8.dp))
+                ListItem(
+                    index = index,
+                    navController = navController,
+                    selectedIndex = selectedIndex
+                )
             }
         }
     }
+}
+
+// Top app bar with search and settings icons and dropdown menu
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun TopAppBarWithMenu() {
+    val context = LocalContext.current
+    val expanded = remember { mutableStateOf(false) }
+
+    TopAppBar(
+        title = { Text("List Overview") },
+        modifier = Modifier.padding(8.dp),
+        actions = {
+            IconButton(onClick = {
+                Toast.makeText(context, "Search clicked", Toast.LENGTH_SHORT).show()
+            }) {
+                Icon(Icons.Filled.Search, contentDescription = "Search")
+            }
+            IconButton(onClick =  { expanded.value = true }) {
+                Icon(Icons.Filled.Settings, contentDescription = "Settings")
+            }
+            DropdownMenu(
+                expanded = expanded.value,
+                onDismissRequest = { expanded.value = false }
+            ) {
+                DropdownMenuItem(
+                    text = { Text("Option 1") },
+                    onClick = {
+                        expanded.value = false
+                        Toast.makeText(context, "Option 1 clicked", Toast.LENGTH_SHORT).show()
+                    },
+                    modifier = Modifier.fillMaxWidth()
+                )
+                DropdownMenuItem(
+                    text = { Text("Option 2") },
+                    onClick = {
+                        expanded.value = false
+                        Toast.makeText(context, "Option 2 clicked", Toast.LENGTH_SHORT).show()
+                    },
+                    modifier = Modifier.fillMaxWidth()
+                )
+                DropdownMenuItem(
+                    text = { Text("Option 3") },
+                    onClick = {
+                        expanded.value = false
+                        Toast.makeText(context, "Option 3 clicked", Toast.LENGTH_SHORT).show()
+                    },
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
+        },
+        colors = TopAppBarDefaults.topAppBarColors(),
+        scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
+    )
+}
+
+// ListItem composable for each item in the list
+@Composable
+private fun ListItem(
+    index: Int,
+    navController: NavController,
+    selectedIndex: MutableState<Int?>
+) {
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp)
+            .height(100.dp)
+            .clip(RoundedCornerShape(20.dp))
+            .background(MaterialTheme.colorScheme.secondary)
+            .clickable {
+                navController.navigate("taskList/$index")
+            }
+            .pointerInput(Unit) {
+                detectTapGestures(
+                    onTap = {
+                        navController.navigate("taskList/$index")
+                    },
+                    onLongPress = {
+                        selectedIndex.value = index
+                    }
+                )
+            }
+    ) {
+        Text(
+            text = "list $index",
+            modifier = Modifier.padding(16.dp)
+        )
+        // Show ChangeButton if this item is selected
+        if (selectedIndex.value == index) {
+            ChangeButton(onClose = { selectedIndex.value = null })
+        }
+    }
+    Spacer(modifier = Modifier.height(8.dp))
 }
