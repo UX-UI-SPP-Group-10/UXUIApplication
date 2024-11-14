@@ -1,5 +1,6 @@
 package com.group10.uxuiapp.view
 
+import android.R.attr.font
 import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -11,6 +12,7 @@ import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -42,10 +44,17 @@ import com.group10.uxuiapp.R
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.size
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.sp
 
 // Main ListOverviewPage with Scaffold and LazyColumn
 @OptIn(ExperimentalMaterial3Api::class)
@@ -54,7 +63,12 @@ fun ListOverviewPage(navController: NavController) {
     val selectedIndex = remember { mutableStateOf<Int?>(null) }
 
     Scaffold(
-        topBar = { TopAppBarWithMenu() }
+        topBar = { TopAppBarWithMenu() },
+        floatingActionButton = {
+            AddNewListButton {
+                navController.navigate("taskList/new")
+            }
+        }
     ) { innerPadding ->
         LazyColumn(contentPadding = innerPadding) {
             items(10) { index ->
@@ -160,4 +174,47 @@ private fun ListItem(
         }
     }
     Spacer(modifier = Modifier.height(8.dp))
+}
+
+// Floating Action Button composable for adding a new list item
+@Composable
+private fun AddNewListButton(onClick: () -> Unit) {
+    FloatingActionButton(
+        onClick = onClick,
+        containerColor = Color(0xFF4658FF),
+        contentColor = Color.White,
+        shape = RoundedCornerShape(32.dp),
+        modifier = Modifier
+            .padding(16.dp)
+            .width(135.dp)
+            .height(60.dp)
+            .offset(x = 22.dp, y = (-18).dp)
+    ) {
+        // Row to position icon and text horizontally
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.padding(horizontal = 8.dp)
+        ) {
+            Icon(
+                imageVector = Icons.Default.Add,
+                contentDescription = "Add Item",
+                modifier = Modifier.size(30.dp)
+            )
+            Spacer(modifier = Modifier.width(8.dp))
+            Text(
+                text = "NEW LIST",
+                style = MaterialTheme.typography.bodyMedium.copy(
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.Bold
+                )
+            )
+        }
+    }
+}
+
+
+@Preview (showBackground = true)
+@Composable
+fun ListOverviewPagePreview() {
+    ListOverviewPage(navController = NavController(LocalContext.current))
 }
