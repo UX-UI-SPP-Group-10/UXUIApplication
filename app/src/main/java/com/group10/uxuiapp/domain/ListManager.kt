@@ -5,7 +5,8 @@ class ListManager {
     private val _allLists = mutableListOf<TaskList>()
 
     fun addList(title: String) {
-        val newList = TaskList(title = title)
+        val newIndex = _allLists.size + 1
+        val newList = TaskList(index = newIndex, title = title)
         _allLists.add(newList)
     }
     fun getLists(): List<TaskList> = _allLists

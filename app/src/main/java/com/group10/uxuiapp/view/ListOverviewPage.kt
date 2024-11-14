@@ -66,6 +66,7 @@ fun ListOverviewPage(navController: NavController, viewModel: ListViewModel = vi
     val showDialog = remember { mutableStateOf(false) }
     val listNameState = remember { mutableStateOf("") }
     val context = LocalContext.current
+    val listitems = remember { mutableStateListOf<String>() } // UI display of the list
     val coroutineScope = rememberCoroutineScope()
     val expanded = remember { mutableStateOf(false) }
 
@@ -73,14 +74,15 @@ fun ListOverviewPage(navController: NavController, viewModel: ListViewModel = vi
         topBar = { TopAppBarWithMenu() },
         floatingActionButton = {
             AddNewListButton {
-                showDialog.value = true // activate add list name popup
+                showDialog.value = true
             }
         }
     ) { innerPadding ->
         LazyColumn(contentPadding = innerPadding) {
-            items(10) { index ->
+            items(viewModel.lists.value) { taskList ->
                 ListItem(
-                    index = index,
+                    index = taskList.index,
+                    title = taskList.title,
                     navController = navController,
                     selectedIndex = selectedIndex
                 )
@@ -94,6 +96,7 @@ fun ListOverviewPage(navController: NavController, viewModel: ListViewModel = vi
             onDismiss = { showDialog.value = false },
             onConfirm = { name ->
                 if (name.isNotBlank()) {
+                    viewModel.addList(name)
                     listNameState.value = name
                     showDialog.value = false
                     Toast.makeText(context, "List '$name' created", Toast.LENGTH_SHORT).show()
@@ -164,6 +167,7 @@ private fun TopAppBarWithMenu() {
 @Composable
 private fun ListItem(
     index: Int,
+    title: String,
     navController: NavController,
     selectedIndex: MutableState<Int?>
 ) {
@@ -191,7 +195,7 @@ private fun ListItem(
                 }
         ) {
             Text(
-                text = "list $index",
+                text = "List $index: $title",
                 modifier = Modifier.padding(16.dp)
             )
         }

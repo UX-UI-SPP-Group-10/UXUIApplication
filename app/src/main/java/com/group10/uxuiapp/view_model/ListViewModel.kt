@@ -8,7 +8,7 @@ import com.group10.uxuiapp.data.TaskList
 class ListViewModel : ViewModel() {
 
     private val listManager = ListManager()
-    var lists = mutableStateOf<List<TaskList>>(emptyList())
+    var lists = mutableStateOf<List<TaskList>>(emptyList()) // List that's observed by UI. Connects to the domain layer
 
     init {
         lists.value = listManager.getLists()
