@@ -62,13 +62,11 @@ import com.group10.uxuiapp.view_model.ListViewModel
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ListOverviewPage(navController: NavController, viewModel: ListViewModel = viewModel()) {
-fun ListOverviewPage(navController: NavController) {
     val selectedIndex = remember { mutableStateOf<Int?>(null) }
     val showDialog = remember { mutableStateOf(false) }
     val listNameState = remember { mutableStateOf("") }
     val context = LocalContext.current
     val coroutineScope = rememberCoroutineScope()
-    var selectedIndex by remember { mutableStateOf<Int?>(null) }
     val expanded = remember { mutableStateOf(false) }
 
     Scaffold(
