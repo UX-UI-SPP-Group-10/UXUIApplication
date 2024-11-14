@@ -8,10 +8,12 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -46,6 +48,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.runtime.mutableStateOf
@@ -163,6 +167,7 @@ private fun ListItem(
     navController: NavController,
     selectedIndex: MutableState<Int?>
 ) {
+    val isLiked = remember { mutableStateOf(false) }
     Box(
         modifier = Modifier
             .fillMaxWidth()
@@ -186,10 +191,28 @@ private fun ListItem(
                     )
                 }
         ) {
-            Text(
-                text = "list $index",
-                modifier = Modifier.padding(16.dp)
-            )
+            Row(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(16.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.Top
+            ) {
+                Text(
+                    text = "list $index"
+                )
+
+                Icon(
+                    imageVector =
+                    if (isLiked.value) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
+                    contentDescription = if (isLiked.value) "Liked " else "Add Favourite",
+                    modifier = Modifier
+                        .size(25.dp)
+                        .clickable {
+                            isLiked.value = !isLiked.value
+                        }
+                )
+            }
         }
 
         // Space for ChangeButton if this item is selected
