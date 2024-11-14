@@ -1,4 +1,5 @@
 package com.group10.uxuiapp.domain
+import com.group10.uxuiapp.data.TaskItem
 import com.group10.uxuiapp.data.TaskList
 
 class ListManager {
@@ -10,4 +11,13 @@ class ListManager {
         _allLists.add(newList)
     }
     fun getLists(): List<TaskList> = _allLists
+
+    fun addTaskToList(title: String, taskItem: TaskItem){
+        val taskList = _allLists.find { it.title == title }
+
+        if(taskList != null) {
+            val updateTask = taskList.task + taskItem
+            taskList.task = updateTask
+        }
+    }
 }
