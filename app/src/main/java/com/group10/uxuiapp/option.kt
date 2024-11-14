@@ -33,6 +33,7 @@ fun ChangeButton(onClose: () -> Unit) {
         .padding(8.dp)
     ) {
         Row {
+            // Close Button: Closes the change button
             Button(
                 onClick = onClose,
                 modifier = Modifier
@@ -53,6 +54,7 @@ fun ChangeButton(onClose: () -> Unit) {
 
             Spacer(modifier = Modifier.width(8.dp))
 
+            // GIF button: Add a GIF to the list - NOT WORKING
             Button(
                 onClick = {},
                 modifier = Modifier
@@ -73,6 +75,7 @@ fun ChangeButton(onClose: () -> Unit) {
 
             Spacer(modifier = Modifier.width(8.dp))
 
+            // Edit button: Edit name of the list (maybe color?) - NOT WORKING
             Button(
                 onClick = {},
                 modifier = Modifier
@@ -93,6 +96,7 @@ fun ChangeButton(onClose: () -> Unit) {
 
             Spacer(modifier = Modifier.width(8.dp))
 
+            // Delete button: Delete a list - NOT WORKING
             Button(
                 onClick = {},
                 modifier = Modifier
