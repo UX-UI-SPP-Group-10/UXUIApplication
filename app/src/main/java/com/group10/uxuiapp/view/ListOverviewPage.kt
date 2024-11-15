@@ -63,6 +63,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.group10.uxuiapp.view_model.ListViewModel
 import android.util.Log
 import android.widget.Toast
+import com.group10.uxuiapp.data.TaskList
 
 // Main ListOverviewPage with Scaffold and LazyColumn
 @OptIn(ExperimentalMaterial3Api::class)
@@ -297,6 +298,22 @@ private fun AddNewListButton(onClick: () -> Unit) {
             )
         }
     }
+}
+
+// just a previerw
+@Preview(showBackground = true)
+@Composable
+fun ListOverviewPagePreview() {
+    // Create and set up the ViewModel inline with mock data
+    val viewModel = ListViewModel().apply {
+        lists.value = listOf(
+            TaskList(index = 0, title = "List 1"),
+            TaskList(index = 1, title = "List 2"),
+            TaskList(index = 2, title = "List 3"),
+        )
+    }
+
+    ListOverviewPage(navigateTo = {}, viewModel = viewModel)
 }
 
 
