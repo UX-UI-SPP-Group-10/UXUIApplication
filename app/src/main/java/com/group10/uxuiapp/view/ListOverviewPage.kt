@@ -181,7 +181,6 @@ private fun TopAppBarWithMenu() {
     )
 }
 
-// ListItem composable for each item in the list
 @Composable
 private fun ListItem(
     index: Int,
@@ -190,7 +189,10 @@ private fun ListItem(
     selectedIndex: MutableState<Int?>,
     viewModel: ListViewModel
 ) {
-    val isLiked = remember { mutableStateOf(false) }
+    val taskList = viewModel.lists.value.find { it.index == index }
+
+    // Check if the taskList is not null before accessing isLiked
+    val isLiked = remember { mutableStateOf(taskList?.isLiked ?: false) }
 
     // Wrapper Box for list item
     Box(
@@ -227,13 +229,16 @@ private fun ListItem(
                     color = Color.White
                 )
 
+                // Heart Icon with dynamic color change based on isLiked
                 Icon(
                     imageVector = if (isLiked.value) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
                     contentDescription = if (isLiked.value) "Liked" else "Add Favorite",
                     modifier = Modifier
                         .size(25.dp)
                         .clickable {
+                            // Toggle liked status in ViewModel
                             isLiked.value = !isLiked.value
+                            viewModel.toggleLikedStatus(index) // Update the global state as well
                         },
                     tint = if (isLiked.value) Color.Red else Color.White
                 )
@@ -265,6 +270,8 @@ private fun ListItem(
         Spacer(modifier = Modifier.height(24.dp))
     }
 }
+
+
 
 // Floating Action Button composable for adding a new list item
 @Composable
