@@ -15,18 +15,25 @@ fun MainNavigation() {
     val navController = rememberNavController()
     val viewModel: ListViewModel = viewModel()
 
-    NavHost(navController = navController, startDestination = "ListOverview") {
-        composable("ListOverview") {
-            ListOverviewPage(navController = navController, viewModel = viewModel)
+    // Use your Screen sealed class to set up the NavHost
+    NavHost(navController = navController, startDestination = Screen.ListOverview.route) {
+        composable(Screen.ListOverview.route) {
+            ListOverviewPage(viewModel = viewModel, navigateTo = { route ->
+                navController.navigate(route)
+            })
         }
-        composable("taskList/{taskId}") { backStackEntry ->
+        composable(Screen.TaskList.route) { backStackEntry ->
             val taskId = backStackEntry.arguments?.getString("taskId") ?: "Unknown"
-            TaskPage(navController = navController, taskId = taskId, onNavigateBack = { navController.popBackStack() }, viewModel = viewModel)
+            TaskPage(
+                taskId = taskId,
+                onNavigateBack = { navController.popBackStack() },
+                viewModel = viewModel
+            )
         }
-
     }
 }
 
-fun navigateToTask(navController: NavController, taskId: String) {
-    navController.navigate("taskList/$taskId")
+sealed class Screen(val route: String) {
+    object ListOverview : Screen("ListOverview")
+    object TaskList : Screen("taskList/{taskId}")
 }

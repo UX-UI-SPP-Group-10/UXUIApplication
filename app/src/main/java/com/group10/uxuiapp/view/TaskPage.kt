@@ -44,7 +44,7 @@ import com.group10.uxuiapp.view_model.ListViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun TaskPage(navController: NavController, taskId: String, onNavigateBack: () -> Unit, viewModel: ListViewModel) {
+fun TaskPage(taskId: String, onNavigateBack: () -> Unit, viewModel: ListViewModel) {
     val context = LocalContext.current
     var n: Int = 1
     val task = viewModel.lists.value.find { it.index.toString() == taskId }

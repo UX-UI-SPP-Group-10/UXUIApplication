@@ -67,7 +67,7 @@ import android.widget.Toast
 // Main ListOverviewPage with Scaffold and LazyColumn
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ListOverviewPage(navController: NavController, viewModel: ListViewModel) {
+fun ListOverviewPage(navigateTo: (route: String) -> Unit, viewModel: ListViewModel) {
     val selectedIndex = remember { mutableStateOf<Int?>(null) }
     val showDialog = remember { mutableStateOf(false) }
     val listNameState = remember { mutableStateOf("") }
@@ -98,7 +98,7 @@ fun ListOverviewPage(navController: NavController, viewModel: ListViewModel) {
                 ListItem(
                     index = taskList.index,
                     title = taskList.title,
-                    navController = navController,
+                    navigateTo = navigateTo,
                     selectedIndex = selectedIndex,
                     viewModel = viewModel
                 )
@@ -183,7 +183,7 @@ private fun TopAppBarWithMenu() {
 private fun ListItem(
     index: Int,
     title: String,
-    navController: NavController,
+    navigateTo: (String) -> Unit,
     selectedIndex: MutableState<Int?>,
     viewModel: ListViewModel
 ) {
@@ -204,7 +204,7 @@ private fun ListItem(
                 .pointerInput(Unit) {
                     detectTapGestures(
                         onTap = {
-                            navController.navigate("taskList/$index")
+                            navigateTo("taskList/$index")
                         },
                         onLongPress = {
                             selectedIndex.value = index // Set selectedIndex on long press
