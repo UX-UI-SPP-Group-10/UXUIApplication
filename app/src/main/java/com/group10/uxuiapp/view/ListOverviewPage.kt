@@ -133,15 +133,17 @@ private fun TopAppBarWithMenu() {
     val expanded = remember { mutableStateOf(false) }
 
     TopAppBar(
-        title = { Text("List Overview") },
+        title = {},
         modifier = Modifier.padding(8.dp),
-        actions = {
+        navigationIcon = {
             IconButton(onClick = {
                 Toast.makeText(context, "Search clicked", Toast.LENGTH_SHORT).show()
             }) {
                 Icon(Icons.Filled.Search, contentDescription = "Search")
             }
-            IconButton(onClick =  { expanded.value = true }) {
+        },
+        actions = {
+            IconButton(onClick = { expanded.value = true }) {
                 Icon(Icons.Filled.Settings, contentDescription = "Settings")
             }
             DropdownMenu(
