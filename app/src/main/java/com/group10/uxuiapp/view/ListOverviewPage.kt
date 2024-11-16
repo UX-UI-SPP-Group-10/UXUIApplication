@@ -63,6 +63,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.group10.uxuiapp.view_model.ListViewModel
 import android.util.Log
 import android.widget.Toast
+import androidx.compose.material.icons.filled.MoreVert
 import com.group10.uxuiapp.data.TaskList
 
 // Main ListOverviewPage with Scaffold and LazyColumn
@@ -141,10 +142,8 @@ private fun TopAppBarWithMenu() {
             }) {
                 Icon(Icons.Filled.Search, contentDescription = "Search")
             }
-        },
-        actions = {
-            IconButton(onClick = { expanded.value = true }) {
-                Icon(Icons.Filled.Settings, contentDescription = "Settings")
+            IconButton(onClick =  { expanded.value = true }) {
+                Icon(Icons.Filled.MoreVert, contentDescription = "MoreVert")
             }
             DropdownMenu(
                 expanded = expanded.value,
@@ -181,6 +180,7 @@ private fun TopAppBarWithMenu() {
     )
 }
 
+// ListItem composable for each item in the list
 @Composable
 private fun ListItem(
     index: Int,

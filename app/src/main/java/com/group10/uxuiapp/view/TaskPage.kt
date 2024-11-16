@@ -9,7 +9,9 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -37,6 +39,8 @@ import androidx.navigation.NavController
 import com.group10.uxuiapp.R
 import kotlinx.coroutines.Job
 import androidx.compose.material3.Checkbox
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Text
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
@@ -48,6 +52,7 @@ fun TaskPage(taskId: String, onNavigateBack: () -> Unit, viewModel: ListViewMode
     val context = LocalContext.current
     var n: Int = 1
     val task = viewModel.lists.value.find { it.index.toString() == taskId }
+    val expanded = remember { mutableStateOf(false) }
     if(task == null) {
         Toast.makeText(context, "Task not found", Toast.LENGTH_SHORT).show()
         onNavigateBack()
@@ -72,6 +77,40 @@ fun TaskPage(taskId: String, onNavigateBack: () -> Unit, viewModel: ListViewMode
                         Toast.makeText(context, "Search clicked", Toast.LENGTH_SHORT).show()
                     }) {
                         Icon(Icons.Filled.Search, contentDescription = "Search")
+                    }
+                    IconButton(onClick =  {
+                        expanded.value = true
+                    }){
+                        Icon(Icons.Filled.MoreVert, contentDescription = "MoreVert")
+                    }
+                    DropdownMenu(
+                        expanded = expanded.value,
+                        onDismissRequest = { expanded.value = false }
+                    ) {
+                        DropdownMenuItem(
+                            text = { Text("Option 1") },
+                            onClick = {
+                                expanded.value = false
+                                Toast.makeText(context, "Option 1 clicked", Toast.LENGTH_SHORT).show()
+                            },
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                        DropdownMenuItem(
+                            text = { Text("Option 2") },
+                            onClick = {
+                                expanded.value = false
+                                Toast.makeText(context, "Option 2 clicked", Toast.LENGTH_SHORT).show()
+                            },
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                        DropdownMenuItem(
+                            text = { Text("Option 3") },
+                            onClick = {
+                                expanded.value = false
+                                Toast.makeText(context, "Option 3 clicked", Toast.LENGTH_SHORT).show()
+                            },
+                            modifier = Modifier.fillMaxWidth()
+                        )
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(),
