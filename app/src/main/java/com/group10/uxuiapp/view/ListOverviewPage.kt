@@ -158,9 +158,6 @@ private fun TopAppBarWithMenu() {
 }
 
 
-
-
-
 // ListItem composable for each item in the list
 @Composable
 private fun ListItem(
@@ -240,7 +237,7 @@ private fun ListItem(
 }
 
 @Composable
-private fun LikedButton( index: Int, viewModel: ListViewModel, taskList: TaskList?) {
+private fun LikedButton(index: Int, viewModel: ListViewModel, taskList: TaskList?) {
     val isLiked = remember { mutableStateOf(taskList?.isLiked == true) }
     // Heart Icon with dynamic color change based on isLiked
     Icon(

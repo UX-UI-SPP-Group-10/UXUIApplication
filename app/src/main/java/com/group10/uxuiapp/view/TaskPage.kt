@@ -44,6 +44,8 @@ import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Text
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.tooling.preview.Preview
+import com.group10.uxuiapp.data.TaskList
 import com.group10.uxuiapp.view.component.SettingsButton
 import com.group10.uxuiapp.view_model.ListViewModel
 
@@ -113,4 +115,18 @@ fun TaskPage(taskId: String, onNavigateBack: () -> Unit, viewModel: ListViewMode
             }
         }
     }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun TaskPagePreview() {
+    // Create and set up the ViewModel inline with mock data
+    val viewModel = ListViewModel().apply {
+        lists.value = listOf(
+            TaskList(index = 1, title = "Sample Task 1"),
+            TaskList(index = 2, title = "Sample Task 2")
+        )
+    }
+
+    TaskPage(taskId = "1", onNavigateBack = {}, viewModel = viewModel)
 }
