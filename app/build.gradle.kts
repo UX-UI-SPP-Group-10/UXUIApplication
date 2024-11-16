@@ -6,7 +6,7 @@ plugins {
 
 android {
     namespace = "com.group10.uxuiapp"
-    compileSdk = 34
+    compileSdk = 35
 
     defaultConfig {
         applicationId = "com.group10.uxuiapp"
@@ -40,8 +40,6 @@ android {
 }
 
 dependencies {
-    val navVersion = "2.8.3"
-
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
@@ -58,15 +56,18 @@ dependencies {
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
 
-    // Essential for Jetpack Compose navigation
-    implementation("androidx.navigation:navigation-compose:$navVersion")
+    // Jetpack Compose Navigation
+    implementation(libs.androidx.navigation.compose)
 
-    // Optional: ViewModel integration for Compose navigation
-    implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.6.0")
+    // ViewModel Integration
+    implementation(libs.androidx.lifecycle.viewmodel.compose)
 
-    // Optional: Navigation animations
-    implementation("com.google.accompanist:accompanist-navigation-animation:0.33.0-alpha")
+    // Testing Navigation
+    androidTestImplementation(libs.androidx.navigation.testing)
 
-    // Testing Navigation (optional but already included)
-    androidTestImplementation("androidx.navigation:navigation-testing:$navVersion")
+    // Compose Animation
+    implementation(libs.androidx.compose.animation)
+
+
+
 }
