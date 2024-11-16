@@ -63,6 +63,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.group10.uxuiapp.view_model.ListViewModel
 import android.util.Log
 import android.widget.Toast
+import androidx.compose.material.icons.filled.MoreVert
 
 // Main ListOverviewPage with Scaffold and LazyColumn
 @OptIn(ExperimentalMaterial3Api::class)
@@ -141,7 +142,7 @@ private fun TopAppBarWithMenu() {
                 Icon(Icons.Filled.Search, contentDescription = "Search")
             }
             IconButton(onClick =  { expanded.value = true }) {
-                Icon(Icons.Filled.Settings, contentDescription = "Settings")
+                Icon(Icons.Filled.MoreVert, contentDescription = "MoreVert")
             }
             DropdownMenu(
                 expanded = expanded.value,

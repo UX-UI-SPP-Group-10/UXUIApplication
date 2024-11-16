@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -80,7 +81,7 @@ fun TaskPage(taskId: String, onNavigateBack: () -> Unit, viewModel: ListViewMode
                     IconButton(onClick =  {
                         expanded.value = true
                     }){
-                        Icon(Icons.Filled.Settings, contentDescription = "Settings")
+                        Icon(Icons.Filled.MoreVert, contentDescription = "MoreVert")
                     }
                     DropdownMenu(
                         expanded = expanded.value,
