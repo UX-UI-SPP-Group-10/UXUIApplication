@@ -53,7 +53,6 @@ fun TaskPage(taskId: String, onNavigateBack: () -> Unit, viewModel: ListViewMode
     val context = LocalContext.current
     var n: Int = 1
     val task = viewModel.lists.value.find { it.index.toString() == taskId }
-    val expanded = remember { mutableStateOf(false) }
     if(task == null) {
         Toast.makeText(context, "Task not found", Toast.LENGTH_SHORT).show()
         onNavigateBack()

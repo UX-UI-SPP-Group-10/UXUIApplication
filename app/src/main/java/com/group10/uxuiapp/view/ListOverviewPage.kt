@@ -138,11 +138,6 @@ fun ListOverviewPage(navigateTo: (route: String) -> Unit, viewModel: ListViewMod
 @Composable
 private fun TopAppBarWithMenu() {
     val context = LocalContext.current
-    val expanded = remember { mutableStateOf(false) }
-    val rotationAngle by animateFloatAsState(
-        targetValue = if (expanded.value) 90f else 0f,
-        animationSpec = tween(durationMillis = 300)
-    )
 
     TopAppBar(
         title = {},
@@ -178,7 +173,7 @@ private fun ListItem(
     val taskList = viewModel.lists.value.find { it.index == index }
 
     // Check if the taskList is not null before accessing isLiked
-    val isLiked = remember { mutableStateOf(taskList?.isLiked ?: false) }
+
 
     // Wrapper Box for list item
     Box(
@@ -214,20 +209,7 @@ private fun ListItem(
                     text = title,
                     color = Color.White
                 )
-
-                // Heart Icon with dynamic color change based on isLiked
-                Icon(
-                    imageVector = if (isLiked.value) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
-                    contentDescription = if (isLiked.value) "Liked" else "Add Favorite",
-                    modifier = Modifier
-                        .size(25.dp)
-                        .clickable {
-                            // Toggle liked status in ViewModel
-                            isLiked.value = !isLiked.value
-                            viewModel.toggleLikedStatus(index) // Update the global state as well
-                        },
-                    tint = if (isLiked.value) Color.Red else Color.White
-                )
+                LikedButton(index, viewModel, taskList)
             }
         }
 
@@ -255,6 +237,24 @@ private fun ListItem(
     if (selectedIndex.value == index) {
         Spacer(modifier = Modifier.height(24.dp))
     }
+}
+
+@Composable
+private fun LikedButton( index: Int, viewModel: ListViewModel, taskList: TaskList?) {
+    val isLiked = remember { mutableStateOf(taskList?.isLiked == true) }
+    // Heart Icon with dynamic color change based on isLiked
+    Icon(
+        imageVector = if (isLiked.value) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
+        contentDescription = if (isLiked.value) "Liked" else "Add Favorite",
+        modifier = Modifier
+            .size(25.dp)
+            .clickable {
+                // Toggle liked status in ViewModel
+                isLiked.value = !isLiked.value
+                viewModel.toggleLikedStatus(index) // Update the global state as well
+            },
+        tint = if (isLiked.value) Color.Red else Color.White
+    )
 }
 
 
