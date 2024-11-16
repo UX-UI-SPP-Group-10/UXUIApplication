@@ -63,9 +63,14 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.group10.uxuiapp.view_model.ListViewModel
 import android.util.Log
 import android.widget.Toast
+import androidx.compose.animation.animateContentSize
 import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.unit.DpOffset
 import com.group10.uxuiapp.data.TaskList
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
+
 
 // Main ListOverviewPage with Scaffold and LazyColumn
 @OptIn(ExperimentalMaterial3Api::class)
@@ -133,6 +138,10 @@ fun ListOverviewPage(navigateTo: (route: String) -> Unit, viewModel: ListViewMod
 private fun TopAppBarWithMenu() {
     val context = LocalContext.current
     val expanded = remember { mutableStateOf(false) }
+    val rotationAngle by animateFloatAsState(
+        targetValue = if (expanded.value) 90f else 0f,
+        animationSpec = tween(durationMillis = 300)
+    )
 
     TopAppBar(
         title = {},
@@ -145,9 +154,20 @@ private fun TopAppBarWithMenu() {
             }
         },
         actions = {
-            IconButton(onClick =  { expanded.value = true }) {
-                Icon(Icons.Filled.MoreVert, contentDescription = "MoreVert")
+            // Rotating icon on click based on expanded state
+            IconButton(onClick = {
+                expanded.value = !expanded.value // Toggle expanded state
+            }) {
+                Icon(
+                    Icons.Filled.MoreVert,
+                    contentDescription = "MoreVert",
+                    modifier = Modifier
+                        .rotate(rotationAngle) // Rotate based on expanded state
+                        .animateContentSize() // smooth transition when rotating
+                )
             }
+
+            // Dropdown Menu for MoreVert
             DropdownMenu(
                 expanded = expanded.value,
                 onDismissRequest = { expanded.value = false },
@@ -183,6 +203,7 @@ private fun TopAppBarWithMenu() {
         scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
     )
 }
+
 
 
 
