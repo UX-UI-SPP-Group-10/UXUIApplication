@@ -70,6 +70,7 @@ import androidx.compose.ui.unit.DpOffset
 import com.group10.uxuiapp.data.TaskList
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
+import com.group10.uxuiapp.view.component.SettingsButton
 
 
 // Main ListOverviewPage with Scaffold and LazyColumn
@@ -154,50 +155,7 @@ private fun TopAppBarWithMenu() {
             }
         },
         actions = {
-            // Rotating icon on click based on expanded state
-            IconButton(onClick = {
-                expanded.value = !expanded.value // Toggle expanded state
-            }) {
-                Icon(
-                    Icons.Filled.MoreVert,
-                    contentDescription = "MoreVert",
-                    modifier = Modifier
-                        .rotate(rotationAngle) // Rotate based on expanded state
-                        .animateContentSize() // smooth transition when rotating
-                )
-            }
-
-            // Dropdown Menu for MoreVert
-            DropdownMenu(
-                expanded = expanded.value,
-                onDismissRequest = { expanded.value = false },
-                offset = DpOffset(x = (0).dp, y = 0.dp)
-            ) {
-                DropdownMenuItem(
-                    text = { Text("Option 1") },
-                    onClick = {
-                        expanded.value = false
-                        Toast.makeText(context, "Option 1 clicked", Toast.LENGTH_SHORT).show()
-                    },
-                    modifier = Modifier.fillMaxWidth()
-                )
-                DropdownMenuItem(
-                    text = { Text("Option 2") },
-                    onClick = {
-                        expanded.value = false
-                        Toast.makeText(context, "Option 2 clicked", Toast.LENGTH_SHORT).show()
-                    },
-                    modifier = Modifier.fillMaxWidth()
-                )
-                DropdownMenuItem(
-                    text = { Text("Option 3") },
-                    onClick = {
-                        expanded.value = false
-                        Toast.makeText(context, "Option 3 clicked", Toast.LENGTH_SHORT).show()
-                    },
-                    modifier = Modifier.fillMaxWidth()
-                )
-            }
+            SettingsButton(context = context)
         },
         colors = TopAppBarDefaults.topAppBarColors(),
         scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()

@@ -44,6 +44,7 @@ import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Text
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
+import com.group10.uxuiapp.view.component.SettingsButton
 import com.group10.uxuiapp.view_model.ListViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -78,40 +79,7 @@ fun TaskPage(taskId: String, onNavigateBack: () -> Unit, viewModel: ListViewMode
                     }) {
                         Icon(Icons.Filled.Search, contentDescription = "Search")
                     }
-                    IconButton(onClick =  {
-                        expanded.value = true
-                    }){
-                        Icon(Icons.Filled.MoreVert, contentDescription = "MoreVert")
-                    }
-                    DropdownMenu(
-                        expanded = expanded.value,
-                        onDismissRequest = { expanded.value = false }
-                    ) {
-                        DropdownMenuItem(
-                            text = { Text("Option 1") },
-                            onClick = {
-                                expanded.value = false
-                                Toast.makeText(context, "Option 1 clicked", Toast.LENGTH_SHORT).show()
-                            },
-                            modifier = Modifier.fillMaxWidth()
-                        )
-                        DropdownMenuItem(
-                            text = { Text("Option 2") },
-                            onClick = {
-                                expanded.value = false
-                                Toast.makeText(context, "Option 2 clicked", Toast.LENGTH_SHORT).show()
-                            },
-                            modifier = Modifier.fillMaxWidth()
-                        )
-                        DropdownMenuItem(
-                            text = { Text("Option 3") },
-                            onClick = {
-                                expanded.value = false
-                                Toast.makeText(context, "Option 3 clicked", Toast.LENGTH_SHORT).show()
-                            },
-                            modifier = Modifier.fillMaxWidth()
-                        )
-                    }
+                    SettingsButton(context = context)
                 },
                 colors = TopAppBarDefaults.topAppBarColors(),
                 scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
