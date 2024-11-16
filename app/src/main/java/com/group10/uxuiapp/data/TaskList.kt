@@ -1,10 +1,8 @@
 package com.group10.uxuiapp.data
 
-import kotlin.collections.List
-
 data class TaskList(
     var index: Int,
     var title: String,
-    var task: List<TaskItem> = emptyList(),
+    var task: MutableList<TaskItem> = mutableListOf(),
     var isLiked: Boolean = false
 )
