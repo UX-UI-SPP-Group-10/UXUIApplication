@@ -10,8 +10,10 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.outlined.AddCircle
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -39,14 +41,19 @@ import androidx.navigation.NavController
 import com.group10.uxuiapp.R
 import kotlinx.coroutines.Job
 import androidx.compose.material3.Checkbox
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Text
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.tooling.preview.Preview
+import com.group10.uxuiapp.data.TaskList
+import com.group10.uxuiapp.view.component.SettingsButton
 import com.group10.uxuiapp.view_model.ListViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun TaskPage(navController: NavController, taskId: String, onNavigateBack: () -> Unit, viewModel: ListViewModel) {
+fun TaskPage(taskId: String, onNavigateBack: () -> Unit, viewModel: ListViewModel) {
     val context = LocalContext.current
     var n: Int = 1
     val task = viewModel.lists.value.find { it.index.toString() == taskId }
@@ -75,6 +82,7 @@ fun TaskPage(navController: NavController, taskId: String, onNavigateBack: () ->
                     }) {
                         Icon(Icons.Filled.Search, contentDescription = "Search")
                     }
+                    SettingsButton(context = context)
                 },
                 colors = TopAppBarDefaults.topAppBarColors(),
                 scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
@@ -120,4 +128,18 @@ fun TaskPage(navController: NavController, taskId: String, onNavigateBack: () ->
             }
         }
     }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun TaskPagePreview() {
+    // Create and set up the ViewModel inline with mock data
+    val viewModel = ListViewModel().apply {
+        lists.value = listOf(
+            TaskList(index = 1, title = "Sample Task 1"),
+            TaskList(index = 2, title = "Sample Task 2")
+        )
+    }
+
+    TaskPage(taskId = "1", onNavigateBack = {}, viewModel = viewModel)
 }

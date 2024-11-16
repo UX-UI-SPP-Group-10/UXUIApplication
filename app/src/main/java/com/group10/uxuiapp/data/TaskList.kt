@@ -5,5 +5,6 @@ import kotlin.collections.List
 data class TaskList(
     var index: Int,
     var title: String,
-    var task: List<TaskItem> = emptyList()
+    var task: List<TaskItem> = emptyList(),
+    var isLiked: Boolean = false
 )

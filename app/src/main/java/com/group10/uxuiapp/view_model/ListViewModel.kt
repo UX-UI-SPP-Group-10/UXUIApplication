@@ -34,4 +34,9 @@ class ListViewModel : ViewModel() {
         listManager.updateTitle(index, title)
         lists.value = listManager.getLists()
     }
+
+    fun toggleLikedStatus(index: Int) {
+        listManager.toggleLikedStatus(index) // Toggle liked status in ListManager
+        lists.value = listManager.getLists() // Update UI lists
+    }
 }

@@ -1,6 +1,6 @@
 package com.group10.uxuiapp.view
 
-import android.widget.Toast
+
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -61,18 +61,38 @@ import androidx.compose.ui.unit.sp
 import com.group10.uxuiapp.view.component.ListNameInputDialog
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.group10.uxuiapp.view_model.ListViewModel
+import android.util.Log
+import android.widget.Toast
+import androidx.compose.animation.animateContentSize
+import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.unit.DpOffset
+import com.group10.uxuiapp.data.TaskList
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
+import com.group10.uxuiapp.view.component.SettingsButton
+
 
 // Main ListOverviewPage with Scaffold and LazyColumn
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ListOverviewPage(navController: NavController, viewModel: ListViewModel) {
+fun ListOverviewPage(navigateTo: (route: String) -> Unit, viewModel: ListViewModel) {
     val selectedIndex = remember { mutableStateOf<Int?>(null) }
     val showDialog = remember { mutableStateOf(false) }
     val listNameState = remember { mutableStateOf("") }
     val context = LocalContext.current
-    val listitems = remember { mutableStateListOf<String>() } // UI display of the list
-    val coroutineScope = rememberCoroutineScope()
     val expanded = remember { mutableStateOf(false) }
+
+    // Debugging statement for selectedIndex and list size
+    Log.d("ListOverviewPage", "Initial selectedIndex: ${selectedIndex.value}, list size: ${viewModel.lists.value.size}")
+
+    // Use LaunchedEffect to reset selectedIndex if list size changes
+    LaunchedEffect(viewModel.lists.value.size) {
+        if (selectedIndex.value != null && selectedIndex.value!! >= viewModel.lists.value.size) {
+            Log.d("ListOverviewPage", "Resetting selectedIndex because it's out of bounds")
+            selectedIndex.value = null
+        }
+    }
 
     Scaffold(
         topBar = { TopAppBarWithMenu() },
@@ -87,8 +107,9 @@ fun ListOverviewPage(navController: NavController, viewModel: ListViewModel) {
                 ListItem(
                     index = taskList.index,
                     title = taskList.title,
-                    navController = navController,
-                    selectedIndex = selectedIndex
+                    navigateTo = navigateTo,
+                    selectedIndex = selectedIndex,
+                    viewModel = viewModel
                 )
             }
         }
@@ -112,76 +133,51 @@ fun ListOverviewPage(navController: NavController, viewModel: ListViewModel) {
     }
 }
 
-
 // Top app bar with search and settings icons and dropdown menu
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun TopAppBarWithMenu() {
     val context = LocalContext.current
-    val expanded = remember { mutableStateOf(false) }
 
     TopAppBar(
-        title = { Text("List Overview") },
+        title = {},
         modifier = Modifier.padding(8.dp),
-        actions = {
+        navigationIcon = {
             IconButton(onClick = {
                 Toast.makeText(context, "Search clicked", Toast.LENGTH_SHORT).show()
             }) {
                 Icon(Icons.Filled.Search, contentDescription = "Search")
             }
-            IconButton(onClick =  { expanded.value = true }) {
-                Icon(Icons.Filled.Settings, contentDescription = "Settings")
-            }
-            DropdownMenu(
-                expanded = expanded.value,
-                onDismissRequest = { expanded.value = false }
-            ) {
-                DropdownMenuItem(
-                    text = { Text("Option 1") },
-                    onClick = {
-                        expanded.value = false
-                        Toast.makeText(context, "Option 1 clicked", Toast.LENGTH_SHORT).show()
-                    },
-                    modifier = Modifier.fillMaxWidth()
-                )
-                DropdownMenuItem(
-                    text = { Text("Option 2") },
-                    onClick = {
-                        expanded.value = false
-                        Toast.makeText(context, "Option 2 clicked", Toast.LENGTH_SHORT).show()
-                    },
-                    modifier = Modifier.fillMaxWidth()
-                )
-                DropdownMenuItem(
-                    text = { Text("Option 3") },
-                    onClick = {
-                        expanded.value = false
-                        Toast.makeText(context, "Option 3 clicked", Toast.LENGTH_SHORT).show()
-                    },
-                    modifier = Modifier.fillMaxWidth()
-                )
-            }
+        },
+        actions = {
+            SettingsButton(context = context)
         },
         colors = TopAppBarDefaults.topAppBarColors(),
         scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
     )
 }
 
+
 // ListItem composable for each item in the list
 @Composable
 private fun ListItem(
     index: Int,
     title: String,
-    navController: NavController,
-    selectedIndex: MutableState<Int?>
+    navigateTo: (String) -> Unit,
+    selectedIndex: MutableState<Int?>,
+    viewModel: ListViewModel
 ) {
-    val isLiked = remember { mutableStateOf(false) }
+    val taskList = viewModel.lists.value.find { it.index == index }
+
+    // Check if the taskList is not null before accessing isLiked
+
+
+    // Wrapper Box for list item
     Box(
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = 16.dp, vertical = 4.dp)
     ) {
-        // Main list item box
         Box(
             modifier = Modifier
                 .fillMaxWidth()
@@ -191,10 +187,10 @@ private fun ListItem(
                 .pointerInput(Unit) {
                     detectTapGestures(
                         onTap = {
-                            navController.navigate("taskList/$index")
+                            navigateTo("taskList/$index")
                         },
                         onLongPress = {
-                            selectedIndex.value = index
+                            selectedIndex.value = index // Set selectedIndex on long press
                         }
                     )
                 }
@@ -207,41 +203,58 @@ private fun ListItem(
                 verticalAlignment = Alignment.Top
             ) {
                 Text(
-                    text = title
+                    text = title,
+                    color = Color.White
                 )
-
-                Icon(
-                    imageVector =
-                    if (isLiked.value) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
-                    contentDescription = if (isLiked.value) "Liked " else "Add Favourite",
-                    modifier = Modifier
-                        .size(25.dp)
-                        .clickable {
-                            isLiked.value = !isLiked.value
-                        }
-                )
+                LikedButton(index, viewModel, taskList)
             }
         }
 
-        // Space for ChangeButton if this item is selected
+        // Show ChangeButton when the item is selected
         if (selectedIndex.value == index) {
-            // Place the ChangeButton in the extra space at the bottom center
             Box(
                 modifier = Modifier
                     .align(Alignment.BottomCenter)
                     .offset(y = 24.dp)
             ) {
-                ChangeButton(onClose = { selectedIndex.value = null })
+                ChangeButton(
+                    onClose = {
+                        selectedIndex.value = null
+                    },
+                    onDelete = {
+                        viewModel.removeList(index)
+                        selectedIndex.value = null
+                    }
+                )
             }
-
         }
     }
 
-    // Pushes the next list further down to fully show the changebutton
+    // Spacer to push next list item down when selected
     if (selectedIndex.value == index) {
         Spacer(modifier = Modifier.height(24.dp))
     }
 }
+
+@Composable
+private fun LikedButton(index: Int, viewModel: ListViewModel, taskList: TaskList?) {
+    val isLiked = remember { mutableStateOf(taskList?.isLiked == true) }
+    // Heart Icon with dynamic color change based on isLiked
+    Icon(
+        imageVector = if (isLiked.value) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
+        contentDescription = if (isLiked.value) "Liked" else "Add Favorite",
+        modifier = Modifier
+            .size(25.dp)
+            .clickable {
+                // Toggle liked status in ViewModel
+                isLiked.value = !isLiked.value
+                viewModel.toggleLikedStatus(index) // Update the global state as well
+            },
+        tint = if (isLiked.value) Color.Red else Color.White
+    )
+}
+
+
 
 // Floating Action Button composable for adding a new list item
 @Composable
@@ -278,4 +291,21 @@ private fun AddNewListButton(onClick: () -> Unit) {
         }
     }
 }
+
+// just a previerw
+@Preview(showBackground = true)
+@Composable
+fun ListOverviewPagePreview() {
+    // Create and set up the ViewModel inline with mock data
+    val viewModel = ListViewModel().apply {
+        lists.value = listOf(
+            TaskList(index = 0, title = "List 1"),
+            TaskList(index = 1, title = "List 2"),
+            TaskList(index = 2, title = "List 3"),
+        )
+    }
+
+    ListOverviewPage(navigateTo = {}, viewModel = viewModel)
+}
+
 
