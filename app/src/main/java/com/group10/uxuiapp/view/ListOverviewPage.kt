@@ -145,8 +145,8 @@ private fun TopAppBarWithMenu() {
             }
         },
         actions = {
-            IconButton(onClick = { expanded.value = true }) {
-                Icon(Icons.Filled.Settings, contentDescription = "Settings")
+            IconButton(onClick =  { expanded.value = true }) {
+                Icon(Icons.Filled.MoreVert, contentDescription = "MoreVert")
             }
             DropdownMenu(
                 expanded = expanded.value,
