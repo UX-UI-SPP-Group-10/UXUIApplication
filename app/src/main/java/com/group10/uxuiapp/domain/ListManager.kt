@@ -29,21 +29,20 @@ class ListManager {
 
 
     fun removeList(index: Int) {
-        val list = _allLists.getOrNull(index) // Safely fetch the list or null if index is invalid
-        if (list?.taskItemList.isNullOrEmpty()) {
-            // Either the list doesn't exist, or the task list is empty
-            Log.e("ListManager", "No valid task list at index $index, or the list is empty.")
+        if (index < 0 || index >= _allLists.size) {
+            Log.e("ListManager", "Invalid index $index to remove list.")
             return
         }
-        // Re-index the lists
+
+        // Remove the list at the specified index
+        _allLists.removeAt(index)
+
+        // Re-index the remaining lists
         _allLists.forEachIndexed { i, taskList ->
             taskList.index = i
         }
-
-        // Notify Compose about the change
-        _allLists.clear()
-        _allLists.addAll(_allLists)  // Trigger recomposition
     }
+
 
     fun updateTitle(index: Int, title: String) {
         val list = _allLists.getOrNull(index) // Safely fetch the list or null if index is invalid
