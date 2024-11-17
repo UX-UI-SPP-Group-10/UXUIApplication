@@ -27,7 +27,7 @@ fun SettingsButton(context: Context) {
     val expanded = remember { mutableStateOf(false) }
     val rotationAngle by animateFloatAsState(
         targetValue = if (expanded.value) 90f else 0f,
-        animationSpec = tween(durationMillis = 300)
+        animationSpec = tween(durationMillis = 300), label = ""
     )
     IconButton(onClick = {
         expanded.value = !expanded.value // Toggle expanded state

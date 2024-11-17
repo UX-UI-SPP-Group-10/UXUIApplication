@@ -2,17 +2,11 @@ package com.group10.uxuiapp.domain
 
 import android.util.Log
 import androidx.compose.runtime.mutableStateListOf
-import com.group10.uxuiapp.data.TaskItem
 import com.group10.uxuiapp.data.TaskList
 
 class ListManager {
     private val _allLists = mutableStateListOf<TaskList>()
     fun getLists(): List<TaskList> = _allLists
-
-    fun getTaskItemList(index: Int): List<TaskItem> {
-        val taskList = _allLists[index]
-        return taskList.taskItemList
-    }
 
     fun addList(title: String) {
         val newIndex = _allLists.size
@@ -20,21 +14,13 @@ class ListManager {
         _allLists.add(newList)
     }
 
-    fun addTaskToList(index: Int, taskName: String) {
-        val taskList = _allLists.find { it.index == index }
-
-        taskList?.let {
-            val newTask = TaskItem(label = taskName)
-
-            it.taskItemList.add(newTask)
-
-        }
-        Log.d("ListManager", "Task added to list $index, All tasks: ${taskList?.taskItemList?.size}")
-    }
-
     fun removeList(index: Int) {
-        _allLists.removeIf { it.index == index }
-
+        val list = _allLists.getOrNull(index) // Safely fetch the list or null if index is invalid
+        if (list?.taskItemList.isNullOrEmpty()) {
+            // Either the list doesn't exist, or the task list is empty
+            Log.e("ListManager", "No valid task list at index $index, or the list is empty.")
+            return
+        }
         // Re-index the lists
         _allLists.forEachIndexed { i, taskList ->
             taskList.index = i
@@ -46,8 +32,13 @@ class ListManager {
     }
 
     fun updateTitle(index: Int, title: String) {
-        val list = _allLists.find { it.index == index }
-        list?.title = title
+        val list = _allLists.getOrNull(index) // Safely fetch the list or null if index is invalid
+        if (list?.taskItemList.isNullOrEmpty()) {
+            // Either the list doesn't exist, or the task list is empty
+            Log.e("ListManager", "No valid task list at index $index, or the list is empty.")
+            return
+        }
+        list.title = title
 
         // Notify Compose about the change
         _allLists.clear()
@@ -55,11 +46,18 @@ class ListManager {
     }
 
     fun toggleLikedStatus(index: Int) {
-        val list = _allLists.find { it.index == index }
-        list?.isLiked = list?.isLiked?.not() ?: false
+        val list = _allLists.getOrNull(index) // Safely fetch the list or null if index is invalid
+        if (list?.taskItemList.isNullOrEmpty()) {
+            // Either the list doesn't exist, or the task list is empty
+            Log.e("ListManager", "No valid task list at index $index, or the list is empty.")
+            return
+        }
+        list.isLiked = list.isLiked.not()
 
         // Notify Compose about the change
         _allLists.clear()
         _allLists.addAll(_allLists)  // Trigger recomposition
     }
+
+
 }
