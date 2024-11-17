@@ -52,7 +52,7 @@ fun MainNavigation() {
                 scaleOut(targetScale = 0.5f, animationSpec = tween(700, easing = FastOutSlowInEasing)) + fadeOut(animationSpec = tween(300))
             }
         ) { backStackEntry ->
-            val taskId = backStackEntry.arguments?.getString("taskId") ?: "Unknown"
+            val taskId = backStackEntry.arguments?.getString("taskId")?.toIntOrNull() ?: -1
             TaskPage(
                 taskId = taskId,
                 onNavigateBack = { navController.popBackStack() },

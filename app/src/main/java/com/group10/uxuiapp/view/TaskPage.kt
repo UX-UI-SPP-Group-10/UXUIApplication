@@ -39,14 +39,13 @@ import com.group10.uxuiapp.view_model.ListViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun TaskPage(taskId: String, onNavigateBack: () -> Unit, viewModel: ListViewModel) {
+fun TaskPage(taskId: Int, onNavigateBack: () -> Unit, viewModel: ListViewModel) {
     val context = LocalContext.current
 
     // Find the task with the given ID
-    val task = viewModel.lists.value.find { it.index.toString() == taskId }
+    val task = viewModel.lists.value[taskId]
 
     if (task == null) {
-        // Show a Toast if the task is not found and navigate back
         Toast.makeText(context, "Task not found", Toast.LENGTH_SHORT).show()
         onNavigateBack()
         return
@@ -94,8 +93,8 @@ fun TaskPage(taskId: String, onNavigateBack: () -> Unit, viewModel: ListViewMode
     ) { innerPadding ->
         // LazyColumn will only invoke composable functions within it
         LazyColumn(modifier = Modifier.fillMaxSize(), contentPadding = innerPadding) {
-            items(task.task) { taskItem ->
-                TaskRow(taskItem)  // Show each task row inside a composable
+            items(task.taskItemList) { taskItem ->
+                TaskRow(taskItem)
             }
         }
     }
@@ -130,10 +129,10 @@ fun TaskPagePreview() {
     // Create and set up the ViewModel inline with mock data
     val viewModel = ListViewModel().apply {
         lists.value = listOf(
-            TaskList(index = 1, title = "Sample Task 1", task = mutableListOf(TaskItem(label = "Task 1"))),
-            TaskList(index = 2, title = "Sample Task 2", task = mutableListOf(TaskItem(label = "Task 2")))
+            TaskList(index = 1, title = "Sample Task 1", taskItemList = mutableListOf(TaskItem(label = "Task 1"))),
+            TaskList(index = 2, title = "Sample Task 2", taskItemList = mutableListOf(TaskItem(label = "Task 2")))
         )
     }
 
-    TaskPage(taskId = "1", onNavigateBack = {}, viewModel = viewModel)
+    TaskPage(taskId = 1, onNavigateBack = {}, viewModel = viewModel)
 }

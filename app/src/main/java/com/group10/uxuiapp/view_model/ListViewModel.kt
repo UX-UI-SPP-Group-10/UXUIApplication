@@ -21,10 +21,10 @@ class ListViewModel : ViewModel() {
     }
 
     fun addTaskToList(taskListIndex: Int, newTask: TaskItem) {
-        val taskList = lists.value.find { it.index == taskListIndex }
-        listManager.addTaskToList(taskListIndex, newTask.label)
-        lists.value = lists.value.toList()
-    }
+        lists.value[taskListIndex].taskItemList.add(newTask)
+        lists.value = listManager.getLists()
+   }
+
 
 
     fun removeList(index: Int) {

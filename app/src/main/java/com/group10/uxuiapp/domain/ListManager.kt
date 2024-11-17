@@ -9,6 +9,11 @@ class ListManager {
     private val _allLists = mutableStateListOf<TaskList>()
     fun getLists(): List<TaskList> = _allLists
 
+    fun getTaskItemList(index: Int): List<TaskItem> {
+        val taskList = _allLists[index]
+        return taskList.taskItemList
+    }
+
     fun addList(title: String) {
         val newIndex = _allLists.size
         val newList = TaskList(index = newIndex, title = title)
@@ -21,10 +26,10 @@ class ListManager {
         taskList?.let {
             val newTask = TaskItem(label = taskName)
 
-            it.task.add(newTask)
+            it.taskItemList.add(newTask)
 
         }
-        Log.d("ListManager", "Task added to list $index, All tasks: ${taskList?.task?.size}")
+        Log.d("ListManager", "Task added to list $index, All tasks: ${taskList?.taskItemList?.size}")
     }
 
     fun removeList(index: Int) {
