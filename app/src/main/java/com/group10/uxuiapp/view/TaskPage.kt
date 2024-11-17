@@ -90,7 +90,7 @@ fun TaskPage(taskId: Int, onNavigateBack: () -> Unit, viewModel: ListViewModel) 
             // Add Task button
             IconButton(onClick = {
                 Log.d("TaskPage", "Add task button clicked for taskId: $taskId")
-                val newTask = TaskItem(label = "New Task")
+                val newTask = TaskItem(label = "")
                 viewModel.addTaskToList(taskId, newTask)
             }, modifier = Modifier
                 .padding(bottom = 20.dp)
@@ -120,6 +120,8 @@ fun TaskPage(taskId: Int, onNavigateBack: () -> Unit, viewModel: ListViewModel) 
 @Composable
 fun TaskRow(task: TaskItem, taskListIndex: Int, taskIndex: Int, viewModel: ListViewModel) {
     var isChecked by remember { mutableStateOf(task.isComplete) }
+    var text by remember { mutableStateOf(task.label) }
+
 
     Row(
         modifier = Modifier
@@ -136,9 +138,15 @@ fun TaskRow(task: TaskItem, taskListIndex: Int, taskIndex: Int, viewModel: ListV
         )
 
         TextField(
-            value = task.label,
-            onValueChange = { task.label = it },
-            modifier = Modifier.padding(10.dp).fillMaxWidth()
+            value = text,
+            onValueChange = {
+                text = it
+                // Update the task's label in the ViewModel as well
+                viewModel.updateTaskLabel(taskListIndex, taskIndex, it)
+            },
+            modifier = Modifier
+                .padding(10.dp)
+                .fillMaxWidth()
         )
     }
 }

@@ -21,13 +21,6 @@ class ListViewModel : ViewModel() {
         lists.value = listManager.getLists()
     }
 
-    fun addTaskToList(taskListIndex: Int, newTask: TaskItem) {
-        listManager.addTaskToList(taskListIndex, newTask)
-        lists.value = listManager.getLists()
-   }
-
-
-
     fun removeList(index: Int) {
         listManager.removeList(index)
         lists.value = listManager.getLists()
@@ -45,6 +38,16 @@ class ListViewModel : ViewModel() {
 
     fun toggleIsCompletedStatus(taskListIndex: Int, taskIndex: Int) {
         listManager.toggleIsCompleted(taskListIndex, taskIndex)
+        lists.value = listManager.getLists()
+    }
+
+    fun addTaskToList(taskListIndex: Int, newTask: TaskItem) {
+        listManager.addTaskToList(taskListIndex, newTask)
+        lists.value = listManager.getLists()
+    }
+
+    fun updateTaskLabel(taskListIndex: Int, taskIndex: Int, label: String) {
+        listManager.updateTaskLabel(taskListIndex, taskIndex, label)
         lists.value = listManager.getLists()
     }
 }

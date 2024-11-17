@@ -88,6 +88,19 @@ class ListManager {
         _allLists[index] = list.copy(taskItemList = list.taskItemList)
     }
 
+    fun updateTaskLabel(index: Int, taskIndex: Int, label: String) {
+        val list = _allLists.getOrNull(index)
+        val task = list?.taskItemList?.getOrNull(taskIndex)
 
+        if (task == null) {
+            Log.e("ListManager", "Task not found at index $taskIndex.")
+            return
+        }
+
+        task.label = label
+
+        // Notify Compose about the change
+        _allLists[index] = list.copy(taskItemList = list.taskItemList)
+    }
 
 }
