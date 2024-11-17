@@ -1,5 +1,6 @@
 package com.group10.uxuiapp.view_model
 
+import android.util.Log
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import com.group10.uxuiapp.data.TaskItem
@@ -21,7 +22,7 @@ class ListViewModel : ViewModel() {
     }
 
     fun addTaskToList(taskListIndex: Int, newTask: TaskItem) {
-        lists.value[taskListIndex].taskItemList.add(newTask)
+        listManager.addTaskToList(taskListIndex, newTask)
         lists.value = listManager.getLists()
    }
 
@@ -40,5 +41,10 @@ class ListViewModel : ViewModel() {
     fun toggleLikedStatus(index: Int) {
         listManager.toggleLikedStatus(index) // Toggle liked status in ListManager
         lists.value = listManager.getLists() // Update UI lists
+    }
+
+    fun toggleIsCompletedStatus(taskListIndex: Int, taskIndex: Int) {
+        listManager.toggleIsCompleted(taskListIndex, taskIndex)
+        lists.value = listManager.getLists()
     }
 }

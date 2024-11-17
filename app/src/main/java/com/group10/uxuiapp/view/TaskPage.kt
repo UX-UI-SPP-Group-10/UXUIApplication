@@ -1,6 +1,7 @@
 package com.group10.uxuiapp.view
 
 import android.widget.Toast
+import android.util.Log
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -8,7 +9,7 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.outlined.AddCircle
@@ -42,13 +43,20 @@ import com.group10.uxuiapp.view_model.ListViewModel
 fun TaskPage(taskId: Int, onNavigateBack: () -> Unit, viewModel: ListViewModel) {
     val context = LocalContext.current
 
-    // Find the task with the given ID
-    val task = viewModel.lists.value[taskId]
+    // Log the taskId and the size of the list to understand the state of data
+    Log.d("TaskPage", "Task ID: $taskId, List size: ${viewModel.lists.value.size}")
 
+    // Find the task with the given ID
+    val task = viewModel.lists.value.getOrNull(taskId)
+
+    // Check if the task is found and log the result
     if (task == null) {
+        Log.d("TaskPage", "Task not found with ID: $taskId")
         Toast.makeText(context, "Task not found", Toast.LENGTH_SHORT).show()
         onNavigateBack()
         return
+    } else {
+        Log.d("TaskPage", "Task found: ${task.title}")
     }
 
     // Start the composable Scaffold layout
@@ -67,6 +75,7 @@ fun TaskPage(taskId: Int, onNavigateBack: () -> Unit, viewModel: ListViewModel) 
                 },
                 actions = {
                     IconButton(onClick = {
+                        Log.d("TaskPage", "Search clicked")
                         Toast.makeText(context, "Search clicked", Toast.LENGTH_SHORT).show()
                     }) {
                         Icon(Icons.Filled.Search, contentDescription = "Search")
@@ -80,8 +89,9 @@ fun TaskPage(taskId: Int, onNavigateBack: () -> Unit, viewModel: ListViewModel) 
         bottomBar = {
             // Add Task button
             IconButton(onClick = {
-                var newTask = TaskItem(label = "New Task")
-                viewModel.addTaskToList(taskId.toInt(), newTask)
+                Log.d("TaskPage", "Add task button clicked for taskId: $taskId")
+                val newTask = TaskItem(label = "New Task")
+                viewModel.addTaskToList(taskId, newTask)
             }, modifier = Modifier
                 .padding(bottom = 20.dp)
                 .offset(x = 20.dp, y = 0.dp)) {
@@ -93,17 +103,23 @@ fun TaskPage(taskId: Int, onNavigateBack: () -> Unit, viewModel: ListViewModel) 
     ) { innerPadding ->
         // LazyColumn will only invoke composable functions within it
         LazyColumn(modifier = Modifier.fillMaxSize(), contentPadding = innerPadding) {
-            items(task.taskItemList) { taskItem ->
-                TaskRow(taskItem)
+            itemsIndexed(task.taskItemList) { index, taskItem -> // Use itemsIndexed to get the index
+                Log.d("TaskPage", "Rendering TaskItem at index $index: ${taskItem.label}")
+                TaskRow(
+                    task = taskItem,
+                    taskListIndex = taskId,
+                    taskIndex = index,
+                    viewModel = viewModel
+                )
             }
         }
+
     }
 }
 
 @Composable
-fun TaskRow(task: TaskItem) {
+fun TaskRow(task: TaskItem, taskListIndex: Int, taskIndex: Int, viewModel: ListViewModel) {
     var isChecked by remember { mutableStateOf(task.isComplete) }
-    var text by remember { mutableStateOf(task.label) }
 
     Row(
         modifier = Modifier
@@ -112,16 +128,22 @@ fun TaskRow(task: TaskItem) {
     ) {
         Checkbox(
             checked = isChecked,
-            onCheckedChange = { isChecked = it },
+            onCheckedChange = {
+                isChecked = it
+                viewModel.toggleIsCompletedStatus(taskListIndex, taskIndex)
+            },
             modifier = Modifier.padding(end = 5.dp)
         )
+
         TextField(
-            value = text,
-            onValueChange = { text = it },
+            value = task.label,
+            onValueChange = { task.label = it },
             modifier = Modifier.padding(10.dp).fillMaxWidth()
         )
     }
 }
+
+
 
 @Preview(showBackground = true)
 @Composable

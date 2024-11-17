@@ -2,6 +2,7 @@ package com.group10.uxuiapp.domain
 
 import android.util.Log
 import androidx.compose.runtime.mutableStateListOf
+import com.group10.uxuiapp.data.TaskItem
 import com.group10.uxuiapp.data.TaskList
 
 class ListManager {
@@ -13,6 +14,19 @@ class ListManager {
         val newList = TaskList(index = newIndex, title = title)
         _allLists.add(newList)
     }
+
+    fun addTaskToList(taskListIndex: Int, newTask: TaskItem) {
+        val list = _allLists.getOrNull(taskListIndex)
+        if (list == null) {
+            Log.e("ListManager", "TaskList at index $taskListIndex not found.")
+            return
+        }
+        list.taskItemList.add(newTask) // Directly update the task list
+
+        // Notify Compose about the change
+        _allLists[taskListIndex] = list.copy(taskItemList = list.taskItemList) // Replace the modified list to trigger recomposition
+    }
+
 
     fun removeList(index: Int) {
         val list = _allLists.getOrNull(index) // Safely fetch the list or null if index is invalid
@@ -58,6 +72,22 @@ class ListManager {
         _allLists.clear()
         _allLists.addAll(_allLists)  // Trigger recomposition
     }
+
+    fun toggleIsCompleted(index: Int, taskIndex: Int) {
+        val list = _allLists.getOrNull(index)
+        val task = list?.taskItemList?.getOrNull(taskIndex)
+
+        if (task == null) {
+            Log.e("ListManager", "Task not found at index $taskIndex.")
+            return
+        }
+
+        task.isComplete = !task.isComplete
+
+        // Notify Compose about the change
+        _allLists[index] = list.copy(taskItemList = list.taskItemList)
+    }
+
 
 
 }
