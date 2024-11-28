@@ -270,20 +270,3 @@ private fun AddNewListButton(onClick: () -> Unit) {
     }
 }
 
-// just a preview
-@Preview(showBackground = true)
-@Composable
-fun ListOverviewPagePreview() {
-    // Create and set up the ViewModel inline with mock data
-    val viewModel = ListViewModel().apply {
-        lists.value = listOf(
-            TaskList(index = 0, title = "List 1"),
-            TaskList(index = 1, title = "List 2"),
-            TaskList(index = 2, title = "List 3"),
-        )
-    }
-
-    ListOverviewPage(navigateTo = {}, viewModel = viewModel)
-}
-
-

@@ -1,4 +1,4 @@
-package com.group10.uxuiapp
+package com.group10.uxuiapp.view
 
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.core.FastOutSlowInEasing
@@ -12,8 +12,6 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.group10.uxuiapp.view.ListOverviewPage
-import com.group10.uxuiapp.view.TaskPage
 import com.group10.uxuiapp.view_model.ListViewModel
 
 @OptIn(ExperimentalAnimationApi::class)  // Enable experimental animation APIs
