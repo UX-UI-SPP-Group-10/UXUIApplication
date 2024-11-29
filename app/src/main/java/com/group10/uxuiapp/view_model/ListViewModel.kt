@@ -3,11 +3,14 @@ package com.group10.uxuiapp.view_model
 import android.util.Log
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.group10.uxuiapp.data.TaskItem
 import com.group10.uxuiapp.data.TaskList
+import com.group10.uxuiapp.data.TaskRepository
 import com.group10.uxuiapp.domain.ListManager
+import kotlinx.coroutines.launch
 
-class ListViewModel : ViewModel() {
+class ListViewModel(private val repository: TaskRepository) : ViewModel() {
 
     private val listManager = ListManager()
     var lists = mutableStateOf<List<TaskList>>(emptyList()) // List that's observed by UI. Connects to the domain layer
@@ -49,5 +52,24 @@ class ListViewModel : ViewModel() {
     fun updateTaskLabel(taskListIndex: Int, taskIndex: Int, label: String) {
         listManager.updateTaskLabel(taskListIndex, taskIndex, label)
         lists.value = listManager.getLists()
+    }
+
+    fun insertTaskList(taskList: TaskList) {
+        viewModelScope.launch {
+            repository.insertTaskList(taskList)
+        }
+    }
+
+    fun insertTaskItem(taskItem: TaskItem) {
+        viewModelScope.launch {
+            repository.insertTaskItem(taskItem)
+        }
+    }
+
+    fun getTaskListsWithItems() {
+        viewModelScope.launch {
+            val taskListsWithItems = repository.getTaskListsWithItems()
+            // Handle the fetched data
+        }
     }
 }

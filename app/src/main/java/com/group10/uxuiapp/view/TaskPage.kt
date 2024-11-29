@@ -152,17 +152,3 @@ fun TaskRow(task: TaskItem, taskListIndex: Int, taskIndex: Int, viewModel: ListV
 }
 
 
-
-@Preview(showBackground = true)
-@Composable
-fun TaskPagePreview() {
-    // Create and set up the ViewModel inline with mock data
-    val viewModel = ListViewModel().apply {
-        lists.value = listOf(
-            TaskList(index = 1, title = "Sample Task 1", taskItemList = mutableListOf(TaskItem(label = "Task 1"))),
-            TaskList(index = 2, title = "Sample Task 2", taskItemList = mutableListOf(TaskItem(label = "Task 2")))
-        )
-    }
-
-    TaskPage(taskId = 1, onNavigateBack = {}, viewModel = viewModel)
-}

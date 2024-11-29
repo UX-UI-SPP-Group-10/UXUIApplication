@@ -2,9 +2,12 @@ package com.group10.uxuiapp.data
 
 import androidx.compose.runtime.mutableStateListOf
 
+import androidx.room.Entity
+import androidx.room.PrimaryKey
+
+@Entity
 data class TaskList(
-    var index: Int,
-    var title: String,
-    var taskItemList: MutableList<TaskItem> = mutableStateListOf(),
-    var isLiked: Boolean = false
+    @PrimaryKey(autoGenerate = true) val id: Int = 0,
+    val title: String,
+    val isLiked: Boolean = false
 )

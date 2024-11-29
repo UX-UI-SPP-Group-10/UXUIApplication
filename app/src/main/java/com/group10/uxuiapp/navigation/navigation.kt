@@ -1,4 +1,4 @@
-package com.group10.uxuiapp
+package com.group10.uxuiapp.navigation
 
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.core.FastOutSlowInEasing
