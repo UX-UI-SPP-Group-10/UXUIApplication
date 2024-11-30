@@ -17,18 +17,22 @@ private val DarkColorScheme = darkColorScheme(
     onPrimary = White,
     onSecondary = White,
     onTertiary = White,
-    background = Black
+    background = Black,
+    surface = White,
+    onSurface = Black
 
 )
 
 private val LightColorScheme = lightColorScheme(
-    primary = Purple40,
-    secondary = PurpleGrey40,
-    tertiary = Pink40,
+    primary = Blue80,
+    secondary = BlueGrey80,
+    tertiary = Grey80,
     onPrimary = Black,
     onSecondary = Black,
     onTertiary = Black,
-    background = White
+    background = White,
+    surface = White,
+    onSurface = Black
 
     /* Other default colors to override
     background = Color(0xFFFFFBFE),
@@ -44,18 +48,12 @@ private val LightColorScheme = lightColorScheme(
 @Composable
 fun UXUIApplicationTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
-    // Dynamic color is available on Android 12+
-    dynamicColor: Boolean = true,
     content: @Composable () -> Unit
 ) {
-    val colorScheme = when {
-        dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
-            val context = LocalContext.current
-            if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
-        }
-
-        darkTheme -> DarkColorScheme
-        else -> LightColorScheme
+    val colorScheme = if (darkTheme) {
+        DarkColorScheme
+    } else {
+        LightColorScheme
     }
 
     MaterialTheme(

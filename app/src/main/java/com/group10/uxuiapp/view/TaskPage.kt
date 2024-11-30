@@ -36,6 +36,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import com.group10.uxuiapp.data.TaskItem
 import com.group10.uxuiapp.data.TaskListWithItems
 import com.group10.uxuiapp.view.component.SettingsButton
+import com.group10.uxuiapp.view.component.TaskRowItem
 import com.group10.uxuiapp.view_model.ListViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -81,7 +82,7 @@ fun TaskPage(taskId: Int, onNavigateBack: () -> Unit, viewModel: ListViewModel) 
             // Add Task button
             IconButton(onClick = {
                 Log.d("TaskPage", "Add task button clicked for taskId: $taskId")
-                val newTask = TaskItem(label = "New Task", taskListId = taskId)
+                val newTask = TaskItem(label = "", taskListId = taskId)
                 viewModel.addTaskToList(newTask)
             }, modifier = Modifier
                 .padding(bottom = 20.dp)
@@ -94,40 +95,8 @@ fun TaskPage(taskId: Int, onNavigateBack: () -> Unit, viewModel: ListViewModel) 
     ) { innerPadding ->
         LazyColumn(contentPadding = innerPadding) {
             itemsIndexed(taskListWithItems.taskItems) { index, taskItem ->
-                TaskRow(taskItem, viewModel)
+                TaskRowItem(taskItem, viewModel)
             }
         }
-    }
-}
-
-@Composable
-fun TaskRow(task: TaskItem, viewModel: ListViewModel) {
-    var isChecked by remember { mutableStateOf(task.isComplete) }
-    var text by remember { mutableStateOf(task.label) }
-
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 6.dp)
-    ) {
-        Checkbox(
-            checked = isChecked,
-            onCheckedChange = {
-                isChecked = it
-                viewModel.toggleIsCompleted(task)
-            },
-            modifier = Modifier.padding(end = 5.dp)
-        )
-
-        TextField(
-            value = text,
-            onValueChange = {
-                text = it
-                viewModel.updateTaskLabel(task, it)
-            },
-            modifier = Modifier
-                .padding(10.dp)
-                .fillMaxWidth()
-        )
     }
 }
