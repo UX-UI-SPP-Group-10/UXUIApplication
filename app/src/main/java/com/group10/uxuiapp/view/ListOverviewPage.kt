@@ -209,7 +209,7 @@ private fun ListItem(
 
 @Composable
 private fun LikedButton(taskList: TaskList, viewModel: ListViewModel) {
-    val isLiked = taskList?.isLiked ?: false
+    val isLiked = taskList.isLiked
 
     Icon(
         imageVector = if (isLiked) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
