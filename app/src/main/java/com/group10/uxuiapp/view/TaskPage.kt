@@ -41,25 +41,14 @@ import com.group10.uxuiapp.view_model.ListViewModel
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TaskPage(taskId: Int, onNavigateBack: () -> Unit, viewModel: ListViewModel) {
-    val context = LocalContext.current
+    val task = viewModel.getTaskById(taskId)
 
-    // Log the taskId and the size of the list to understand the state of data
-    Log.d("TaskPage", "Task ID: $taskId, List size: ${viewModel.lists.value.size}")
-
-    // Find the task with the given ID
-    val task = viewModel.lists.value.getOrNull(taskId)
-
-    // Check if the task is found and log the result
     if (task == null) {
         Log.d("TaskPage", "Task not found with ID: $taskId")
-        Toast.makeText(context, "Task not found", Toast.LENGTH_SHORT).show()
         onNavigateBack()
         return
-    } else {
-        Log.d("TaskPage", "Task found: ${task.title}")
     }
 
-    // Start the composable Scaffold layout
     Scaffold(
         topBar = {
             TopAppBar(
@@ -76,11 +65,9 @@ fun TaskPage(taskId: Int, onNavigateBack: () -> Unit, viewModel: ListViewModel) 
                 actions = {
                     IconButton(onClick = {
                         Log.d("TaskPage", "Search clicked")
-                        Toast.makeText(context, "Search clicked", Toast.LENGTH_SHORT).show()
                     }) {
                         Icon(Icons.Filled.Search, contentDescription = "Search")
                     }
-                    SettingsButton(context = context)
                 },
                 colors = TopAppBarDefaults.topAppBarColors(),
                 scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
@@ -91,7 +78,7 @@ fun TaskPage(taskId: Int, onNavigateBack: () -> Unit, viewModel: ListViewModel) 
             IconButton(onClick = {
                 Log.d("TaskPage", "Add task button clicked for taskId: $taskId")
                 val newTask = TaskItem(label = "")
-                viewModel.addTaskToList(taskId, newTask)
+                viewModel.addTaskToList(taskId)
             }, modifier = Modifier
                 .padding(bottom = 20.dp)
                 .offset(x = 20.dp, y = 0.dp)) {
@@ -101,19 +88,11 @@ fun TaskPage(taskId: Int, onNavigateBack: () -> Unit, viewModel: ListViewModel) 
             }
         }
     ) { innerPadding ->
-        // LazyColumn will only invoke composable functions within it
-        LazyColumn(modifier = Modifier.fillMaxSize(), contentPadding = innerPadding) {
-            itemsIndexed(task.taskItemList) { index, taskItem -> // Use itemsIndexed to get the index
-                Log.d("TaskPage", "Rendering TaskItem at index $index: ${taskItem.label}")
-                TaskRow(
-                    task = taskItem,
-                    taskListIndex = taskId,
-                    taskIndex = index,
-                    viewModel = viewModel
-                )
+        LazyColumn(contentPadding = innerPadding) {
+            itemsIndexed(task.taskItemList) { index, taskItem ->
+                TaskRow(taskItem, taskId, index, viewModel)
             }
         }
-
     }
 }
 

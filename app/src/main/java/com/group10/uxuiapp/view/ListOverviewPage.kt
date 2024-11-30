@@ -270,5 +270,3 @@ private fun AddNewListButton(onClick: () -> Unit) {
     }
 }
 
-
-
