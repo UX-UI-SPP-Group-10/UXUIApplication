@@ -41,6 +41,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
@@ -152,7 +154,17 @@ private fun ListItem(
                 .fillMaxWidth()
                 .height(100.dp)
                 .clip(RoundedCornerShape(20.dp))
-                .background(MaterialTheme.colorScheme.primary)
+                .background(
+                    Brush.linearGradient(
+                        colors = listOf(
+                            MaterialTheme.colorScheme.primary,               // Top color
+                            MaterialTheme.colorScheme.secondary,
+                            Color(0xFFC0DCEF)
+                        ),
+                        start = Offset(0f, 0f), // Start at the top
+                        end = Offset(0f, Float.POSITIVE_INFINITY) // End at the bottom
+                    )
+                )
                 .pointerInput(Unit) {
                     detectTapGestures(
                         onTap = {
