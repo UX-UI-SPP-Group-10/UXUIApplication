@@ -4,102 +4,97 @@ import android.util.Log
 import androidx.compose.runtime.mutableStateListOf
 import com.group10.uxuiapp.data.TaskItem
 import com.group10.uxuiapp.data.TaskList
+import com.group10.uxuiapp.data.TaskListWithItems
 
 class ListManager {
-    private val _allLists = mutableStateListOf<TaskList>()
-    fun getLists(): List<TaskList> = _allLists
+    private val _allLists = mutableStateListOf<TaskListWithItems>()
 
+    // Get the lists
+    fun getLists(): List<TaskListWithItems> = _allLists
+
+    // Add a new list
     fun addList(title: String) {
-        val newIndex = _allLists.size
-        val newList = TaskList(index = newIndex, title = title)
-        _allLists.add(newList)
+        val newList = TaskList(title = title)
+        val newTaskListWithItems = TaskListWithItems(
+            taskList = newList,
+            taskItems = emptyList() // Initially, no tasks in the list
+        )
+        _allLists.add(newTaskListWithItems)
     }
 
-    fun addTaskToList(taskListIndex: Int, newTask: TaskItem) {
-        val list = _allLists.getOrNull(taskListIndex)
-        if (list == null) {
-            Log.e("ListManager", "TaskList at index $taskListIndex not found.")
+    // Add a task to a list
+    fun addTaskToList(taskListId: Int, newTask: TaskItem) {
+        val listIndex = _allLists.indexOfFirst { it.taskList.id == taskListId }
+        if (listIndex == -1) {
+            Log.e("ListManager", "TaskList with id $taskListId not found.")
             return
         }
-        list.taskItemList.add(newTask) // Directly update the task list
+        val listWithItems = _allLists[listIndex]
+        val updatedTaskItems = listWithItems.taskItems.toMutableList()
+        updatedTaskItems.add(newTask)
 
-        // Notify Compose about the change
-        _allLists[taskListIndex] = list.copy(taskItemList = list.taskItemList) // Replace the modified list to trigger recomposition
+        _allLists[listIndex] = listWithItems.copy(taskItems = updatedTaskItems)
     }
 
-
-    fun removeList(index: Int) {
-        if (index < 0 || index >= _allLists.size) {
-            Log.e("ListManager", "Invalid index $index to remove list.")
+    // Remove a list by its ID
+    fun removeList(taskListId: Int) {
+        val listIndex = _allLists.indexOfFirst { it.taskList.id == taskListId }
+        if (listIndex == -1) {
+            Log.e("ListManager", "TaskList with id $taskListId not found.")
             return
         }
-
-        // Remove the list at the specified index
-        _allLists.removeAt(index)
-
-        // Re-index the remaining lists
-        _allLists.forEachIndexed { i, taskList ->
-            taskList.index = i
-        }
+        _allLists.removeAt(listIndex)
     }
 
-
-    fun updateTitle(index: Int, title: String) {
-        val list = _allLists.getOrNull(index) // Safely fetch the list or null if index is invalid
-        if (list?.taskItemList.isNullOrEmpty()) {
-            // Either the list doesn't exist, or the task list is empty
-            Log.e("ListManager", "No valid task list at index $index, or the list is empty.")
+    // Update list title
+    fun updateTitle(taskListId: Int, title: String) {
+        val listIndex = _allLists.indexOfFirst { it.taskList.id == taskListId }
+        if (listIndex == -1) {
+            Log.e("ListManager", "TaskList with id $taskListId not found.")
             return
         }
-        list.title = title
-
-        // Notify Compose about the change
-        _allLists.clear()
-        _allLists.addAll(_allLists)  // Trigger recomposition
+        val listWithItems = _allLists[listIndex]
+        val updatedTaskList = listWithItems.taskList.copy(title = title)
+        _allLists[listIndex] = listWithItems.copy(taskList = updatedTaskList)
     }
 
-    fun toggleLikedStatus(index: Int) {
-        val list = _allLists.getOrNull(index) // Safely fetch the list or null if index is invalid
-        if (list?.taskItemList.isNullOrEmpty()) {
-            // Either the list doesn't exist, or the task list is empty
-            Log.e("ListManager", "No valid task list at index $index, or the list is empty.")
+    // Toggle liked status of a list
+    fun toggleLikedStatus(taskListId: Int) {
+        val listIndex = _allLists.indexOfFirst { it.taskList.id == taskListId }
+        if (listIndex == -1) {
+            Log.e("ListManager", "TaskList with id $taskListId not found.")
             return
         }
-        list.isLiked = list.isLiked.not()
-
-        // Notify Compose about the change
-        _allLists.clear()
-        _allLists.addAll(_allLists)  // Trigger recomposition
+        val listWithItems = _allLists[listIndex]
+        val updatedTaskList = listWithItems.taskList.copy(isLiked = !listWithItems.taskList.isLiked)
+        _allLists[listIndex] = listWithItems.copy(taskList = updatedTaskList)
     }
 
-    fun toggleIsCompleted(index: Int, taskIndex: Int) {
-        val list = _allLists.getOrNull(index)
-        val task = list?.taskItemList?.getOrNull(taskIndex)
-
-        if (task == null) {
-            Log.e("ListManager", "Task not found at index $taskIndex.")
+    // Toggle task completion status
+    fun toggleIsCompleted(taskListId: Int, taskId: Int) {
+        val listIndex = _allLists.indexOfFirst { it.taskList.id == taskListId }
+        if (listIndex == -1) {
+            Log.e("ListManager", "TaskList with id $taskListId not found.")
             return
         }
-
-        task.isComplete = !task.isComplete
-
-        // Notify Compose about the change
-        _allLists[index] = list.copy(taskItemList = list.taskItemList)
+        val listWithItems = _allLists[listIndex]
+        val updatedTaskItems = listWithItems.taskItems.map {
+            if (it.id == taskId) it.copy(isComplete = !it.isComplete) else it
+        }
+        _allLists[listIndex] = listWithItems.copy(taskItems = updatedTaskItems)
     }
 
-    fun updateTaskLabel(index: Int, taskIndex: Int, label: String) {
-        val list = _allLists.getOrNull(index)
-        val task = list?.taskItemList?.getOrNull(taskIndex)
-
-        if (task == null) {
-            Log.e("ListManager", "Task not found at index $taskIndex.")
+    // Update task label
+    fun updateTaskLabel(taskListId: Int, taskId: Int, label: String) {
+        val listIndex = _allLists.indexOfFirst { it.taskList.id == taskListId }
+        if (listIndex == -1) {
+            Log.e("ListManager", "TaskList with id $taskListId not found.")
             return
         }
-
-        task.label = label
-
-        // Notify Compose about the change
-        _allLists[index] = list.copy(taskItemList = list.taskItemList)
+        val listWithItems = _allLists[listIndex]
+        val updatedTaskItems = listWithItems.taskItems.map {
+            if (it.id == taskId) it.copy(label = label) else it
+        }
+        _allLists[listIndex] = listWithItems.copy(taskItems = updatedTaskItems)
     }
-
 }
