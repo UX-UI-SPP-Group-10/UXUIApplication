@@ -157,7 +157,7 @@ private fun ListItem(
                 .fillMaxWidth()
                 .height(100.dp)
                 .clip(RoundedCornerShape(20.dp))
-                .background(MaterialTheme.colorScheme.secondary)
+                .background(MaterialTheme.colorScheme.primary)
                 .pointerInput(Unit) {
                     detectTapGestures(
                         onTap = {
@@ -178,7 +178,7 @@ private fun ListItem(
             ) {
                 Text(
                     text = taskList.title,
-                    color = Color.White
+                    color = MaterialTheme.colorScheme.background,
                 )
                 LikedButton(taskList, viewModel)
             }
