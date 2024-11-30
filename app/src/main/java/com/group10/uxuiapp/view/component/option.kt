@@ -24,10 +24,11 @@ import com.group10.uxuiapp.R
 
 @Composable
 fun ChangeButton(onClose: () -> Unit, onDelete: () -> Unit) {
-    Box(modifier = Modifier
-        .clip(RoundedCornerShape(16.dp))
-        .background(Color(0xFF000000))
-        .padding(8.dp)
+    Box(
+        modifier = Modifier
+            .clip(RoundedCornerShape(16.dp))
+            .background(MaterialTheme.colorScheme.tertiary)
+            .padding(8.dp)
     ) {
         Row {
             // Close Button: Closes the change button
@@ -38,20 +39,21 @@ fun ChangeButton(onClose: () -> Unit, onDelete: () -> Unit) {
                     .height(38.dp), // Set button height
                 contentPadding = PaddingValues(0.dp), // Remove default padding
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = Color(0xFF000000)
+                    containerColor = MaterialTheme.colorScheme.onTertiary
                 )
             ) {
                 Icon(
                     painter = painterResource(id = R.drawable.close),
                     contentDescription = "Close",
-                    modifier = Modifier.size(30.dp).background(Color(0xFF000000)), // Set icon size as desired
-                    tint = MaterialTheme.colorScheme.onSecondary
+                    modifier = Modifier
+                        .size(30.dp), // Set icon size
+                    tint = MaterialTheme.colorScheme.onPrimary
                 )
             }
 
             Spacer(modifier = Modifier.width(8.dp))
 
-            // GIF button: Add a GIF to the list - NOT WORKING
+            // GIF button: Add a GIF to the list
             Button(
                 onClick = {},
                 modifier = Modifier
@@ -59,20 +61,20 @@ fun ChangeButton(onClose: () -> Unit, onDelete: () -> Unit) {
                     .height(38.dp), // Set button height
                 contentPadding = PaddingValues(0.dp), // Remove default padding
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = Color(0xFF000000) // Set button background color
+                    containerColor = MaterialTheme.colorScheme.onTertiary // Match first button
                 )
             ) {
                 Icon(
                     painter = painterResource(id = R.drawable.gif),
                     contentDescription = "GIF",
-                    modifier = Modifier.size(60.dp).background(Color(0xFF000000)), // Set icon size as desired
-                    tint = MaterialTheme.colorScheme.onSecondary
+                    modifier = Modifier.size(30.dp), // Set icon size
+                    tint = MaterialTheme.colorScheme.onPrimary
                 )
             }
 
             Spacer(modifier = Modifier.width(8.dp))
 
-            // Edit button: Edit name of the list (maybe color?) - NOT WORKING
+            // Edit button: Edit name of the list
             Button(
                 onClick = {},
                 modifier = Modifier
@@ -80,20 +82,20 @@ fun ChangeButton(onClose: () -> Unit, onDelete: () -> Unit) {
                     .height(38.dp), // Set button height
                 contentPadding = PaddingValues(0.dp), // Remove default padding
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = Color(0xFF000000) // Set button background color
+                    containerColor = MaterialTheme.colorScheme.onTertiary // Match first button
                 )
             ) {
                 Icon(
                     painter = painterResource(id = R.drawable.edit),
                     contentDescription = "Edit text",
-                    modifier = Modifier.size(30.dp).background(Color(0xFF000000)), // Set icon size as desired
-                    tint = MaterialTheme.colorScheme.onSecondary
+                    modifier = Modifier.size(30.dp), // Set icon size
+                    tint = MaterialTheme.colorScheme.onPrimary
                 )
             }
 
             Spacer(modifier = Modifier.width(8.dp))
 
-            // Delete button: Delete a list - NOT WORKING
+            // Delete button: Delete a list
             Button(
                 onClick = onDelete,
                 modifier = Modifier
@@ -101,14 +103,14 @@ fun ChangeButton(onClose: () -> Unit, onDelete: () -> Unit) {
                     .height(38.dp), // Set button height
                 contentPadding = PaddingValues(0.dp), // Remove default padding
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = Color(0xFF000000) // Set button background color
+                    containerColor = MaterialTheme.colorScheme.onTertiary // Match first button
                 )
             ) {
                 Icon(
                     painter = painterResource(id = R.drawable.delete),
                     contentDescription = "Delete",
-                    modifier = Modifier.size(30.dp).background(Color(0xFF000000)), // Set icon size as desired
-                    tint = MaterialTheme.colorScheme.onSecondary
+                    modifier = Modifier.size(30.dp), // Set icon size
+                    tint = MaterialTheme.colorScheme.onPrimary
                 )
             }
         }

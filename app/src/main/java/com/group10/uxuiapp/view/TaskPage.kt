@@ -1,7 +1,7 @@
 package com.group10.uxuiapp.view
 
-import android.widget.Toast
 import android.util.Log
+import android.widget.Toast
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -34,16 +34,21 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.tooling.preview.Preview
 import com.group10.uxuiapp.data.TaskItem
-import com.group10.uxuiapp.data.TaskList
+import com.group10.uxuiapp.data.TaskListWithItems
 import com.group10.uxuiapp.view.component.SettingsButton
+import com.group10.uxuiapp.view.component.TaskRowItem
+import com.group10.uxuiapp.view.component.buttons.AddTaskButton
 import com.group10.uxuiapp.view_model.ListViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TaskPage(taskId: Int, onNavigateBack: () -> Unit, viewModel: ListViewModel) {
-    val task = viewModel.getTaskById(taskId)
+    val context = LocalContext.current
 
-    if (task == null) {
+    // Fetch the task list with items from the ViewModel
+    val taskListWithItems = viewModel.lists.value.find { it.taskList.id == taskId }
+
+    if (taskListWithItems == null) {
         Log.d("TaskPage", "Task not found with ID: $taskId")
         onNavigateBack()
         return
@@ -52,7 +57,7 @@ fun TaskPage(taskId: Int, onNavigateBack: () -> Unit, viewModel: ListViewModel) 
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text(task.title) },
+                title = { Text(taskListWithItems.taskList.title) },
                 modifier = Modifier.padding(8.dp),
                 navigationIcon = {
                     IconButton(onClick = { onNavigateBack() }) {
@@ -68,64 +73,24 @@ fun TaskPage(taskId: Int, onNavigateBack: () -> Unit, viewModel: ListViewModel) 
                     }) {
                         Icon(Icons.Filled.Search, contentDescription = "Search")
                     }
+                    SettingsButton(context = context)
                 },
                 colors = TopAppBarDefaults.topAppBarColors(),
                 scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
             )
         },
         bottomBar = {
-            // Add Task button
-            IconButton(onClick = {
+            AddTaskButton(onClick = {
                 Log.d("TaskPage", "Add task button clicked for taskId: $taskId")
-                val newTask = TaskItem(label = "")
-                viewModel.addTaskToList(taskId)
-            }, modifier = Modifier
-                .padding(bottom = 20.dp)
-                .offset(x = 20.dp, y = 0.dp)) {
-                Icon(Icons.Outlined.AddCircle,
-                    contentDescription = "Add Task",
-                    modifier = Modifier.size(40.dp))
-            }
+                val newTask = TaskItem(label = "", taskListId = taskId)
+                viewModel.addTaskToList(newTask)
+            })
         }
     ) { innerPadding ->
         LazyColumn(contentPadding = innerPadding) {
-            itemsIndexed(task.taskItemList) { index, taskItem ->
-                TaskRow(taskItem, taskId, index, viewModel)
+            itemsIndexed(taskListWithItems.taskItems) { index, taskItem ->
+                TaskRowItem(taskItem, viewModel)
             }
         }
-    }
-}
-
-@Composable
-fun TaskRow(task: TaskItem, taskListIndex: Int, taskIndex: Int, viewModel: ListViewModel) {
-    var isChecked by remember { mutableStateOf(task.isComplete) }
-    var text by remember { mutableStateOf(task.label) }
-
-
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 6.dp)
-    ) {
-        Checkbox(
-            checked = isChecked,
-            onCheckedChange = {
-                isChecked = it
-                viewModel.toggleIsCompletedStatus(taskListIndex, taskIndex)
-            },
-            modifier = Modifier.padding(end = 5.dp)
-        )
-
-        TextField(
-            value = text,
-            onValueChange = {
-                text = it
-                // Update the task's label in the ViewModel as well
-                viewModel.updateTaskLabel(taskListIndex, taskIndex, it)
-            },
-            modifier = Modifier
-                .padding(10.dp)
-                .fillMaxWidth()
-        )
     }
 }

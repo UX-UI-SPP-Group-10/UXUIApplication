@@ -81,10 +81,9 @@ fun ListOverviewPage(navigateTo: (route: String) -> Unit, viewModel: ListViewMod
         }
     ) { innerPadding ->
         LazyColumn(contentPadding = innerPadding) {
-            items(viewModel.lists.value) { taskList ->
+            items(viewModel.lists.value) { taskListWithItems ->
                 ListItem(
-                    index = taskList.index,
-                    title = taskList.title,
+                    taskList = taskListWithItems.taskList,
                     navigateTo = navigateTo,
                     selectedIndex = selectedIndex,
                     viewModel = viewModel
@@ -139,14 +138,11 @@ private fun TopAppBarWithMenu() {
 // ListItem composable for each item in the list
 @Composable
 private fun ListItem(
-    index: Int,
-    title: String,
+    taskList: TaskList,
     navigateTo: (String) -> Unit,
     selectedIndex: MutableState<Int?>,
     viewModel: ListViewModel
 ) {
-    val taskList = viewModel.lists.value[index]
-
     // Wrapper Box for list item
     Box(
         modifier = Modifier
@@ -158,14 +154,14 @@ private fun ListItem(
                 .fillMaxWidth()
                 .height(100.dp)
                 .clip(RoundedCornerShape(20.dp))
-                .background(MaterialTheme.colorScheme.secondary)
+                .background(MaterialTheme.colorScheme.primary)
                 .pointerInput(Unit) {
                     detectTapGestures(
                         onTap = {
-                            navigateTo("taskList/$index")
+                            navigateTo("taskList/${taskList.id}")
                         },
                         onLongPress = {
-                            selectedIndex.value = index // Set selectedIndex on long press
+                            selectedIndex.value = taskList.id // Set selectedIndex on long press
                         }
                     )
                 }
@@ -178,15 +174,15 @@ private fun ListItem(
                 verticalAlignment = Alignment.Top
             ) {
                 Text(
-                    text = title,
-                    color = Color.White
+                    text = taskList.title,
+                    color = MaterialTheme.colorScheme.background,
                 )
-                LikedButton(index, viewModel, taskList)
+                LikedButton(taskList, viewModel)
             }
         }
 
         // Show ChangeButton when the item is selected
-        if (selectedIndex.value == index) {
+        if (selectedIndex.value == taskList.id) {
             Box(
                 modifier = Modifier
                     .align(Alignment.BottomCenter)
@@ -197,7 +193,7 @@ private fun ListItem(
                         selectedIndex.value = null
                     },
                     onDelete = {
-                        viewModel.removeList(index)
+                        viewModel.removeList(taskList)
                         selectedIndex.value = null
                     }
                 )
@@ -206,13 +202,13 @@ private fun ListItem(
     }
 
     // Spacer to push next list item down when selected
-    if (selectedIndex.value == index) {
+    if (selectedIndex.value == taskList.id) {
         Spacer(modifier = Modifier.height(24.dp))
     }
 }
 
 @Composable
-private fun LikedButton(index: Int, viewModel: ListViewModel, taskList: TaskList?) {
+private fun LikedButton(taskList: TaskList, viewModel: ListViewModel) {
     val isLiked = taskList?.isLiked ?: false
 
     Icon(
@@ -221,7 +217,7 @@ private fun LikedButton(index: Int, viewModel: ListViewModel, taskList: TaskList
         modifier = Modifier
             .size(25.dp)
             .clickable {
-                viewModel.toggleLikedStatus(index)
+                viewModel.toggleLikedStatus(taskList) // Update the global state as well
             },
         tint = if (isLiked) Color.Red else Color.White
     )
@@ -264,4 +260,5 @@ private fun AddNewListButton(onClick: () -> Unit) {
         }
     }
 }
+
 

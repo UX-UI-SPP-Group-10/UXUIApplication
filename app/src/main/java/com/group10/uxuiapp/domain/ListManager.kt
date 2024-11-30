@@ -4,98 +4,45 @@ import android.util.Log
 import androidx.compose.runtime.mutableStateListOf
 import com.group10.uxuiapp.data.TaskItem
 import com.group10.uxuiapp.data.TaskList
+import com.group10.uxuiapp.data.TaskListWithItems
+import com.group10.uxuiapp.data.TaskRepository
 
-class ListManager {
-    private val _allLists = mutableStateListOf<TaskList>()
-    fun getLists(): List<TaskList> = _allLists
+class ListManager(private val taskRepository: TaskRepository) {
 
-    fun addList(title: String) {
-        val newIndex = _allLists.size
-        val newList = TaskList(index = newIndex, title = title)
-        _allLists.add(newList)
+    suspend fun getLists(): List<TaskListWithItems> {
+        return taskRepository.getTaskListsWithItems()
     }
 
-    fun addTaskToList(taskListIndex: Int, newTask: TaskItem) {
-        val list = _allLists.getOrNull(taskListIndex)
-        if (list == null) {
-            Log.e("ListManager", "TaskList at index $taskListIndex not found.")
-            return
-        }
-        list.taskItemList.add(newTask) // Directly update the task list
-
-        // Notify Compose about the change
-        _allLists[taskListIndex] = list.copy(taskItemList = list.taskItemList) // Replace the modified list to trigger recomposition
+    suspend fun addList(title: String) {
+        val newList = TaskList(title = title)
+        taskRepository.insertTaskList(newList)
     }
 
-
-    fun removeList(index: Int) {
-        if (index < 0 || index >= _allLists.size) {
-            Log.e("ListManager", "Invalid index $index to remove list.")
-            return
-        }
-
-        // Remove the list at the specified index
-        _allLists.removeAt(index)
-
-        // Re-index the remaining lists
-        _allLists.forEachIndexed { i, taskList ->
-            taskList.index = i
-        }
+    suspend fun removeList(taskList: TaskList) {
+        taskRepository.deleteTaskList(taskList)
     }
 
-
-    fun updateTitle(index: Int, title: String) {
-        val list = _allLists.getOrNull(index) // Safely fetch the list or null if index is invalid
-        if (list?.taskItemList.isNullOrEmpty()) {
-            // Either the list doesn't exist, or the task list is empty
-            Log.e("ListManager", "No valid task list at index $index, or the list is empty.")
-            return
-        }
-        if (list != null) {
-            list.title = title
-        }
-
-        // Notify Compose about the change
-        _allLists.clear()
-        _allLists.addAll(_allLists)  // Trigger recomposition
+    suspend fun updateTitle(taskList: TaskList, title: String) {
+        val updatedList = taskList.copy(title = title)
+        taskRepository.insertTaskList(updatedList)
     }
 
-    fun toggleLikedStatus(index: Int) {
-        val list = _allLists.getOrNull(index) // Safely fetch the list or null if index is invalid
-
-        if (list != null) {
-            list.isLiked = !list.isLiked
-        }
+    suspend fun toggleLikedStatus(taskList: TaskList) {
+        val updatedList = taskList.copy(isLiked = !taskList.isLiked)
+        taskRepository.insertTaskList(updatedList)
     }
 
-    fun toggleIsCompleted(index: Int, taskIndex: Int) {
-        val list = _allLists.getOrNull(index)
-        val task = list?.taskItemList?.getOrNull(taskIndex)
-
-        if (task == null) {
-            Log.e("ListManager", "Task not found at index $taskIndex.")
-            return
-        }
-
-        task.isComplete = !task.isComplete
-
-        // Notify Compose about the change
-        _allLists[index] = list.copy(taskItemList = list.taskItemList)
+    suspend fun addTaskToList(taskItem: TaskItem) {
+        taskRepository.insertTaskItem(taskItem)
     }
 
-    fun updateTaskLabel(index: Int, taskIndex: Int, label: String) {
-        val list = _allLists.getOrNull(index)
-        val task = list?.taskItemList?.getOrNull(taskIndex)
-
-        if (task == null) {
-            Log.e("ListManager", "Task not found at index $taskIndex.")
-            return
-        }
-
-        task.label = label
-
-        // Notify Compose about the change
-        _allLists[index] = list.copy(taskItemList = list.taskItemList)
+    suspend fun toggleIsCompleted(taskItem: TaskItem) {
+        val updatedTask = taskItem.copy(isComplete = !taskItem.isComplete)
+        taskRepository.insertTaskItem(updatedTask)
     }
 
+    suspend fun updateTaskLabel(taskItem: TaskItem, label: String) {
+        val updatedTask = taskItem.copy(label = label)
+        taskRepository.insertTaskItem(updatedTask)
+    }
 }
