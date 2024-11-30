@@ -65,12 +65,14 @@ fun ListOverviewPage(navigateTo: (route: String) -> Unit, viewModel: ListViewMod
     val context = LocalContext.current
 
     // Use LaunchedEffect to reset selectedIndex if list size changes
-    LaunchedEffect(viewModel.lists.value.size) {
-        if (selectedIndex.value != null && selectedIndex.value!! >= viewModel.lists.value.size) {
-            Log.d("ListOverviewPage", "Resetting selectedIndex because it's out of bounds")
+    LaunchedEffect(viewModel.lists.value) {
+        // Reset selectedIndex if the currently selected list no longer exists
+        if (selectedIndex.value != null &&
+            viewModel.lists.value.none { it.taskList.id == selectedIndex.value }) {
             selectedIndex.value = null
         }
     }
+
 
     Scaffold(
         topBar = { TopAppBarWithMenu() },
@@ -81,7 +83,7 @@ fun ListOverviewPage(navigateTo: (route: String) -> Unit, viewModel: ListViewMod
         }
     ) { innerPadding ->
         LazyColumn(contentPadding = innerPadding) {
-            items(viewModel.lists.value) { taskListWithItems ->
+            items(viewModel.lists.value, key = { it.taskList.id }) { taskListWithItems ->
                 ListItem(
                     taskList = taskListWithItems.taskList,
                     navigateTo = navigateTo,
@@ -133,9 +135,6 @@ private fun TopAppBarWithMenu() {
         scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
     )
 }
-
-
-// ListItem composable for each item in the list
 @Composable
 private fun ListItem(
     taskList: TaskList,
@@ -143,7 +142,6 @@ private fun ListItem(
     selectedIndex: MutableState<Int?>,
     viewModel: ListViewModel
 ) {
-    // Wrapper Box for list item
     Box(
         modifier = Modifier
             .fillMaxWidth()
@@ -158,10 +156,15 @@ private fun ListItem(
                 .pointerInput(Unit) {
                     detectTapGestures(
                         onTap = {
-                            navigateTo("taskList/${taskList.id}")
+                            val refreshedTaskList = viewModel.lists.value.find { it.taskList.id == taskList.id }
+                            if (refreshedTaskList != null) {
+                                navigateTo("taskList/${refreshedTaskList.taskList.id}")
+                            } else {
+                                Log.e("ListItem", "Attempted to navigate to a deleted or invalid list.")
+                            }
                         },
                         onLongPress = {
-                            selectedIndex.value = taskList.id // Set selectedIndex on long press
+                            selectedIndex.value = taskList.id
                         }
                     )
                 }
@@ -181,7 +184,6 @@ private fun ListItem(
             }
         }
 
-        // Show ChangeButton when the item is selected
         if (selectedIndex.value == taskList.id) {
             Box(
                 modifier = Modifier
@@ -194,18 +196,20 @@ private fun ListItem(
                     },
                     onDelete = {
                         viewModel.removeList(taskList)
-                        selectedIndex.value = null
+                        selectedIndex.value = null // Reset index after deletion
                     }
                 )
             }
         }
     }
 
-    // Spacer to push next list item down when selected
     if (selectedIndex.value == taskList.id) {
         Spacer(modifier = Modifier.height(24.dp))
     }
 }
+
+
+
 
 @Composable
 private fun LikedButton(taskList: TaskList, viewModel: ListViewModel) {
