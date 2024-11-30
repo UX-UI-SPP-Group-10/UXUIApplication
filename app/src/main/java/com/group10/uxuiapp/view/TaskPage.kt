@@ -37,6 +37,7 @@ import com.group10.uxuiapp.data.TaskItem
 import com.group10.uxuiapp.data.TaskListWithItems
 import com.group10.uxuiapp.view.component.SettingsButton
 import com.group10.uxuiapp.view.component.TaskRowItem
+import com.group10.uxuiapp.view.component.buttons.AddTaskButton
 import com.group10.uxuiapp.view_model.ListViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -79,18 +80,11 @@ fun TaskPage(taskId: Int, onNavigateBack: () -> Unit, viewModel: ListViewModel) 
             )
         },
         bottomBar = {
-            // Add Task button
-            IconButton(onClick = {
+            AddTaskButton(onClick = {
                 Log.d("TaskPage", "Add task button clicked for taskId: $taskId")
                 val newTask = TaskItem(label = "", taskListId = taskId)
                 viewModel.addTaskToList(newTask)
-            }, modifier = Modifier
-                .padding(bottom = 20.dp)
-                .offset(x = 20.dp, y = 0.dp)) {
-                Icon(Icons.Outlined.AddCircle,
-                    contentDescription = "Add Task",
-                    modifier = Modifier.size(40.dp))
-            }
+            })
         }
     ) { innerPadding ->
         LazyColumn(contentPadding = innerPadding) {
