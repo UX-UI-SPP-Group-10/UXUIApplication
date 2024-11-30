@@ -84,10 +84,9 @@ fun ListOverviewPage(navigateTo: (route: String) -> Unit, viewModel: ListViewMod
         }
     ) { innerPadding ->
         LazyColumn(contentPadding = innerPadding) {
-            items(viewModel.lists.value) { taskList ->
+            items(viewModel.lists.value) { taskListWithItems ->
                 ListItem(
-                    index = taskList.index,
-                    title = taskList.title,
+                    taskList = taskListWithItems.taskList,
                     navigateTo = navigateTo,
                     selectedIndex = selectedIndex,
                     viewModel = viewModel
@@ -142,14 +141,11 @@ private fun TopAppBarWithMenu() {
 // ListItem composable for each item in the list
 @Composable
 private fun ListItem(
-    index: Int,
-    title: String,
+    taskList: TaskList,
     navigateTo: (String) -> Unit,
     selectedIndex: MutableState<Int?>,
     viewModel: ListViewModel
 ) {
-    val taskList = viewModel.lists.value[index]
-
     // Wrapper Box for list item
     Box(
         modifier = Modifier
@@ -165,10 +161,10 @@ private fun ListItem(
                 .pointerInput(Unit) {
                     detectTapGestures(
                         onTap = {
-                            navigateTo("taskList/$index")
+                            navigateTo("taskList/${taskList.id}")
                         },
                         onLongPress = {
-                            selectedIndex.value = index // Set selectedIndex on long press
+                            selectedIndex.value = taskList.id // Set selectedIndex on long press
                         }
                     )
                 }
@@ -181,15 +177,15 @@ private fun ListItem(
                 verticalAlignment = Alignment.Top
             ) {
                 Text(
-                    text = title,
+                    text = taskList.title,
                     color = Color.White
                 )
-                LikedButton(index, viewModel, taskList)
+                LikedButton(taskList, viewModel)
             }
         }
 
         // Show ChangeButton when the item is selected
-        if (selectedIndex.value == index) {
+        if (selectedIndex.value == taskList.id) {
             Box(
                 modifier = Modifier
                     .align(Alignment.BottomCenter)
@@ -200,7 +196,7 @@ private fun ListItem(
                         selectedIndex.value = null
                     },
                     onDelete = {
-                        viewModel.removeList(index)
+                        viewModel.removeList(taskList)
                         selectedIndex.value = null
                     }
                 )
@@ -209,14 +205,14 @@ private fun ListItem(
     }
 
     // Spacer to push next list item down when selected
-    if (selectedIndex.value == index) {
+    if (selectedIndex.value == taskList.id) {
         Spacer(modifier = Modifier.height(24.dp))
     }
 }
 
 @Composable
-private fun LikedButton(index: Int, viewModel: ListViewModel, taskList: TaskList?) {
-    val isLiked = remember { mutableStateOf(taskList?.isLiked == true) }
+private fun LikedButton(taskList: TaskList, viewModel: ListViewModel) {
+    val isLiked = remember { mutableStateOf(taskList.isLiked) }
     // Heart Icon with dynamic color change based on isLiked
     Icon(
         imageVector = if (isLiked.value) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
@@ -226,12 +222,11 @@ private fun LikedButton(index: Int, viewModel: ListViewModel, taskList: TaskList
             .clickable {
                 // Toggle liked status in ViewModel
                 isLiked.value = !isLiked.value
-                viewModel.toggleLikedStatus(index) // Update the global state as well
+                viewModel.toggleLikedStatus(taskList) // Update the global state as well
             },
         tint = if (isLiked.value) Color.Red else Color.White
     )
 }
-
 
 
 // Floating Action Button composable for adding a new list item
@@ -269,4 +264,5 @@ private fun AddNewListButton(onClick: () -> Unit) {
         }
     }
 }
+
 
