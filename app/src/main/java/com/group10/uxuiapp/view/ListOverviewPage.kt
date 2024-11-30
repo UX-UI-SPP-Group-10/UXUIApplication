@@ -64,9 +64,6 @@ fun ListOverviewPage(navigateTo: (route: String) -> Unit, viewModel: ListViewMod
     val listNameState = remember { mutableStateOf("") }
     val context = LocalContext.current
 
-    // Debugging statement for selectedIndex and list size
-    Log.d("ListOverviewPage", "Initial selectedIndex: ${selectedIndex.value}, list size: ${viewModel.lists.value.size}")
-
     // Use LaunchedEffect to reset selectedIndex if list size changes
     LaunchedEffect(viewModel.lists.value.size) {
         if (selectedIndex.value != null && selectedIndex.value!! >= viewModel.lists.value.size) {
@@ -216,19 +213,17 @@ private fun ListItem(
 
 @Composable
 private fun LikedButton(index: Int, viewModel: ListViewModel, taskList: TaskList?) {
-    val isLiked = remember { mutableStateOf(taskList?.isLiked == true) }
-    // Heart Icon with dynamic color change based on isLiked
+    val isLiked = taskList?.isLiked ?: false
+
     Icon(
-        imageVector = if (isLiked.value) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
-        contentDescription = if (isLiked.value) "Liked" else "Add Favorite",
+        imageVector = if (isLiked) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
+        contentDescription = if (isLiked) "Liked" else "Add Favorite",
         modifier = Modifier
             .size(25.dp)
             .clickable {
-                // Toggle liked status in ViewModel
-                isLiked.value = !isLiked.value
-                viewModel.toggleLikedStatus(index) // Update the global state as well
+                viewModel.toggleLikedStatus(index)
             },
-        tint = if (isLiked.value) Color.Red else Color.White
+        tint = if (isLiked) Color.Red else Color.White
     )
 }
 

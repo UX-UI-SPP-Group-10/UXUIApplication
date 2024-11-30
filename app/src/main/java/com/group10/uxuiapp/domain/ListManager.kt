@@ -51,7 +51,9 @@ class ListManager {
             Log.e("ListManager", "No valid task list at index $index, or the list is empty.")
             return
         }
-        list.title = title
+        if (list != null) {
+            list.title = title
+        }
 
         // Notify Compose about the change
         _allLists.clear()
@@ -60,16 +62,10 @@ class ListManager {
 
     fun toggleLikedStatus(index: Int) {
         val list = _allLists.getOrNull(index) // Safely fetch the list or null if index is invalid
-        if (list?.taskItemList.isNullOrEmpty()) {
-            // Either the list doesn't exist, or the task list is empty
-            Log.e("ListManager", "No valid task list at index $index, or the list is empty.")
-            return
-        }
-        list.isLiked = list.isLiked.not()
 
-        // Notify Compose about the change
-        _allLists.clear()
-        _allLists.addAll(_allLists)  // Trigger recomposition
+        if (list != null) {
+            list.isLiked = !list.isLiked
+        }
     }
 
     fun toggleIsCompleted(index: Int, taskIndex: Int) {
