@@ -200,6 +200,7 @@ private fun ListItem(
                 Text(
                     text = taskList.title,
                     color = MaterialTheme.colorScheme.background,
+                    modifier = Modifier.width(320.dp)
                 )
                 LikedButton(taskList, viewModel)
             }
