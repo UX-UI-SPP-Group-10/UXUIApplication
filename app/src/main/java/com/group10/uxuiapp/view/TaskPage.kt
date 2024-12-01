@@ -91,12 +91,7 @@ fun TaskPage(taskId: Int, onNavigateBack: () -> Unit, viewModel: ListViewModel) 
             })
         }
     ) { innerPadding ->
-        LazyColumn(contentPadding = PaddingValues(
-            start = innerPadding.calculateStartPadding(LocalLayoutDirection.current),
-            top = innerPadding.calculateTopPadding(),
-            end = innerPadding.calculateEndPadding(LocalLayoutDirection.current),
-            bottom = innerPadding.calculateBottomPadding() + 50.dp
-        )) {
+        LazyColumn(contentPadding = innerPadding) {
             itemsIndexed(taskListWithItems.taskItems) { index, taskItem ->
                 TaskRowItem(taskItem, viewModel)
             }
