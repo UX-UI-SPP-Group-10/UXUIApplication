@@ -2,7 +2,10 @@ package com.group10.uxuiapp.view
 
 import android.util.Log
 import android.widget.Toast
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.calculateEndPadding
+import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.offset
@@ -32,6 +35,7 @@ import com.group10.uxuiapp.R
 import androidx.compose.material3.Checkbox
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.tooling.preview.Preview
 import com.group10.uxuiapp.data.TaskItem
 import com.group10.uxuiapp.data.TaskListWithItems
