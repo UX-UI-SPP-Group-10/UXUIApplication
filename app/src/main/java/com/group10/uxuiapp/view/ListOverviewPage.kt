@@ -8,8 +8,11 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.calculateEndPadding
+import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -46,6 +49,7 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -84,7 +88,12 @@ fun ListOverviewPage(navigateTo: (route: String) -> Unit, viewModel: ListViewMod
             }
         }
     ) { innerPadding ->
-        LazyColumn(contentPadding = innerPadding) {
+        LazyColumn(contentPadding = PaddingValues(
+            start = innerPadding.calculateStartPadding(LocalLayoutDirection.current),
+            top = innerPadding.calculateTopPadding(),
+            end = innerPadding.calculateEndPadding(LocalLayoutDirection.current),
+            bottom = innerPadding.calculateBottomPadding() + 50.dp
+        )) {
             items(viewModel.lists.value, key = { it.taskList.id }) { taskListWithItems ->
                 ListItem(
                     taskList = taskListWithItems.taskList,
