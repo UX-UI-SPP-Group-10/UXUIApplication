@@ -23,7 +23,7 @@ import androidx.compose.ui.unit.dp
 import com.group10.uxuiapp.R
 
 @Composable
-fun ChangeButton(onClose: () -> Unit, onDelete: () -> Unit) {
+fun ChangeButton(onClose: () -> Unit, onDelete: () -> Unit, onOpdate: () -> Unit) {
     Box(
         modifier = Modifier
             .clip(RoundedCornerShape(16.dp))
@@ -76,7 +76,7 @@ fun ChangeButton(onClose: () -> Unit, onDelete: () -> Unit) {
 
             // Edit button: Edit name of the list
             Button(
-                onClick = {},
+                onClick = onOpdate,
                 modifier = Modifier
                     .width(45.dp) // Set button width
                     .height(38.dp), // Set button height

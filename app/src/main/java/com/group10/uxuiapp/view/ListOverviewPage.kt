@@ -153,6 +153,10 @@ private fun ListItem(
     selectedIndex: MutableState<Int?>,
     viewModel: ListViewModel
 ) {
+    val context = LocalContext.current
+    val listNameState = remember { mutableStateOf(taskList.title) }
+    val showDialog = remember { mutableStateOf(false) }
+
     Box(
         modifier = Modifier
             .fillMaxWidth()
@@ -219,10 +223,24 @@ private fun ListItem(
                     onDelete = {
                         viewModel.removeList(taskList)
                         selectedIndex.value = null // Reset index after deletion
+                    },
+                    onOpdate = { showDialog.value = true // activate add list name popup
                     }
                 )
             }
         }
+    }
+    if(showDialog.value){
+        ListNameInputDialog(
+            onDismiss = { showDialog.value = false },
+            onConfirm = { name ->
+                viewModel.updateTitle(taskList, name)
+                listNameState.value = name
+                showDialog.value = false
+                Toast.makeText(context, "List '$name' created", Toast.LENGTH_SHORT).show()
+                selectedIndex.value = null
+            }
+        )
     }
 
     if (selectedIndex.value == taskList.id) {
