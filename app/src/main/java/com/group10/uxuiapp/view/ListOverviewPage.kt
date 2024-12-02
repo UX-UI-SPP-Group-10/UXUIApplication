@@ -131,7 +131,7 @@ private fun TopAppBarWithMenu() {
 
     TopAppBar(
         title = {},
-        modifier = Modifier.padding(8.dp),
+        modifier = Modifier,
         navigationIcon = {
             IconButton(onClick = {
                 Toast.makeText(context, "Search clicked", Toast.LENGTH_SHORT).show()

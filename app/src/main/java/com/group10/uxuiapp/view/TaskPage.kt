@@ -8,9 +8,11 @@ import androidx.compose.foundation.layout.calculateEndPadding
 import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material.icons.Icons
@@ -62,7 +64,7 @@ fun TaskPage(taskId: Int, onNavigateBack: () -> Unit, viewModel: ListViewModel) 
         topBar = {
             TopAppBar(
                 title = { Text(taskListWithItems.taskList.title) },
-                modifier = Modifier.padding(8.dp),
+                modifier = Modifier,
                 navigationIcon = {
                     IconButton(onClick = { onNavigateBack() }) {
                         Icon(
