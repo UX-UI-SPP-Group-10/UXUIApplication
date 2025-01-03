@@ -26,7 +26,8 @@ fun AddTaskButton(onClick: () -> Unit) {
         shape = RoundedCornerShape(50), // Rounded container for the pill-shaped button
         modifier = Modifier
             .padding(8.dp)
-            .height(48.dp), // Adjust height for a clean look
+            .height(48.dp)
+            .align(Alignment.End), // Adjust height for a clean look
         colors = androidx.compose.material3.ButtonDefaults.buttonColors(
             containerColor = MaterialTheme.colorScheme.tertiary, // Light gray background
             contentColor = MaterialTheme.colorScheme.onPrimary
