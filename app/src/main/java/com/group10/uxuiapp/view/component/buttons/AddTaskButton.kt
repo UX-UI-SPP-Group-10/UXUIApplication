@@ -21,31 +21,35 @@ import androidx.compose.material.icons.outlined.AddCircle
 
 @Composable
 fun AddTaskButton(onClick: () -> Unit) {
-    Button(
-        onClick = onClick,
-        shape = RoundedCornerShape(50), // Rounded container for the pill-shaped button
-        modifier = Modifier
-            .padding(8.dp)
-            .height(48.dp)
-            .align(Alignment.End), // Adjust height for a clean look
-        colors = androidx.compose.material3.ButtonDefaults.buttonColors(
-            containerColor = MaterialTheme.colorScheme.tertiary, // Light gray background
-            contentColor = MaterialTheme.colorScheme.onPrimary
-        )
+    Box(
+        modifier = Modifier.fillMaxWidth(),
+        contentAlignment = Alignment.BottomEnd
     ) {
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(8.dp) // Space between icon and text
+        Button(
+            onClick = onClick,
+            shape = RoundedCornerShape(50),
+            modifier = Modifier
+                .padding(8.dp)
+                .height(48.dp),
+            colors = androidx.compose.material3.ButtonDefaults.buttonColors(
+                containerColor = MaterialTheme.colorScheme.tertiary,
+                contentColor = MaterialTheme.colorScheme.onPrimary
+            )
         ) {
-            Icon(
-                imageVector = Icons.Outlined.AddCircle,
-                contentDescription = "Add Task",
-                modifier = Modifier.size(20.dp) // Adjust size for the icon
-            )
-            Text(
-                text = "Add task",
-                style = MaterialTheme.typography.headlineMedium,
-            )
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                Icon(
+                    imageVector = Icons.Outlined.AddCircle,
+                    contentDescription = "Add Task",
+                    modifier = Modifier.size(20.dp)
+                )
+                Text(
+                    text = "Add task",
+                    style = MaterialTheme.typography.headlineMedium,
+                )
+            }
         }
     }
 }
