@@ -1,6 +1,7 @@
 package com.group10.uxuiapp.data
 
 import androidx.room.*
+import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface TaskDao {
@@ -12,7 +13,7 @@ interface TaskDao {
 
     @Transaction
     @Query("SELECT * FROM TaskList")
-    suspend fun getTaskListsWithItems(): List<TaskListWithItems>
+    fun getTaskListsWithItems(): Flow<List<TaskListWithItems>>
 
     @Delete
     suspend fun deleteTaskList(taskList: TaskList)

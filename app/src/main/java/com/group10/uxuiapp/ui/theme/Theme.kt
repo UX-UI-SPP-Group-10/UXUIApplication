@@ -51,7 +51,8 @@ fun UXUIApplicationTheme(
     content: @Composable () -> Unit
 ) {
     val colorScheme = if (darkTheme) {
-        DarkColorScheme
+        LightColorScheme    // Forced lightmode for now
+        //DarkColorScheme
     } else {
         LightColorScheme
     }

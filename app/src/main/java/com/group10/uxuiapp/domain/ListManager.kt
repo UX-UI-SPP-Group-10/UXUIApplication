@@ -6,10 +6,11 @@ import com.group10.uxuiapp.data.TaskItem
 import com.group10.uxuiapp.data.TaskList
 import com.group10.uxuiapp.data.TaskListWithItems
 import com.group10.uxuiapp.data.TaskRepository
+import kotlinx.coroutines.flow.Flow
 
 class ListManager(private val taskRepository: TaskRepository) {
 
-    suspend fun getLists(): List<TaskListWithItems> {
+    fun getLists(): Flow<List<TaskListWithItems>> {
         return taskRepository.getTaskListsWithItems()
     }
 

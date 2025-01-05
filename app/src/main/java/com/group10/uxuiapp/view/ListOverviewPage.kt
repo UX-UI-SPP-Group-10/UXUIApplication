@@ -70,15 +70,16 @@ fun ListOverviewPage(navigateTo: (route: String) -> Unit, viewModel: ListViewMod
     val listNameState = remember { mutableStateOf("") }
     val context = LocalContext.current
 
+    // Collect the lists from the ViewModel's Flow
+    val taskListsWithItems by viewModel.lists.collectAsState(emptyList())
+
     // Use LaunchedEffect to reset selectedIndex if list size changes
-    LaunchedEffect(viewModel.lists.value) {
-        // Reset selectedIndex if the currently selected list no longer exists
+    LaunchedEffect(taskListsWithItems) {
         if (selectedIndex.value != null &&
-            viewModel.lists.value.none { it.taskList.id == selectedIndex.value }) {
+            taskListsWithItems.none { it.taskList.id == selectedIndex.value }) {
             selectedIndex.value = null
         }
     }
-
 
     Scaffold(
         topBar = { TopAppBarWithMenu() },
@@ -88,13 +89,15 @@ fun ListOverviewPage(navigateTo: (route: String) -> Unit, viewModel: ListViewMod
             }
         }
     ) { innerPadding ->
-        LazyColumn(contentPadding = PaddingValues(
-            start = innerPadding.calculateStartPadding(LocalLayoutDirection.current),
-            top = innerPadding.calculateTopPadding(),
-            end = innerPadding.calculateEndPadding(LocalLayoutDirection.current),
-            bottom = innerPadding.calculateBottomPadding() + 50.dp
-        )) {
-            items(viewModel.lists.value, key = { it.taskList.id }) { taskListWithItems ->
+        LazyColumn(
+            contentPadding = PaddingValues(
+                start = innerPadding.calculateStartPadding(LocalLayoutDirection.current),
+                top = innerPadding.calculateTopPadding(),
+                end = innerPadding.calculateEndPadding(LocalLayoutDirection.current),
+                bottom = innerPadding.calculateBottomPadding() + 50.dp
+            )
+        ) {
+            items(taskListsWithItems, key = { it.taskList.id }) { taskListWithItems ->
                 ListItem(
                     taskList = taskListWithItems.taskList,
                     navigateTo = navigateTo,
@@ -122,6 +125,7 @@ fun ListOverviewPage(navigateTo: (route: String) -> Unit, viewModel: ListViewMod
         )
     }
 }
+
 
 // Top app bar with search and settings icons and dropdown menu
 @OptIn(ExperimentalMaterial3Api::class)

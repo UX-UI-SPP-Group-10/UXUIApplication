@@ -11,34 +11,41 @@ import com.group10.uxuiapp.data.TaskList
 import com.group10.uxuiapp.data.TaskListWithItems
 import com.group10.uxuiapp.data.TaskRepository
 import com.group10.uxuiapp.domain.ListManager
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
 class ListViewModel(private val taskRepository: TaskRepository) : ViewModel() {
-    private val _lists = mutableStateOf<List<TaskListWithItems>>(emptyList())
-    val lists: State<List<TaskListWithItems>> = _lists
+    private val _lists = MutableStateFlow<List<TaskListWithItems>>(emptyList())
+    val lists: StateFlow<List<TaskListWithItems>> = _lists
+
 
     init {
-        refreshLists()
-    }
-
-    private fun refreshLists() {
         viewModelScope.launch {
-            _lists.value = taskRepository.getTaskListsWithItems()
+            taskRepository.getTaskListsWithItems()
+                .collect { taskListsWithItems ->
+                    _lists.value = taskListsWithItems
+                }
         }
     }
+
+    // Old implementation, replaced by the init block above
+//    private fun refreshLists() {
+//        viewModelScope.launch {
+//            _lists.value = taskRepository.getTaskListsWithItems()
+//        }
+//    }
 
     fun addList(title: String) {
         viewModelScope.launch {
             val newList = TaskList(title = title)
             taskRepository.insertTaskList(newList)
-            refreshLists()
         }
     }
 
     fun removeList(taskList: TaskList) {
         viewModelScope.launch {
             taskRepository.deleteTaskList(taskList)
-            refreshLists()
         }
     }
 
@@ -46,7 +53,6 @@ class ListViewModel(private val taskRepository: TaskRepository) : ViewModel() {
         viewModelScope.launch {
             val updatedList = taskList.copy(title = title)
             taskRepository.insertTaskList(updatedList)
-            refreshLists()
         }
     }
 
@@ -54,14 +60,12 @@ class ListViewModel(private val taskRepository: TaskRepository) : ViewModel() {
         viewModelScope.launch {
             val updatedList = taskList.copy(isLiked = !taskList.isLiked)
             taskRepository.insertTaskList(updatedList)
-            refreshLists()
         }
     }
 
     fun addTaskToList(taskItem: TaskItem) {
         viewModelScope.launch {
             taskRepository.insertTaskItem(taskItem)
-            refreshLists()
         }
     }
 
@@ -69,7 +73,6 @@ class ListViewModel(private val taskRepository: TaskRepository) : ViewModel() {
         viewModelScope.launch {
             val updatedTask = taskItem.copy(isComplete = !taskItem.isComplete)
             taskRepository.insertTaskItem(updatedTask)
-            refreshLists()
         }
     }
 
@@ -77,7 +80,6 @@ class ListViewModel(private val taskRepository: TaskRepository) : ViewModel() {
         viewModelScope.launch {
             val updatedTask = taskItem.copy(label = label)
             taskRepository.insertTaskItem(updatedTask)
-            refreshLists()
         }
     }
 }
