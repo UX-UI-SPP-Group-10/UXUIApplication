@@ -21,7 +21,10 @@ import com.group10.uxuiapp.data.TaskItem
 import com.group10.uxuiapp.view_model.ListViewModel
 
 @Composable
-fun TaskRowItem(task: TaskItem, viewModel: ListViewModel) {
+fun TaskRowItem(
+    task: TaskItem,
+    viewModel: ListViewModel
+) {
     var isChecked by remember { mutableStateOf(task.isComplete) }
     var text by remember { mutableStateOf(task.label) }
 
@@ -29,17 +32,19 @@ fun TaskRowItem(task: TaskItem, viewModel: ListViewModel) {
     Box(
         modifier = Modifier
             .padding(vertical = 6.dp, horizontal = 12.dp)
-            .height(40.dp) // Increased height for better usability
+            .height(40.dp)
             .fillMaxWidth()
             .background(
-                color = MaterialTheme.colorScheme.tertiary, // Background color
+                color = MaterialTheme.colorScheme.surfaceVariant,
                 shape = MaterialTheme.shapes.small // Subtle corner rounding
             )
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(8.dp), // Space between checkbox and text
-            modifier = Modifier.fillMaxWidth()
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 12.dp)
         ) {
             // Checkbox
             Checkbox(
@@ -49,11 +54,11 @@ fun TaskRowItem(task: TaskItem, viewModel: ListViewModel) {
                     viewModel.toggleIsCompleted(task)
                 },
                 colors = CheckboxDefaults.colors(
-                    checkedColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f),
-                    uncheckedColor = MaterialTheme.colorScheme.onSurface,
-                    checkmarkColor = MaterialTheme.colorScheme.tertiary
+                    checkedColor = MaterialTheme.colorScheme.primary,
+                    uncheckedColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
+                    checkmarkColor = MaterialTheme.colorScheme.onPrimary
                 ),
-                modifier = Modifier.size(28.dp) // Adjust checkbox size
+                modifier = Modifier.size(28.dp)
             )
 
             // Editable text
@@ -63,15 +68,16 @@ fun TaskRowItem(task: TaskItem, viewModel: ListViewModel) {
                     text = it
                     viewModel.updateTaskLabel(task, it)
                 },
-                textStyle = MaterialTheme.typography.titleMedium.copy(
-                    textDecoration = if (isChecked) TextDecoration.LineThrough else null, // Add strikethrough if checked
-                    color = if (isChecked) MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f) else MaterialTheme.colorScheme.onSurface // Dim color if checked
+                textStyle = MaterialTheme.typography.bodyLarge.copy(
+                    textDecoration = if (isChecked) TextDecoration.LineThrough else null,
+                    fontWeight = FontWeight.Medium,
+                    color = if (isChecked) MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f) else MaterialTheme.colorScheme.onSurface
                 ),
                 singleLine = true,
                 keyboardOptions = KeyboardOptions.Default,
                 keyboardActions = KeyboardActions.Default,
                 modifier = Modifier
-                    .weight(1f) // Take up remaining space
+                    .weight(1f)
                     .padding(start = 4.dp)
             ) {
                 // Placeholder and content
@@ -79,11 +85,12 @@ fun TaskRowItem(task: TaskItem, viewModel: ListViewModel) {
                     Text(
                         text = "New Task",
                         fontSize = 16.sp,
-                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f) // Dimmed placeholder color
+                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.4f) // Softer placeholder color
                     )
                 }
-                it() // Render the text field content
+                it()
             }
         }
     }
 }
+

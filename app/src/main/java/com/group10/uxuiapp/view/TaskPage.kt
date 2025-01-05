@@ -2,6 +2,8 @@ package com.group10.uxuiapp.view
 
 import android.util.Log
 import android.widget.Toast
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.calculateEndPadding
@@ -16,6 +18,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.outlined.AddCircle
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -35,8 +38,12 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.group10.uxuiapp.R
 import androidx.compose.material3.Checkbox
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.tooling.preview.Preview
 import com.group10.uxuiapp.data.TaskItem
@@ -51,22 +58,30 @@ import com.group10.uxuiapp.view_model.ListViewModel
 fun TaskPage(taskId: Int, onNavigateBack: () -> Unit, viewModel: ListViewModel) {
     val context = LocalContext.current
 
-    // Fetch the task list with items from the ViewModel
-    val taskListWithItems = viewModel.lists.value.find { it.taskList.id == taskId }
+    // Observe the currently selected task list
+    LaunchedEffect(taskId) {
+        viewModel.selectTaskList(taskId)
+    }
+
+    val taskListWithItems by viewModel.currentTaskList.collectAsState()
 
     if (taskListWithItems == null) {
-        Log.d("TaskPage", "Task not found with ID: $taskId")
-        onNavigateBack()
+        // Show a loading indicator while the data is being fetched
+        Box(
+            modifier = Modifier.fillMaxSize(),
+            contentAlignment = Alignment.Center
+        ) {
+            CircularProgressIndicator()
+        }
         return
     }
 
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text(taskListWithItems.taskList.title) },
-                modifier = Modifier,
+                title = { Text(taskListWithItems!!.taskList.title) },
                 navigationIcon = {
-                    IconButton(onClick = { onNavigateBack() }) {
+                    IconButton(onClick = onNavigateBack) {
                         Icon(
                             painter = painterResource(id = R.drawable.arrow_left),
                             contentDescription = "Back"
@@ -80,23 +95,32 @@ fun TaskPage(taskId: Int, onNavigateBack: () -> Unit, viewModel: ListViewModel) 
                         Icon(Icons.Filled.Search, contentDescription = "Search")
                     }
                     SettingsButton(context = context)
-                },
-                colors = TopAppBarDefaults.topAppBarColors(),
-                scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
+                }
             )
         },
         bottomBar = {
             AddTaskButton(onClick = {
-                Log.d("TaskPage", "Add task button clicked for taskId: $taskId")
-                val newTask = TaskItem(label = "", taskListId = taskId)
+                val newTask = TaskItem(label = "New Task", taskListId = taskId)
                 viewModel.addTaskToList(newTask)
             })
         }
     ) { innerPadding ->
-        LazyColumn(contentPadding = innerPadding) {
-            itemsIndexed(taskListWithItems.taskItems) { index, taskItem ->
-                TaskRowItem(taskItem, viewModel)
+        if (taskListWithItems!!.taskItems.isEmpty()) {
+            // Show a message if no tasks are present
+            Box(
+                modifier = Modifier.fillMaxSize(),
+                contentAlignment = Alignment.Center
+            ) {
+                Text("No tasks yet. Add some!")
             }
+        } else {
+            // Display the list of tasks
+            LazyColumn(contentPadding = innerPadding) {
+                itemsIndexed(taskListWithItems!!.taskItems) { _, task ->
+                    TaskRowItem(task = task, viewModel = viewModel)
+                }
+            }
+
         }
     }
 }

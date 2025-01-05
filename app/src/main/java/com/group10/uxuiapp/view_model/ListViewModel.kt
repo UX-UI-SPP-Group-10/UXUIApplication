@@ -11,6 +11,7 @@ import com.group10.uxuiapp.data.TaskList
 import com.group10.uxuiapp.data.TaskListWithItems
 import com.group10.uxuiapp.data.TaskRepository
 import com.group10.uxuiapp.domain.ListManager
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -19,22 +20,28 @@ class ListViewModel(private val taskRepository: TaskRepository) : ViewModel() {
     private val _lists = MutableStateFlow<List<TaskListWithItems>>(emptyList())
     val lists: StateFlow<List<TaskListWithItems>> = _lists
 
+    private val _currentTaskList = MutableStateFlow<TaskListWithItems?>(null)
+    val currentTaskList: StateFlow<TaskListWithItems?> = _currentTaskList
 
     init {
+        // Observe all task lists with their items
         viewModelScope.launch {
             taskRepository.getTaskListsWithItems()
                 .collect { taskListsWithItems ->
                     _lists.value = taskListsWithItems
+                    // Update the current list if it is being viewed
+                    _currentTaskList.value?.let { current ->
+                        _currentTaskList.value = taskListsWithItems.find { it.taskList.id == current.taskList.id }
+                    }
                 }
         }
     }
 
-    // Old implementation, replaced by the init block above
-//    private fun refreshLists() {
-//        viewModelScope.launch {
-//            _lists.value = taskRepository.getTaskListsWithItems()
-//        }
-//    }
+    fun selectTaskList(taskListId: Int) {
+        // Find the specific task list to observe
+        val selectedList = _lists.value.find { it.taskList.id == taskListId }
+        _currentTaskList.value = selectedList
+    }
 
     fun addList(title: String) {
         viewModelScope.launch {
@@ -69,6 +76,16 @@ class ListViewModel(private val taskRepository: TaskRepository) : ViewModel() {
         }
     }
 
+    fun updateTask(taskItem: TaskItem, newLabel: String? = null, isComplete: Boolean? = null) {
+        viewModelScope.launch {
+            val updatedTask = taskItem.copy(
+                label = newLabel ?: taskItem.label,
+                isComplete = isComplete ?: taskItem.isComplete
+            )
+            taskRepository.insertTaskItem(updatedTask)
+        }
+    }
+
     fun toggleIsCompleted(taskItem: TaskItem) {
         viewModelScope.launch {
             val updatedTask = taskItem.copy(isComplete = !taskItem.isComplete)
@@ -76,11 +93,18 @@ class ListViewModel(private val taskRepository: TaskRepository) : ViewModel() {
         }
     }
 
-    fun updateTaskLabel(taskItem: TaskItem, label: String) {
+    fun updateTaskLabel(taskItem: TaskItem, newLabel: String) {
         viewModelScope.launch {
-            val updatedTask = taskItem.copy(label = label)
+            val updatedTask = taskItem.copy(label = newLabel)
             taskRepository.insertTaskItem(updatedTask)
         }
     }
+
+    fun deleteTask(taskItem: TaskItem) {
+        viewModelScope.launch {
+            taskRepository.deleteTaskItem(taskItem)
+        }
+    }
 }
+
 
