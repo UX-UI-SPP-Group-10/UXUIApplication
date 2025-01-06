@@ -54,6 +54,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.zIndex
 import com.example.uxuiapplication.ChangeButton
 import com.group10.uxuiapp.data.TaskList
 import com.group10.uxuiapp.view.component.ListNameInputDialog
@@ -69,6 +70,8 @@ fun ListOverviewPage(navigateTo: (route: String) -> Unit, viewModel: ListViewMod
     val showDialog = remember { mutableStateOf(false) }
     val listNameState = remember { mutableStateOf("") }
     val context = LocalContext.current
+    val changeButtonAnchor = remember { mutableStateOf<Offset?>(null) }
+    val currentTaskList = remember { mutableStateOf<TaskList?>(null) }
 
     // Collect the lists from the ViewModel's Flow
     val taskListsWithItems by viewModel.lists.collectAsState(emptyList())
@@ -81,48 +84,109 @@ fun ListOverviewPage(navigateTo: (route: String) -> Unit, viewModel: ListViewMod
         }
     }
 
-    Scaffold(
-        topBar = { TopAppBarWithMenu() },
-        floatingActionButton = {
-            AddNewListButton {
-                showDialog.value = true // activate add list name popup
+    Box(modifier = Modifier.fillMaxSize()) {
+        Scaffold(
+            topBar = { TopAppBarWithMenu() },
+            floatingActionButton = {
+                AddNewListButton {
+                    showDialog.value = true
+                }
+            }
+        ) { innerPadding ->
+
+            // Main content area
+            LazyColumn(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(innerPadding),
+                contentPadding = PaddingValues(bottom = 50.dp)
+            ) {
+                items(taskListsWithItems, key = { it.taskList.id }) { taskListWithItems ->
+                    ListItem(
+                        taskList = taskListWithItems.taskList,
+                        navigateTo = navigateTo,
+                        selectedIndex = selectedIndex,
+                        viewModel = viewModel,
+                        onPositionChange = { offset, taskList ->
+                            changeButtonAnchor.value = offset
+                            currentTaskList.value = taskList
+                        }
+                    )
+                }
             }
         }
-    ) { innerPadding ->
-        LazyColumn(
-            contentPadding = PaddingValues(
-                start = innerPadding.calculateStartPadding(LocalLayoutDirection.current),
-                top = innerPadding.calculateTopPadding(),
-                end = innerPadding.calculateEndPadding(LocalLayoutDirection.current),
-                bottom = innerPadding.calculateBottomPadding() + 50.dp
-            )
-        ) {
-            items(taskListsWithItems, key = { it.taskList.id }) { taskListWithItems ->
-                ListItem(
-                    taskList = taskListWithItems.taskList,
-                    navigateTo = navigateTo,
-                    selectedIndex = selectedIndex,
-                    viewModel = viewModel
+
+
+
+        // Render ChangeButton
+        if (selectedIndex.value != null && changeButtonAnchor.value != null) {
+            Box(
+                modifier = Modifier
+                    .offset(
+                        x = changeButtonAnchor.value!!.x.dp,
+                        y = 24.dp + changeButtonAnchor.value!!.y.dp
+                    )
+                    .zIndex(1f) // Ensure ChangeButton is on top
+            ) {
+                ChangeButton(
+                    onClose = {
+                        selectedIndex.value = null
+                    },
+                    onDelete = {
+                        selectedIndex.value?.let { id ->
+                            val taskList = taskListsWithItems.find { it.taskList.id == id }?.taskList
+                            if (taskList != null) {
+                                viewModel.removeList(taskList)
+                            }
+                        }
+                        selectedIndex.value = null
+                    },
+                    onOpdate = { showDialog.value = true }
                 )
             }
         }
-    }
 
-    // Show the ListNamePopup when the button is clicked
-    if (showDialog.value) {
-        ListNameInputDialog(
-            onDismiss = { showDialog.value = false },
-            onConfirm = { name ->
-                if (name.isNotBlank()) {
-                    viewModel.addList(name)
-                    listNameState.value = name
+        // Full-screen overlay to detect taps
+        if (selectedIndex.value != null) {
+            Box(
+                Modifier
+                    .fillMaxSize()
+                    .background(Color.Black.copy(alpha = 0.3f))
+                    .pointerInput(Unit) {
+                        detectTapGestures(onTap = { selectedIndex.value = null })
+                    }
+            )
+        }
+
+        if(showDialog.value){
+            ListNameInputDialog(
+                onDismiss = { showDialog.value = false },
+                onConfirm = { newName ->
+                    currentTaskList.value?.let { taskList ->
+                        viewModel.updateTitle(taskList, newName)
+                    }
                     showDialog.value = false
-                    Toast.makeText(context, "List '$name' created", Toast.LENGTH_SHORT).show()
-                } else {
-                    Toast.makeText(context, "Please enter a valid name", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(context, "List '$newName' created", Toast.LENGTH_SHORT).show()
+                    selectedIndex.value = null
                 }
-            }
-        )
+            )
+        }
+        else if (showDialog.value && currentTaskList.value != null){
+            // Show the ListNamePopup when the button is clicked
+            ListNameInputDialog(
+                onDismiss = { showDialog.value = false },
+                onConfirm = { name ->
+                    if (name.isNotBlank()) {
+                        viewModel.addList(name)
+                        listNameState.value = name
+                        showDialog.value = false
+                        Toast.makeText(context, "List '$name' created", Toast.LENGTH_SHORT).show()
+                    } else {
+                            Toast.makeText(context, "Please enter a valid name", Toast.LENGTH_SHORT).show()
+                    }
+                }
+            )
+        }
     }
 }
 
@@ -155,7 +219,8 @@ private fun ListItem(
     taskList: TaskList,
     navigateTo: (String) -> Unit,
     selectedIndex: MutableState<Int?>,
-    viewModel: ListViewModel
+    viewModel: ListViewModel,
+    onPositionChange: (Offset, TaskList) -> Unit
 ) {
     val context = LocalContext.current
     val listNameState = remember { mutableStateOf(taskList.title) }
@@ -194,6 +259,7 @@ private fun ListItem(
                         },
                         onLongPress = {
                             selectedIndex.value = taskList.id
+                            onPositionChange(Offset(98f, 24f), taskList)
                         }
                     )
                 }
@@ -213,38 +279,6 @@ private fun ListItem(
                 LikedButton(taskList, viewModel)
             }
         }
-
-        if (selectedIndex.value == taskList.id) {
-            Box(
-                modifier = Modifier
-                    .align(Alignment.BottomCenter)
-                    .offset(y = 24.dp)
-            ) {
-                ChangeButton(
-                    onClose = {
-                        selectedIndex.value = null
-                    },
-                    onDelete = {
-                        viewModel.removeList(taskList)
-                        selectedIndex.value = null // Reset index after deletion
-                    },
-                    onOpdate = { showDialog.value = true // activate add list name popup
-                    }
-                )
-            }
-        }
-    }
-    if(showDialog.value){
-        ListNameInputDialog(
-            onDismiss = { showDialog.value = false },
-            onConfirm = { name ->
-                viewModel.updateTitle(taskList, name)
-                listNameState.value = name
-                showDialog.value = false
-                Toast.makeText(context, "List '$name' created", Toast.LENGTH_SHORT).show()
-                selectedIndex.value = null
-            }
-        )
     }
 
     if (selectedIndex.value == taskList.id) {
