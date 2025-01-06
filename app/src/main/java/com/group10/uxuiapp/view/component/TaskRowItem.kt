@@ -94,7 +94,7 @@ fun TaskRowItem(
             ) {
                 if (text.isEmpty()) {
                     Text(
-                        text = "New Task",
+                        text = "",
                         fontSize = 16.sp,
                         color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.4f)
                     )
