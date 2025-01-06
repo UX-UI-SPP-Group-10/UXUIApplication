@@ -21,7 +21,10 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
@@ -48,7 +51,9 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
@@ -101,9 +106,10 @@ fun ListOverviewPage(navigateTo: (route: String) -> Unit, viewModel: ListViewMod
                     .padding(innerPadding),
                 contentPadding = PaddingValues(bottom = 50.dp)
             ) {
-                items(taskListsWithItems, key = { it.taskList.id }) { taskListWithItems ->
+                itemsIndexed(taskListsWithItems){index,  taskListWithItems->
                     ListItem(
                         taskList = taskListWithItems.taskList,
+                        index = index,
                         navigateTo = navigateTo,
                         selectedIndex = selectedIndex,
                         viewModel = viewModel,
@@ -158,7 +164,7 @@ fun ListOverviewPage(navigateTo: (route: String) -> Unit, viewModel: ListViewMod
             )
         }
 
-        if(showDialog.value){
+        if(showDialog.value && currentTaskList.value != null){
             ListNameInputDialog(
                 onDismiss = { showDialog.value = false },
                 onConfirm = { newName ->
@@ -168,10 +174,11 @@ fun ListOverviewPage(navigateTo: (route: String) -> Unit, viewModel: ListViewMod
                     showDialog.value = false
                     Toast.makeText(context, "List '$newName' created", Toast.LENGTH_SHORT).show()
                     selectedIndex.value = null
+                    currentTaskList.value = null
                 }
             )
         }
-        else if (showDialog.value && currentTaskList.value != null){
+        else if (showDialog.value){
             // Show the ListNamePopup when the button is clicked
             ListNameInputDialog(
                 onDismiss = { showDialog.value = false },
@@ -217,14 +224,14 @@ private fun TopAppBarWithMenu() {
 @Composable
 private fun ListItem(
     taskList: TaskList,
+    index: Int,
     navigateTo: (String) -> Unit,
     selectedIndex: MutableState<Int?>,
     viewModel: ListViewModel,
     onPositionChange: (Offset, TaskList) -> Unit
 ) {
-    val context = LocalContext.current
-    val listNameState = remember { mutableStateOf(taskList.title) }
-    val showDialog = remember { mutableStateOf(false) }
+    val density = LocalDensity.current
+    var itemPosition by remember { mutableStateOf(Offset.Zero) }
 
     Box(
         modifier = Modifier
@@ -258,8 +265,10 @@ private fun ListItem(
                             }
                         },
                         onLongPress = {
+                            // Calculate dynamic yOffset based on the item's index and scroll state
+                            val yOffset = with(density) { itemPosition.y * (index+1) + 4.dp.toPx() }
+                            onPositionChange(Offset(98f, yOffset), taskList)
                             selectedIndex.value = taskList.id
-                            onPositionChange(Offset(98f, 24f), taskList)
                         }
                     )
                 }
@@ -287,8 +296,6 @@ private fun ListItem(
 }
 
 
-
-
 @Composable
 private fun LikedButton(taskList: TaskList, viewModel: ListViewModel) {
     val isLiked = taskList.isLiked
@@ -304,7 +311,6 @@ private fun LikedButton(taskList: TaskList, viewModel: ListViewModel) {
         tint = if (isLiked) Color.Red else Color.White
     )
 }
-
 
 
 // Floating Action Button composable for adding a new list item
