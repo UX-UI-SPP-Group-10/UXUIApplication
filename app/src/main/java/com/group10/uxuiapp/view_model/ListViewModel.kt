@@ -62,13 +62,6 @@ class ListViewModel(private val taskRepository: TaskRepository) : ViewModel() {
         }
     }
 
-    fun updateTaskLabel(taskItem: TaskItem, newLabel: String) {
-        viewModelScope.launch {
-            val updatedTask = taskItem.copy(label = newLabel)
-            taskRepository.insertTaskItem(updatedTask)
-        }
-    }
-
     fun updateTaskList(taskList: TaskList, title: String? = null, isLiked: Boolean? = null) {
         viewModelScope.launch {
             taskRepository.updateTaskList(
