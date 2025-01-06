@@ -55,7 +55,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.uxuiapplication.ChangeButton
-import com.group10.uxuiapp.data.TaskList
+import com.group10.uxuiapp.data.data_class.TaskList
 import com.group10.uxuiapp.view.component.ListNameInputDialog
 import com.group10.uxuiapp.view.component.SettingsButton
 import com.group10.uxuiapp.view_model.ListViewModel
@@ -238,7 +238,7 @@ private fun ListItem(
         ListNameInputDialog(
             onDismiss = { showDialog.value = false },
             onConfirm = { name ->
-                viewModel.updateTitle(taskList, name)
+                viewModel.updateTaskList(taskList = taskList, title = name)
                 listNameState.value = name
                 showDialog.value = false
                 Toast.makeText(context, "List '$name' created", Toast.LENGTH_SHORT).show()
@@ -265,7 +265,7 @@ private fun LikedButton(taskList: TaskList, viewModel: ListViewModel) {
         modifier = Modifier
             .size(25.dp)
             .clickable {
-                viewModel.toggleLikedStatus(taskList) // Update the global state as well
+                viewModel.updateTaskList(taskList = taskList, isLiked = !isLiked)
             },
         tint = if (isLiked) Color.Red else Color.White
     )

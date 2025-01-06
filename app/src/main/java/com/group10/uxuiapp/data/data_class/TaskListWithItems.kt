@@ -1,4 +1,4 @@
-package com.group10.uxuiapp.data
+package com.group10.uxuiapp.data.data_class
 
 import androidx.room.Embedded
 import androidx.room.Relation

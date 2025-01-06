@@ -1,5 +1,6 @@
 package com.group10.uxuiapp.view.component
 
+import android.R.attr.checked
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.BasicTextField
@@ -17,72 +18,77 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.group10.uxuiapp.data.TaskItem
+import com.group10.uxuiapp.data.data_class.TaskItem
 import com.group10.uxuiapp.view_model.ListViewModel
 
 @Composable
-fun TaskRowItem(task: TaskItem, viewModel: ListViewModel) {
+fun TaskRowItem(
+    task: TaskItem,
+    viewModel: ListViewModel
+) {
+    // Sync isChecked with task.isComplete
     var isChecked by remember { mutableStateOf(task.isComplete) }
+
+    // Sync text with task.label
     var text by remember { mutableStateOf(task.label) }
 
     // Main container
     Box(
         modifier = Modifier
             .padding(vertical = 6.dp, horizontal = 12.dp)
-            .height(40.dp) // Increased height for better usability
+            .height(40.dp)
             .fillMaxWidth()
             .background(
-                color = MaterialTheme.colorScheme.tertiary, // Background color
-                shape = MaterialTheme.shapes.small // Subtle corner rounding
+                color = MaterialTheme.colorScheme.tertiary,
+                shape = MaterialTheme.shapes.small
             )
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(8.dp), // Space between checkbox and text
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
             modifier = Modifier.fillMaxWidth()
         ) {
             // Checkbox
             Checkbox(
-                checked = isChecked,
-                onCheckedChange = {
-                    isChecked = it
-                    viewModel.toggleIsCompleted(task)
+                checked = isChecked, // Use local isChecked state
+                onCheckedChange = { newChecked ->
+                    isChecked = newChecked // Update local state
+                    viewModel.updateTaskItem(taskItem = task, isComplete = newChecked)
                 },
                 colors = CheckboxDefaults.colors(
                     checkedColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f),
                     uncheckedColor = MaterialTheme.colorScheme.onSurface,
                     checkmarkColor = MaterialTheme.colorScheme.tertiary
                 ),
-                modifier = Modifier.size(28.dp) // Adjust checkbox size
+                modifier = Modifier.size(28.dp)
             )
 
             // Editable text
             BasicTextField(
                 value = text,
-                onValueChange = {
-                    text = it
-                    viewModel.updateTaskLabel(task, it)
+                onValueChange = { newText ->
+                    text = newText // Update local state
+                    viewModel.updateTaskItem(task.copy(label = newText)) // Update ViewModel
                 },
                 textStyle = MaterialTheme.typography.titleMedium.copy(
-                    textDecoration = if (isChecked) TextDecoration.LineThrough else null, // Add strikethrough if checked
-                    color = if (isChecked) MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f) else MaterialTheme.colorScheme.onSurface // Dim color if checked
+                    textDecoration = if (isChecked) TextDecoration.LineThrough else null,
+                    color = if (isChecked) MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f) else MaterialTheme.colorScheme.onSurface
                 ),
                 singleLine = true,
                 keyboardOptions = KeyboardOptions.Default,
                 keyboardActions = KeyboardActions.Default,
                 modifier = Modifier
-                    .weight(1f) // Take up remaining space
+                    .weight(1f)
                     .padding(start = 4.dp)
             ) {
-                // Placeholder and content
                 if (text.isEmpty()) {
                     Text(
                         text = "New Task",
                         fontSize = 16.sp,
-                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f) // Dimmed placeholder color
+                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f)
                     )
                 }
-                it() // Render the text field content
+                it()
             }
         }
     }

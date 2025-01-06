@@ -1,10 +1,8 @@
 package com.group10.uxuiapp.domain
 
-import android.util.Log
-import androidx.compose.runtime.mutableStateListOf
-import com.group10.uxuiapp.data.TaskItem
-import com.group10.uxuiapp.data.TaskList
-import com.group10.uxuiapp.data.TaskListWithItems
+import com.group10.uxuiapp.data.data_class.TaskItem
+import com.group10.uxuiapp.data.data_class.TaskList
+import com.group10.uxuiapp.data.data_class.TaskListWithItems
 import com.group10.uxuiapp.data.TaskRepository
 import kotlinx.coroutines.flow.Flow
 
