@@ -78,4 +78,6 @@ dependencies {
 
     implementation("androidx.room:room-ktx:2.6.1")
 
+    implementation ("com.giphy.sdk:ui:2.3.15")
+
 }
