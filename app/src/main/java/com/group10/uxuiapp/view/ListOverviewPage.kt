@@ -143,25 +143,34 @@ fun ListOverviewPage(navigateTo: (route: String) -> Unit, viewModel: ListViewMod
 @Composable
 private fun TopAppBarWithMenu(query: MutableState<String>) {
     val context = LocalContext.current
+    val textFieldVisible = remember { mutableStateOf(false) }
 
     TopAppBar(
         title = {
-            TextField(
-                value = query.value,
-                onValueChange = {query.value = it}, // Update the query state
-                placeholder = {Text("Search...")},
-                singleLine = true,
-                modifier = Modifier.fillMaxWidth()
-            )
+
+            if (textFieldVisible.value) {
+                TextField(
+                    value = query.value,
+                    onValueChange = { query.value = it }, // Update the query state
+                    placeholder = { Text("Search...") },
+                    singleLine = true,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(45.dp)
+                        .clip(RoundedCornerShape(20.dp)),
+
+                )
+            } else {
+                Text(text = "")
+            }
         },
         modifier = Modifier,
         navigationIcon = {
-            /*IconButton(onClick = {
-                Toast.makeText(context, "Search clicked", Toast.LENGTH_SHORT).show()
+            IconButton(onClick = {
+                textFieldVisible.value = !textFieldVisible.value
             }) {
                 Icon(Icons.Filled.Search, contentDescription = "Search")
-            } */
-            Icon(Icons.Filled.Search, contentDescription = "Search")
+            }
         },
         actions = {
             SettingsButton(context = context)
