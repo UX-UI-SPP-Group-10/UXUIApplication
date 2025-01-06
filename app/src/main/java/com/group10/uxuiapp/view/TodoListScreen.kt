@@ -54,41 +54,54 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.room.Query
 import coil.compose.SubcomposeAsyncImage
 import coil.compose.rememberAsyncImagePainter
 import coil.compose.rememberImagePainter
 import com.example.uxuiapplication.ChangeButton
 import com.group10.uxuiapp.data.data_class.TodoList
+import com.group10.uxuiapp.ui.navigation.AppNavigator
 import com.group10.uxuiapp.data.GiphyActivity
 import com.group10.uxuiapp.view.component.ListNameInputDialog
 import com.group10.uxuiapp.view.component.SettingsButton
 import com.group10.uxuiapp.view_model.ListViewModel
+import com.group10.uxuiapp.ui.navigation.Screen
 
 
 // Main ListOverviewPage with Scaffold and LazyColumn
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ListOverviewPage(navigateTo: (route: String) -> Unit, viewModel: ListViewModel) {
+fun TodoListScreen(viewModel: ListViewModel, appNavigator: AppNavigator) {
     val selectedIndex = remember { mutableStateOf<Int?>(null) }
     val showDialog = remember { mutableStateOf(false) }
     val listNameState = remember { mutableStateOf("") }
     val context = LocalContext.current
+    val query = remember { mutableStateOf("") }
 
     // Collect the lists from the ViewModel's Flow
+    //val taskListsWithItems2 = remember(query.value) {
+    // viewModel.filterLists(query.value)
+    //}
     val taskListsWithItems by viewModel.lists.collectAsState(emptyList())
 
     // Use LaunchedEffect to reset selectedIndex if list size changes
     LaunchedEffect(taskListsWithItems) {
         if (selectedIndex.value != null &&
-            taskListsWithItems.none { it.todoList.id == selectedIndex.value }) {
+            taskListsWithItems.none { it.todoList.id == selectedIndex.value }
+        ) {
             selectedIndex.value = null
         }
     }
 
+    val filteredLists = taskListsWithItems.filter {
+        it.todoList.title.contains(query.value, ignoreCase = true)
+    }
+
     Scaffold(
-        topBar = { TopAppBarWithMenu() },
+        topBar = { TopAppBarWithMenu(query) },
         floatingActionButton = {
             AddNewListButton {
                 showDialog.value = true // activate add list name popup
@@ -103,32 +116,35 @@ fun ListOverviewPage(navigateTo: (route: String) -> Unit, viewModel: ListViewMod
                 bottom = innerPadding.calculateBottomPadding() + 50.dp
             )
         ) {
-            items(taskListsWithItems, key = { it.todoList.id }) { taskListWithItems ->
+            // Use the filtered list directly or fallback to the full list
+            val listsToShow = if (query.value.isNotEmpty()) filteredLists else taskListsWithItems
+
+            items(listsToShow, key = { it.todoList.id }) { taskListWithItems ->
                 ListItem(
                     todoList = taskListWithItems.todoList,
-                    navigateTo = navigateTo,
                     selectedIndex = selectedIndex,
-                    viewModel = viewModel
+                    viewModel = viewModel,
+                    appNavigator = appNavigator
                 )
             }
         }
-    }
 
-    // Show the ListNamePopup when the button is clicked
-    if (showDialog.value) {
-        ListNameInputDialog(
-            onDismiss = { showDialog.value = false },
-            onConfirm = { name ->
-                if (name.isNotBlank()) {
-                    viewModel.addList(name)
-                    listNameState.value = name
-                    showDialog.value = false
-                    Toast.makeText(context, "List '$name' created", Toast.LENGTH_SHORT).show()
-                } else {
-                    Toast.makeText(context, "Please enter a valid name", Toast.LENGTH_SHORT).show()
+
+        if (showDialog.value) {
+            ListNameInputDialog(
+                onDismiss = { showDialog.value = false },
+                onConfirm = { name ->
+                    if (name.isNotBlank()) {
+                        viewModel.addList(name)
+                        showDialog.value = false
+                        Toast.makeText(context, "List '$name' created", Toast.LENGTH_SHORT).show()
+                    } else {
+                        Toast.makeText(context, "Please enter a valid name", Toast.LENGTH_SHORT)
+                            .show()
+                    }
                 }
-            }
-        )
+            )
+        }
     }
 }
 
@@ -136,15 +152,33 @@ fun ListOverviewPage(navigateTo: (route: String) -> Unit, viewModel: ListViewMod
 // Top app bar with search and settings icons and dropdown menu
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun TopAppBarWithMenu() {
+private fun TopAppBarWithMenu(query: MutableState<String>) {
     val context = LocalContext.current
+    val textFieldVisible = remember { mutableStateOf(false) }
 
     TopAppBar(
-        title = {},
+        title = {
+
+            if (textFieldVisible.value) {
+                TextField(
+                    value = query.value,
+                    onValueChange = { query.value = it }, // Update the query state
+                    placeholder = { Text("Search...") },
+                    singleLine = true,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(45.dp)
+                        .clip(RoundedCornerShape(20.dp)),
+
+                )
+            } else {
+                Text(text = "")
+            }
+        },
         modifier = Modifier,
         navigationIcon = {
             IconButton(onClick = {
-                Toast.makeText(context, "Search clicked", Toast.LENGTH_SHORT).show()
+                textFieldVisible.value = !textFieldVisible.value
             }) {
                 Icon(Icons.Filled.Search, contentDescription = "Search")
             }
@@ -156,12 +190,13 @@ private fun TopAppBarWithMenu() {
         scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
     )
 }
+
 @Composable
 private fun ListItem(
     todoList: TodoList,
-    navigateTo: (String) -> Unit,
     selectedIndex: MutableState<Int?>,
-    viewModel: ListViewModel
+    viewModel: ListViewModel,
+    appNavigator: AppNavigator
 ) {
     val context = LocalContext.current
     val listNameState = remember { mutableStateOf(todoList.title) }
@@ -206,7 +241,7 @@ private fun ListItem(
                         onTap = {
                             val refreshedTaskList = viewModel.lists.value.find { it.todoList.id == todoList.id }
                             if (refreshedTaskList != null) {
-                                navigateTo("taskList/${refreshedTaskList.todoList.id}")
+                                appNavigator.navigateToTask(refreshedTaskList.todoList.id)
                             } else {
                                 Log.e("ListItem", "Attempted to navigate to a deleted or invalid list.")
                             }
