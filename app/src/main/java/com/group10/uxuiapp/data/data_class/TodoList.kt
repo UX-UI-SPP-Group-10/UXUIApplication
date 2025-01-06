@@ -4,7 +4,7 @@ import androidx.room.Entity
 import androidx.room.PrimaryKey
 
 @Entity
-data class TaskList(
+data class TodoList(
     @PrimaryKey(autoGenerate = true) val id: Int = 0,
     var title: String,
     val isLiked: Boolean = false

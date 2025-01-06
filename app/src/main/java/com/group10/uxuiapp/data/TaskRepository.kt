@@ -1,19 +1,21 @@
 package com.group10.uxuiapp.data
 
 import com.group10.uxuiapp.data.data_class.TaskItem
-import com.group10.uxuiapp.data.data_class.TaskList
-import com.group10.uxuiapp.data.data_class.TaskListWithItems
+import com.group10.uxuiapp.data.data_class.TodoList
+import com.group10.uxuiapp.data.data_class.TodoListWithTaskItem
 import kotlinx.coroutines.flow.Flow
 
 class TaskRepository(private val taskDao: TaskDao) {
-    suspend fun insertTaskList(taskList: TaskList) = taskDao.insertTaskList(taskList)
+    suspend fun insertTodoList(todoList: TodoList) = taskDao.insertTodoList(todoList)
     suspend fun insertTaskItem(taskItem: TaskItem) = taskDao.insertTaskItem(taskItem)
-    fun getTaskListsWithItems(): Flow<List<TaskListWithItems>> = taskDao.getTaskListsWithItems()
-    fun getTaskListById(id: Int): Flow<TaskList> = taskDao.getTaskListById(id)
-    fun getTaskItemsByListId(taskListId: Int): Flow<List<TaskItem>> = taskDao.getTaskItemsByListId(taskListId)
-    suspend fun updateTaskList(taskList: TaskList, title: String? = null, isLiked: Boolean? = null) {
-        taskDao.updateTaskList(taskList.id, title, isLiked)
+    fun getTodoListWithTask(): Flow<List<TodoListWithTaskItem>> = taskDao.getTodoListsWithItems()
+    fun getTodoListById(id: Int): Flow<TodoList> = taskDao.getTodoListById(id)
+    fun getTaskItemsByListId(todoListID: Int): Flow<List<TaskItem>> = taskDao.getTaskItemsByListId(todoListID)
+
+    suspend fun updateTodoList(todoList: TodoList, title: String? = null, isLiked: Boolean? = null) {
+        taskDao.updateTodoList(todoList.id, title, isLiked)
     }
+
     suspend fun updateTaskItem(taskItem: TaskItem, label: String? = null, isComplete: Boolean? = null) {
         taskDao.updateTaskItem(
             id = taskItem.id,
@@ -21,6 +23,7 @@ class TaskRepository(private val taskDao: TaskDao) {
             isComplete = isComplete
         )
     }
-    suspend fun deleteTaskList(taskList: TaskList) = taskDao.deleteTaskList(taskList)
+
+    suspend fun deleteTodoList(todoList: TodoList) = taskDao.deleteTodoList(todoList)
     suspend fun deleteTaskItem(taskItem: TaskItem) = taskDao.deleteTaskItem(taskItem)
 }

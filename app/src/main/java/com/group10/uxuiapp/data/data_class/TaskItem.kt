@@ -8,5 +8,5 @@ data class TaskItem(
     @PrimaryKey(autoGenerate = true) val id: Int = 0,
     val label: String,
     val isComplete: Boolean = false,
-    val taskListId: Int
+    val todoListId: Int
 )

@@ -14,7 +14,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.group10.uxuiapp.view.ListOverviewPage
-import com.group10.uxuiapp.view.TaskPage
+import com.group10.uxuiapp.view.TaskScreen
 import com.group10.uxuiapp.view_model.ListViewModel
 
 @OptIn(ExperimentalAnimationApi::class)  // Enable experimental animation APIs
@@ -67,7 +67,7 @@ fun MainNavigation(viewModelFactory: ViewModelProvider.Factory) {
             }
         ) { backStackEntry ->
             val taskId = backStackEntry.arguments?.getString("taskId")?.toIntOrNull() ?: -1
-            TaskPage(
+            TaskScreen(
                 taskId = taskId,
                 onNavigateBack = { navController.popBackStack() },
                 viewModel = viewModel
