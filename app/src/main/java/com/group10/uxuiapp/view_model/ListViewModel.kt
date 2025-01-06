@@ -78,9 +78,9 @@ class ListViewModel(private val taskRepository: TaskRepository) : ViewModel() {
 
     fun updateGifUrl(todoListId: Int, gifUrl: String) {
         viewModelScope.launch {
-            val taskList = _lists.value.find { it.todoList.id == todoListId }?.todoList
-            if (taskList != null) {
-                taskRepository.updateTodoList(taskList.copy(gifUrl = gifUrl))
+            val todoList = _lists.value.find { it.todoList.id == todoListId }?.todoList
+            if (todoList != null) {
+                taskRepository.updateTodoList(todoList.copy(gifUrl = gifUrl))
             }
         }
     }

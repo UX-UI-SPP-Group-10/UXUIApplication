@@ -8,7 +8,7 @@ import com.giphy.sdk.core.models.Media
 import com.giphy.sdk.ui.GPHContentType
 import com.giphy.sdk.ui.Giphy
 import com.giphy.sdk.ui.views.GiphyDialogFragment
-import com.group10.uxuiapp.data.data_class.TaskList
+import com.group10.uxuiapp.data.data_class.TodoList
 import com.group10.uxuiapp.view_model.ListViewModel
 
 class GiphyActivity : AppCompatActivity() {
@@ -21,7 +21,7 @@ class GiphyActivity : AppCompatActivity() {
         // Configure Giphy with your API key
         Giphy.configure(this, "TfJpapxeqlrKMdtx82hDrPS9RsSCYgDG")
 
-        val taskListId = intent.getIntExtra("taskListId", -1)
+        val todoListId = intent.getIntExtra("todoListId", -1)
 
         val giphyDialog = GiphyDialogFragment.newInstance()
         giphyDialog.gifSelectionListener = object : GiphyDialogFragment.GifSelectionListener {
@@ -31,11 +31,12 @@ class GiphyActivity : AppCompatActivity() {
                 selectedContentType: GPHContentType
             ) {
                 val gifUrl = media.images.original?.gifUrl
-                if (taskListId != -1 && gifUrl != null) {
-                    listViewModel.updateGifUrl(taskListId, gifUrl)
+                if (todoListId != -1 && gifUrl != null) {
+                    listViewModel.updateGifUrl(todoListId, gifUrl)
                     finish() // Close the activity
                 } else {
                     Toast.makeText(this@GiphyActivity, "Failed to update GIF", Toast.LENGTH_SHORT).show()
+                    finish()
                 }
             }
 

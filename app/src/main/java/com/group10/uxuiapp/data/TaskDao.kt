@@ -53,7 +53,12 @@ interface TaskDao {
         label: String? = null,
         isComplete: Boolean? = null
     )
-
+    @Query("""
+        UPDATE TodoList
+        SET gifUrl = :gifUrl
+        WHERE id = :todoListId
+    """)
+    suspend fun updateGifUrl(todoListId: Int, gifUrl: String)
 
     @Delete
     suspend fun deleteTodoList(todoList: TodoList)
