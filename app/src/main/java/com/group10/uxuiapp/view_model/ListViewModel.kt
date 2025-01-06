@@ -6,9 +6,9 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.group10.uxuiapp.data.TaskItem
-import com.group10.uxuiapp.data.TaskList
-import com.group10.uxuiapp.data.TaskListWithItems
+import com.group10.uxuiapp.data.data_class.TaskItem
+import com.group10.uxuiapp.data.data_class.TaskList
+import com.group10.uxuiapp.data.data_class.TaskListWithItems
 import com.group10.uxuiapp.data.TaskRepository
 import com.group10.uxuiapp.domain.ListManager
 import kotlinx.coroutines.Job
@@ -56,47 +56,29 @@ class ListViewModel(private val taskRepository: TaskRepository) : ViewModel() {
         }
     }
 
-    fun updateTitle(taskList: TaskList, title: String) {
-        viewModelScope.launch {
-            val updatedList = taskList.copy(title = title)
-            taskRepository.insertTaskList(updatedList)
-        }
-    }
-
-    fun toggleLikedStatus(taskList: TaskList) {
-        viewModelScope.launch {
-            val updatedList = taskList.copy(isLiked = !taskList.isLiked)
-            taskRepository.insertTaskList(updatedList)
-        }
-    }
-
     fun addTaskToList(taskItem: TaskItem) {
         viewModelScope.launch {
             taskRepository.insertTaskItem(taskItem)
         }
     }
 
-    fun updateTask(taskItem: TaskItem, newLabel: String? = null, isComplete: Boolean? = null) {
+    fun updateTaskList(taskList: TaskList, title: String? = null, isLiked: Boolean? = null) {
         viewModelScope.launch {
-            val updatedTask = taskItem.copy(
-                label = newLabel ?: taskItem.label,
-                isComplete = isComplete ?: taskItem.isComplete
+            taskRepository.updateTaskList(
+                taskList = taskList,
+                title = title,
+                isLiked = isLiked
             )
-            taskRepository.insertTaskItem(updatedTask)
         }
     }
 
-    fun toggleIsCompleted(taskItem: TaskItem) {
+    fun updateTaskItem(taskItem: TaskItem, label: String? = null, isComplete: Boolean? = null) {
         viewModelScope.launch {
-            val updatedTask = taskItem.copy(isComplete = !taskItem.isComplete)
-            taskRepository.insertTaskItem(updatedTask)
-        }
-    }
-
-    fun updateTaskLabel(taskItem: TaskItem, newLabel: String) {
-        viewModelScope.launch {
-            val updatedTask = taskItem.copy(label = newLabel)
-            taskRepository.insertTaskItem(updatedTask)
+            taskRepository.updateTaskItem(
+                taskItem = taskItem,
+                label = label,
+                isComplete = isComplete
+            )
         }
     }
 

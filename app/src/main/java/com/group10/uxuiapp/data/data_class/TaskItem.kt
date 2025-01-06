@@ -1,4 +1,4 @@
-package com.group10.uxuiapp.data
+package com.group10.uxuiapp.data.data_class
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
