@@ -29,10 +29,11 @@ import com.group10.uxuiapp.view.component.SettingsButton
 import com.group10.uxuiapp.view.component.TaskRowItem
 import com.group10.uxuiapp.view.component.buttons.AddTaskButton
 import com.group10.uxuiapp.view_model.ListViewModel
+import com.group10.uxuiapp.ui.navigation.AppNavigator
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun TaskScreen(taskId: Int, onNavigateBack: () -> Unit, viewModel: ListViewModel) {
+fun TaskScreen(taskId: Int, appNavigator: AppNavigator, viewModel: ListViewModel) {
     val context = LocalContext.current
 
     // Observe the currently selected task list
@@ -58,7 +59,7 @@ fun TaskScreen(taskId: Int, onNavigateBack: () -> Unit, viewModel: ListViewModel
             TopAppBar(
                 title = { Text(taskListWithItems!!.todoList.title) },
                 navigationIcon = {
-                    IconButton(onClick = onNavigateBack) {
+                    IconButton(onClick = { appNavigator.popBackStack() }) {
                         Icon(
                             painter = painterResource(id = R.drawable.arrow_left),
                             contentDescription = "Back"
@@ -99,7 +100,6 @@ fun TaskScreen(taskId: Int, onNavigateBack: () -> Unit, viewModel: ListViewModel
                     TaskRowItem(task = task, viewModel = viewModel)
                 }
             }
-
         }
     }
 }

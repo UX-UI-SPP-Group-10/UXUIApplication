@@ -13,8 +13,9 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import com.group10.uxuiapp.ui.navigation.AppNavigator
 import com.group10.uxuiapp.ui.navigation.Screen
-import com.group10.uxuiapp.view.ListOverviewPage
+import com.group10.uxuiapp.view.TodoListScreen
 import com.group10.uxuiapp.view.TaskScreen
 import com.group10.uxuiapp.view_model.ListViewModel
 
@@ -24,42 +25,56 @@ fun NavigationGraph(
     navController: NavHostController,
     viewModelFactory: ViewModelProvider.Factory
 ) {
+    // Create AppNavigator
+    val appNavigator = AppNavigator(navController)
+
+    // ViewModel instance
     val viewModel: ListViewModel = viewModel(factory = viewModelFactory)
 
     NavHost(
         navController = navController,
-        startDestination = Screen.ListOverview.route
+        startDestination = Screen.TodoList.route
     ) {
-        composable(route = Screen.ListOverview.route) {
-            ListOverviewPage(
+        // TodoListScreen
+        composable(route = Screen.TodoList.route) {
+            TodoListScreen(
                 viewModel = viewModel,
-                navigateTo = { route -> navController.navigate(route) }
+                appNavigator = appNavigator
             )
         }
 
+        // TaskScreen
         composable(
-            route = Screen.TaskList.route,
+            route = Screen.Tasks.route,
             enterTransition = {
-                scaleIn(initialScale = 0.8f, animationSpec = tween(500, easing = FastOutSlowInEasing)) +
-                        fadeIn(animationSpec = tween(300))
+                scaleIn(
+                    initialScale = 0.8f,
+                    animationSpec = tween(500, easing = FastOutSlowInEasing)
+                ) + fadeIn(animationSpec = tween(300))
             },
             exitTransition = {
-                scaleOut(targetScale = 0.8f, animationSpec = tween(500, easing = FastOutSlowInEasing)) +
-                        fadeOut(animationSpec = tween(300))
+                scaleOut(
+                    targetScale = 0.8f,
+                    animationSpec = tween(500, easing = FastOutSlowInEasing)
+                ) + fadeOut(animationSpec = tween(300))
             },
             popEnterTransition = {
-                scaleIn(initialScale = 0.8f, animationSpec = tween(500, easing = FastOutSlowInEasing)) +
-                        fadeIn(animationSpec = tween(300))
+                scaleIn(
+                    initialScale = 0.8f,
+                    animationSpec = tween(500, easing = FastOutSlowInEasing)
+                ) + fadeIn(animationSpec = tween(300))
             },
             popExitTransition = {
-                scaleOut(targetScale = 0.5f, animationSpec = tween(700, easing = FastOutSlowInEasing)) +
-                        fadeOut(animationSpec = tween(300))
+                scaleOut(
+                    targetScale = 0.5f,
+                    animationSpec = tween(700, easing = FastOutSlowInEasing)
+                ) + fadeOut(animationSpec = tween(300))
             }
         ) { backStackEntry ->
             val taskId = backStackEntry.arguments?.getString("taskId")?.toIntOrNull() ?: -1
             TaskScreen(
                 taskId = taskId,
-                onNavigateBack = { navController.popBackStack() },
+                appNavigator = appNavigator,
                 viewModel = viewModel
             )
         }

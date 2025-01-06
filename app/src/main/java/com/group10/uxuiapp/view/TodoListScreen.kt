@@ -55,6 +55,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.uxuiapplication.ChangeButton
 import com.group10.uxuiapp.data.data_class.TodoList
+import com.group10.uxuiapp.ui.navigation.AppNavigator
 import com.group10.uxuiapp.view.component.ListNameInputDialog
 import com.group10.uxuiapp.view.component.SettingsButton
 import com.group10.uxuiapp.view_model.ListViewModel
@@ -64,12 +65,11 @@ import com.group10.uxuiapp.ui.navigation.Screen
 // Main ListOverviewPage with Scaffold and LazyColumn
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ListOverviewPage(navigateTo: (route: String) -> Unit, viewModel: ListViewModel) {
+fun TodoListScreen(viewModel: ListViewModel, appNavigator: AppNavigator) {
     val selectedIndex = remember { mutableStateOf<Int?>(null) }
     val showDialog = remember { mutableStateOf(false) }
     val listNameState = remember { mutableStateOf("") }
     val context = LocalContext.current
-
     // Collect the lists from the ViewModel's Flow
     val taskListsWithItems by viewModel.lists.collectAsState(emptyList())
 
@@ -100,22 +100,20 @@ fun ListOverviewPage(navigateTo: (route: String) -> Unit, viewModel: ListViewMod
             items(taskListsWithItems, key = { it.todoList.id }) { taskListWithItems ->
                 ListItem(
                     todoList = taskListWithItems.todoList,
-                    navigateTo = navigateTo,
                     selectedIndex = selectedIndex,
-                    viewModel = viewModel
+                    viewModel = viewModel,
+                    appNavigator = appNavigator
                 )
             }
         }
     }
 
-    // Show the ListNamePopup when the button is clicked
     if (showDialog.value) {
         ListNameInputDialog(
             onDismiss = { showDialog.value = false },
             onConfirm = { name ->
                 if (name.isNotBlank()) {
                     viewModel.addList(name)
-                    listNameState.value = name
                     showDialog.value = false
                     Toast.makeText(context, "List '$name' created", Toast.LENGTH_SHORT).show()
                 } else {
@@ -150,12 +148,13 @@ private fun TopAppBarWithMenu() {
         scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
     )
 }
+
 @Composable
 private fun ListItem(
     todoList: TodoList,
-    navigateTo: (String) -> Unit,
     selectedIndex: MutableState<Int?>,
-    viewModel: ListViewModel
+    viewModel: ListViewModel,
+    appNavigator: AppNavigator
 ) {
     val context = LocalContext.current
     val listNameState = remember { mutableStateOf(todoList.title) }
@@ -187,7 +186,7 @@ private fun ListItem(
                         onTap = {
                             val refreshedTaskList = viewModel.lists.value.find { it.todoList.id == todoList.id }
                             if (refreshedTaskList != null) {
-                                navigateTo(Screen.TaskList.createRoute(refreshedTaskList.todoList.id))
+                                appNavigator.navigateToTask(refreshedTaskList.todoList.id)
                             } else {
                                 Log.e("ListItem", "Attempted to navigate to a deleted or invalid list.")
                             }
