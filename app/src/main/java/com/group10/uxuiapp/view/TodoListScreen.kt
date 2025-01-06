@@ -76,24 +76,25 @@ fun TodoListScreen(viewModel: ListViewModel, appNavigator: AppNavigator) {
 
     // Collect the lists from the ViewModel's Flow
     //val taskListsWithItems2 = remember(query.value) {
-       // viewModel.filterLists(query.value)
+    // viewModel.filterLists(query.value)
     //}
     val taskListsWithItems by viewModel.lists.collectAsState(emptyList())
 
     // Use LaunchedEffect to reset selectedIndex if list size changes
     LaunchedEffect(taskListsWithItems) {
         if (selectedIndex.value != null &&
-            taskListsWithItems.none { it.todoList.id == selectedIndex.value }) {
+            taskListsWithItems.none { it.todoList.id == selectedIndex.value }
+        ) {
             selectedIndex.value = null
         }
     }
 
     val filteredLists = taskListsWithItems.filter {
-        it.taskList.title.contains(query.value, ignoreCase = true)
+        it.todoList.title.contains(query.value, ignoreCase = true)
     }
 
     Scaffold(
-        topBar = { TopAppBarWithMenu() },
+        topBar = { TopAppBarWithMenu(query) },
         floatingActionButton = {
             AddNewListButton {
                 showDialog.value = true // activate add list name popup
@@ -108,10 +109,10 @@ fun TodoListScreen(viewModel: ListViewModel, appNavigator: AppNavigator) {
                 bottom = innerPadding.calculateBottomPadding() + 50.dp
             )
         ) {
-            items(taskListsWithItems, key = { it.todoList.id }) { taskListWithItems ->
+            // Use the filtered list directly or fallback to the full list
             val listsToShow = if (query.value.isNotEmpty()) filteredLists else taskListsWithItems
 
-            items(listsToShow, key = { it.taskList.id }) { taskListWithItems ->
+            items(listsToShow, key = { it.todoList.id }) { taskListWithItems ->
                 ListItem(
                     todoList = taskListWithItems.todoList,
                     selectedIndex = selectedIndex,
@@ -120,21 +121,23 @@ fun TodoListScreen(viewModel: ListViewModel, appNavigator: AppNavigator) {
                 )
             }
         }
-    }
 
-    if (showDialog.value) {
-        ListNameInputDialog(
-            onDismiss = { showDialog.value = false },
-            onConfirm = { name ->
-                if (name.isNotBlank()) {
-                    viewModel.addList(name)
-                    showDialog.value = false
-                    Toast.makeText(context, "List '$name' created", Toast.LENGTH_SHORT).show()
-                } else {
-                    Toast.makeText(context, "Please enter a valid name", Toast.LENGTH_SHORT).show()
+
+        if (showDialog.value) {
+            ListNameInputDialog(
+                onDismiss = { showDialog.value = false },
+                onConfirm = { name ->
+                    if (name.isNotBlank()) {
+                        viewModel.addList(name)
+                        showDialog.value = false
+                        Toast.makeText(context, "List '$name' created", Toast.LENGTH_SHORT).show()
+                    } else {
+                        Toast.makeText(context, "Please enter a valid name", Toast.LENGTH_SHORT)
+                            .show()
+                    }
                 }
-            }
-        )
+            )
+        }
     }
 }
 
@@ -278,7 +281,7 @@ private fun ListItem(
         )
     }
 
-    if (selectedIndex.value == taskList.id) {
+    if (selectedIndex.value == todoList.id) {
         Spacer(modifier = Modifier.height(24.dp))
     }
 }
