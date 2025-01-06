@@ -45,15 +45,20 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.paint
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import coil.compose.SubcomposeAsyncImage
+import coil.compose.rememberAsyncImagePainter
+import coil.compose.rememberImagePainter
 import com.example.uxuiapplication.ChangeButton
 import com.group10.uxuiapp.data.data_class.TodoList
 import com.group10.uxuiapp.data.GiphyActivity
@@ -162,6 +167,28 @@ private fun ListItem(
     val listNameState = remember { mutableStateOf(todoList.title) }
     val showDialog = remember { mutableStateOf(false) }
 
+    // Remember the background based on gifUrl
+    val backgroundModifier = if (!todoList.gifUrl.isNullOrEmpty()) {
+
+        Modifier.fillMaxSize()
+            .then(
+                Modifier.background(Color.Transparent)
+            )
+
+    } else {
+        Modifier.background(
+            Brush.linearGradient(
+                colors = listOf(
+                    MaterialTheme.colorScheme.primary,
+                    MaterialTheme.colorScheme.secondary,
+                    Color(0xFFC0DCEF)
+                ),
+                start = Offset(0f, 0f),
+                end = Offset(0f, Float.POSITIVE_INFINITY)
+            )
+        )
+    }
+
     Box(
         modifier = Modifier
             .fillMaxWidth()
@@ -172,17 +199,8 @@ private fun ListItem(
                 .fillMaxWidth()
                 .height(100.dp)
                 .clip(RoundedCornerShape(20.dp))
-                .background(
-                    Brush.linearGradient(
-                        colors = listOf(
-                            MaterialTheme.colorScheme.primary,               // Top color
-                            MaterialTheme.colorScheme.secondary,
-                            Color(0xFFC0DCEF)
-                        ),
-                        start = Offset(0f, 0f), // Start at the top
-                        end = Offset(0f, Float.POSITIVE_INFINITY) // End at the bottom
-                    )
-                )
+                .then(backgroundModifier)
+                // Apply dynamic background
                 .pointerInput(Unit) {
                     detectTapGestures(
                         onTap = {
@@ -258,9 +276,6 @@ private fun ListItem(
         Spacer(modifier = Modifier.height(24.dp))
     }
 }
-
-
-
 
 @Composable
 private fun LikedButton(todoList: TodoList, viewModel: ListViewModel) {
