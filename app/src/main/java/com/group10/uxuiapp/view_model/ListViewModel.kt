@@ -6,7 +6,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.room.Query
 import com.group10.uxuiapp.data.TaskItem
 import com.group10.uxuiapp.data.TaskList
 import com.group10.uxuiapp.data.TaskListWithItems
@@ -15,19 +14,14 @@ import com.group10.uxuiapp.domain.ListManager
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 
 class ListViewModel(private val taskRepository: TaskRepository) : ViewModel() {
     private val _lists = MutableStateFlow<List<TaskListWithItems>>(emptyList())
     val lists: StateFlow<List<TaskListWithItems>> = _lists
 
-    private val _filteredLists = MutableStateFlow<List<TaskListWithItems>>(emptyList())
-    val filteredLists: StateFlow<List<TaskListWithItems>> = _filteredLists
-
     private val _currentTaskList = MutableStateFlow<TaskListWithItems?>(null)
-    val currentTaskList: StateFlow<TaskListWithItems?> = _currentTaskList.asStateFlow()
+    val currentTaskList: StateFlow<TaskListWithItems?> = _currentTaskList
 
     init {
         // Observe all task lists with their items
@@ -111,14 +105,4 @@ class ListViewModel(private val taskRepository: TaskRepository) : ViewModel() {
             taskRepository.deleteTaskItem(taskItem)
         }
     }
-
-    fun filterLists(query: String) {
-        if (query.isBlank()) {
-            _lists.value // If the query is blank, show all lists
-        } else {
-            _lists.value.filter { it.taskList.title.contains(query, ignoreCase = true) }
-        }
-    }
 }
-
-

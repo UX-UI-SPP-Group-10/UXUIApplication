@@ -86,6 +86,10 @@ fun ListOverviewPage(navigateTo: (route: String) -> Unit, viewModel: ListViewMod
         }
     }
 
+    val filteredLists = taskListsWithItems.filter {
+        it.taskList.title.contains(query.value, ignoreCase = true)
+    }
+
     Scaffold(
         topBar = { TopAppBarWithMenu(query)},
         floatingActionButton = {
@@ -102,7 +106,9 @@ fun ListOverviewPage(navigateTo: (route: String) -> Unit, viewModel: ListViewMod
                 bottom = innerPadding.calculateBottomPadding() + 50.dp
             )
         ) {
-            items(taskListsWithItems, key = { it.taskList.id }) { taskListWithItems ->
+            val listsToShow = if (query.value.isNotEmpty()) filteredLists else taskListsWithItems
+
+            items(listsToShow, key = { it.taskList.id }) { taskListWithItems ->
                 ListItem(
                     taskList = taskListWithItems.taskList,
                     navigateTo = navigateTo,
