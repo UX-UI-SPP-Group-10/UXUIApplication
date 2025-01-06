@@ -23,7 +23,10 @@ import androidx.compose.ui.unit.dp
 import com.group10.uxuiapp.R
 
 @Composable
-fun ChangeButton(onClose: () -> Unit, onDelete: () -> Unit, onOpdate: () -> Unit) {
+fun ChangeButton(onClose: () -> Unit,
+                 onDelete: () -> Unit,
+                 onOpdate: () -> Unit,
+                 onGifSelect: () -> Unit) {
     Box(
         modifier = Modifier
             .clip(RoundedCornerShape(16.dp))
@@ -55,7 +58,7 @@ fun ChangeButton(onClose: () -> Unit, onDelete: () -> Unit, onOpdate: () -> Unit
 
             // GIF button: Add a GIF to the list
             Button(
-                onClick = {},
+                onClick = onGifSelect,
                 modifier = Modifier
                     .width(45.dp) // Set button width
                     .height(38.dp), // Set button height

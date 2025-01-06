@@ -12,5 +12,6 @@ class GiphyActivity : AppCompatActivity() {
 
         Giphy.configure(this, "TfJpapxeqlrKMdtx82hDrPS9RsSCYgDG")
         GiphyDialogFragment.newInstance().show(supportFragmentManager, "giphy_dialog")
+        
     }
 }
