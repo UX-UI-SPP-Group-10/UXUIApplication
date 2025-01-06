@@ -7,5 +7,6 @@ import androidx.room.PrimaryKey
 data class TaskList(
     @PrimaryKey(autoGenerate = true) val id: Int = 0,
     var title: String,
-    val isLiked: Boolean = false
+    val isLiked: Boolean = false,
+    val gifUrl: String? = null // Add this field to store the GIF URL
 )

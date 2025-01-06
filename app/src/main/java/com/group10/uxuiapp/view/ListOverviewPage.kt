@@ -1,6 +1,7 @@
 package com.group10.uxuiapp.view
 
 
+import android.content.Intent
 import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.background
@@ -55,6 +56,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.uxuiapplication.ChangeButton
+import com.group10.uxuiapp.data.GiphyActivity
 import com.group10.uxuiapp.data.data_class.TaskList
 import com.group10.uxuiapp.view.component.ListNameInputDialog
 import com.group10.uxuiapp.view.component.SettingsButton
@@ -229,6 +231,12 @@ private fun ListItem(
                         selectedIndex.value = null // Reset index after deletion
                     },
                     onOpdate = { showDialog.value = true // activate add list name popup
+                    },
+                    onGifSelect = {
+                        val intent = Intent(context, GiphyActivity::class.java).apply {
+                            putExtra("taskListId", taskList.id)
+                        }
+                        context.startActivity(intent)
                     }
                 )
             }

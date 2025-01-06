@@ -37,6 +37,8 @@ class ListViewModel(private val taskRepository: TaskRepository) : ViewModel() {
         }
     }
 
+
+
     fun selectTaskList(taskListId: Int) {
         // Find the specific task list to observe
         val selectedList = _lists.value.find { it.taskList.id == taskListId }
@@ -79,6 +81,15 @@ class ListViewModel(private val taskRepository: TaskRepository) : ViewModel() {
                 label = label,
                 isComplete = isComplete
             )
+        }
+    }
+
+    fun updateGifUrl(taskListId: Int, gifUrl: String) {
+        viewModelScope.launch {
+            val taskList = _lists.value.find { it.taskList.id == taskListId }?.taskList
+            if (taskList != null) {
+                taskRepository.updateTaskList(taskList.copy(gifUrl = gifUrl))
+            }
         }
     }
 

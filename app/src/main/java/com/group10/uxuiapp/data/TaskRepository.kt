@@ -21,6 +21,10 @@ class TaskRepository(private val taskDao: TaskDao) {
             isComplete = isComplete
         )
     }
+    suspend fun updateGifUrl(taskListId: Int, gifUrl: String) {
+        taskDao.updateGifUrl(taskListId, gifUrl)
+    }
+
     suspend fun deleteTaskList(taskList: TaskList) = taskDao.deleteTaskList(taskList)
     suspend fun deleteTaskItem(taskItem: TaskItem) = taskDao.deleteTaskItem(taskItem)
 }

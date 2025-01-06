@@ -25,16 +25,18 @@ interface TaskDao {
     fun getTaskListsWithItems(): Flow<List<TaskListWithItems>>
 
     @Query("""
-        UPDATE TaskList
-        SET 
-            title = COALESCE(:title, title),
-            isLiked = COALESCE(:isLiked, isLiked)
-        WHERE id = :id
-    """)
+    UPDATE TaskList
+    SET 
+        title = COALESCE(:title, title),
+        isLiked = COALESCE(:isLiked, isLiked),
+        gifUrl = COALESCE(:gifUrl, gifUrl)
+    WHERE id = :id
+""")
     suspend fun updateTaskList(
         id: Int,
         title: String? = null,
-        isLiked: Boolean? = null
+        isLiked: Boolean? = null,
+        gifUrl: String? = null
     )
 
     @Query("""
@@ -49,6 +51,13 @@ interface TaskDao {
         label: String? = null,
         isComplete: Boolean? = null
     )
+
+    @Query("""
+        UPDATE TaskList
+        SET gifUrl = :gifUrl
+        WHERE id = :taskListId
+    """)
+    suspend fun updateGifUrl(taskListId: Int, gifUrl: String)
 
     @Delete
     suspend fun deleteTaskList(taskList: TaskList)

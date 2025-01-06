@@ -29,9 +29,9 @@ import com.group10.uxuiapp.data.GiphyActivity
 @Composable
 fun ChangeButton(onClose: () -> Unit,
                  onDelete: () -> Unit,
-                 onOpdate: () -> Unit)
+                 onOpdate: () -> Unit,
+                 onGifSelect: ()-> Unit)
 {
-    val context = LocalContext.current
 
     Box(
         modifier = Modifier
@@ -64,9 +64,7 @@ fun ChangeButton(onClose: () -> Unit,
 
             // GIF button: Add a GIF to the list
             Button(
-                onClick = {
-                    context.startActivity(Intent(context, GiphyActivity::class.java))
-                },
+                onClick = onGifSelect,
                 modifier = Modifier
                     .width(45.dp) // Set button width
                     .height(38.dp), // Set button height
