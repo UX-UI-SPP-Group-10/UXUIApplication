@@ -5,12 +5,12 @@ import androidx.lifecycle.viewModelScope
 import com.group10.uxuiapp.data.data_class.TaskItem
 import com.group10.uxuiapp.data.data_class.TodoList
 import com.group10.uxuiapp.data.data_class.TodoListWithTaskItem
-import com.group10.uxuiapp.data.TaskRepository
+import com.group10.uxuiapp.data.TaskDataSource
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
-class ListViewModel(private val taskRepository: TaskRepository) : ViewModel() {
+class ListViewModel(private val taskDataSource: TaskDataSource) : ViewModel() {
     private val _lists = MutableStateFlow<List<TodoListWithTaskItem>>(emptyList())
     val lists: StateFlow<List<TodoListWithTaskItem>> = _lists
 
@@ -20,7 +20,7 @@ class ListViewModel(private val taskRepository: TaskRepository) : ViewModel() {
     init {
         // Observe all task lists with their items
         viewModelScope.launch {
-            taskRepository.getTodoListWithTask()
+            taskDataSource.getTodoListWithTask()
                 .collect { todoListWithTaskItem ->
                     _lists.value = todoListWithTaskItem
                     // Update the current list if it is being viewed
@@ -40,25 +40,25 @@ class ListViewModel(private val taskRepository: TaskRepository) : ViewModel() {
     fun addList(title: String) {
         viewModelScope.launch {
             val newList = TodoList(title = title)
-            taskRepository.insertTodoList(newList)
+            taskDataSource.insertTodoList(newList)
         }
     }
 
     fun removeList(todoList: TodoList) {
         viewModelScope.launch {
-            taskRepository.deleteTodoList(todoList)
+            taskDataSource.deleteTodoList(todoList)
         }
     }
 
     fun addTaskToList(taskItem: TaskItem) {
         viewModelScope.launch {
-            taskRepository.insertTaskItem(taskItem)
+            taskDataSource.insertTaskItem(taskItem)
         }
     }
 
     fun updateTodoList(todoList: TodoList, title: String? = null, isLiked: Boolean? = null) {
         viewModelScope.launch {
-            taskRepository.updateTodoList(
+            taskDataSource.updateTodoList(
                 todoList = todoList,
                 title = title,
                 isLiked = isLiked
@@ -68,7 +68,7 @@ class ListViewModel(private val taskRepository: TaskRepository) : ViewModel() {
 
     fun updateTaskItem(taskItem: TaskItem, label: String? = null, isComplete: Boolean? = null) {
         viewModelScope.launch {
-            taskRepository.updateTaskItem(
+            taskDataSource.updateTaskItem(
                 taskItem = taskItem,
                 label = label,
                 isComplete = isComplete
@@ -78,7 +78,7 @@ class ListViewModel(private val taskRepository: TaskRepository) : ViewModel() {
 
     fun deleteTask(taskItem: TaskItem) {
         viewModelScope.launch {
-            taskRepository.deleteTaskItem(taskItem)
+            taskDataSource.deleteTaskItem(taskItem)
         }
     }
 }

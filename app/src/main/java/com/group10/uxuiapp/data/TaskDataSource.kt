@@ -5,7 +5,7 @@ import com.group10.uxuiapp.data.data_class.TodoList
 import com.group10.uxuiapp.data.data_class.TodoListWithTaskItem
 import kotlinx.coroutines.flow.Flow
 
-class TaskRepository(private val taskDao: TaskDao) {
+class TaskDataSource(private val taskDao: TaskDao) {
     suspend fun insertTodoList(todoList: TodoList) = taskDao.insertTodoList(todoList)
     suspend fun insertTaskItem(taskItem: TaskItem) = taskDao.insertTaskItem(taskItem)
     fun getTodoListWithTask(): Flow<List<TodoListWithTaskItem>> = taskDao.getTodoListsWithItems()
