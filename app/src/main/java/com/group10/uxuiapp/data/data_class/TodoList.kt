@@ -1,13 +1,11 @@
-package com.group10.uxuiapp.data
-
-import androidx.compose.runtime.mutableStateListOf
+package com.group10.uxuiapp.data.data_class
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 
 @Entity
-data class TaskList(
+data class TodoList(
     @PrimaryKey(autoGenerate = true) val id: Int = 0,
-    val title: String,
+    var title: String,
     val isLiked: Boolean = false
 )

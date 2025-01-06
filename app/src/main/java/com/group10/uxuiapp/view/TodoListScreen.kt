@@ -56,16 +56,18 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.room.Query
 import com.example.uxuiapplication.ChangeButton
-import com.group10.uxuiapp.data.TaskList
+import com.group10.uxuiapp.data.data_class.TodoList
+import com.group10.uxuiapp.ui.navigation.AppNavigator
 import com.group10.uxuiapp.view.component.ListNameInputDialog
 import com.group10.uxuiapp.view.component.SettingsButton
 import com.group10.uxuiapp.view_model.ListViewModel
+import com.group10.uxuiapp.ui.navigation.Screen
 
 
 // Main ListOverviewPage with Scaffold and LazyColumn
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ListOverviewPage(navigateTo: (route: String) -> Unit, viewModel: ListViewModel) {
+fun TodoListScreen(viewModel: ListViewModel, appNavigator: AppNavigator) {
     val selectedIndex = remember { mutableStateOf<Int?>(null) }
     val showDialog = remember { mutableStateOf(false) }
     val listNameState = remember { mutableStateOf("") }
@@ -81,7 +83,7 @@ fun ListOverviewPage(navigateTo: (route: String) -> Unit, viewModel: ListViewMod
     // Use LaunchedEffect to reset selectedIndex if list size changes
     LaunchedEffect(taskListsWithItems) {
         if (selectedIndex.value != null &&
-            taskListsWithItems.none { it.taskList.id == selectedIndex.value }) {
+            taskListsWithItems.none { it.todoList.id == selectedIndex.value }) {
             selectedIndex.value = null
         }
     }
@@ -91,7 +93,7 @@ fun ListOverviewPage(navigateTo: (route: String) -> Unit, viewModel: ListViewMod
     }
 
     Scaffold(
-        topBar = { TopAppBarWithMenu(query)},
+        topBar = { TopAppBarWithMenu() },
         floatingActionButton = {
             AddNewListButton {
                 showDialog.value = true // activate add list name popup
@@ -106,27 +108,26 @@ fun ListOverviewPage(navigateTo: (route: String) -> Unit, viewModel: ListViewMod
                 bottom = innerPadding.calculateBottomPadding() + 50.dp
             )
         ) {
+            items(taskListsWithItems, key = { it.todoList.id }) { taskListWithItems ->
             val listsToShow = if (query.value.isNotEmpty()) filteredLists else taskListsWithItems
 
             items(listsToShow, key = { it.taskList.id }) { taskListWithItems ->
                 ListItem(
-                    taskList = taskListWithItems.taskList,
-                    navigateTo = navigateTo,
+                    todoList = taskListWithItems.todoList,
                     selectedIndex = selectedIndex,
-                    viewModel = viewModel
+                    viewModel = viewModel,
+                    appNavigator = appNavigator
                 )
             }
         }
     }
 
-    // Show the ListNamePopup when the button is clicked
     if (showDialog.value) {
         ListNameInputDialog(
             onDismiss = { showDialog.value = false },
             onConfirm = { name ->
                 if (name.isNotBlank()) {
                     viewModel.addList(name)
-                    listNameState.value = name
                     showDialog.value = false
                     Toast.makeText(context, "List '$name' created", Toast.LENGTH_SHORT).show()
                 } else {
@@ -179,15 +180,16 @@ private fun TopAppBarWithMenu(query: MutableState<String>) {
         scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
     )
 }
+
 @Composable
 private fun ListItem(
-    taskList: TaskList,
-    navigateTo: (String) -> Unit,
+    todoList: TodoList,
     selectedIndex: MutableState<Int?>,
-    viewModel: ListViewModel
+    viewModel: ListViewModel,
+    appNavigator: AppNavigator
 ) {
     val context = LocalContext.current
-    val listNameState = remember { mutableStateOf(taskList.title) }
+    val listNameState = remember { mutableStateOf(todoList.title) }
     val showDialog = remember { mutableStateOf(false) }
 
     Box(
@@ -214,15 +216,15 @@ private fun ListItem(
                 .pointerInput(Unit) {
                     detectTapGestures(
                         onTap = {
-                            val refreshedTaskList = viewModel.lists.value.find { it.taskList.id == taskList.id }
+                            val refreshedTaskList = viewModel.lists.value.find { it.todoList.id == todoList.id }
                             if (refreshedTaskList != null) {
-                                navigateTo("taskList/${refreshedTaskList.taskList.id}")
+                                appNavigator.navigateToTask(refreshedTaskList.todoList.id)
                             } else {
                                 Log.e("ListItem", "Attempted to navigate to a deleted or invalid list.")
                             }
                         },
                         onLongPress = {
-                            selectedIndex.value = taskList.id
+                            selectedIndex.value = todoList.id
                         }
                     )
                 }
@@ -235,15 +237,15 @@ private fun ListItem(
                 verticalAlignment = Alignment.Top
             ) {
                 Text(
-                    text = taskList.title,
+                    text = todoList.title,
                     color = MaterialTheme.colorScheme.background,
                     modifier = Modifier.width(320.dp)
                 )
-                LikedButton(taskList, viewModel)
+                LikedButton(todoList, viewModel)
             }
         }
 
-        if (selectedIndex.value == taskList.id) {
+        if (selectedIndex.value == todoList.id) {
             Box(
                 modifier = Modifier
                     .align(Alignment.BottomCenter)
@@ -254,7 +256,7 @@ private fun ListItem(
                         selectedIndex.value = null
                     },
                     onDelete = {
-                        viewModel.removeList(taskList)
+                        viewModel.removeList(todoList)
                         selectedIndex.value = null // Reset index after deletion
                     },
                     onOpdate = { showDialog.value = true // activate add list name popup
@@ -267,7 +269,7 @@ private fun ListItem(
         ListNameInputDialog(
             onDismiss = { showDialog.value = false },
             onConfirm = { name ->
-                viewModel.updateTitle(taskList, name)
+                viewModel.updateTodoList(todoList = todoList, title = name)
                 listNameState.value = name
                 showDialog.value = false
                 Toast.makeText(context, "List '$name' created", Toast.LENGTH_SHORT).show()
@@ -285,8 +287,8 @@ private fun ListItem(
 
 
 @Composable
-private fun LikedButton(taskList: TaskList, viewModel: ListViewModel) {
-    val isLiked = taskList.isLiked
+private fun LikedButton(todoList: TodoList, viewModel: ListViewModel) {
+    val isLiked = todoList.isLiked
 
     Icon(
         imageVector = if (isLiked) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
@@ -294,7 +296,7 @@ private fun LikedButton(taskList: TaskList, viewModel: ListViewModel) {
         modifier = Modifier
             .size(25.dp)
             .clickable {
-                viewModel.toggleLikedStatus(taskList) // Update the global state as well
+                viewModel.updateTodoList(todoList = todoList, isLiked = !isLiked)
             },
         tint = if (isLiked) Color.Red else Color.White
     )

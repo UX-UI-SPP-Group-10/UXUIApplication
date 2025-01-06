@@ -1,5 +1,6 @@
 package com.group10.uxuiapp.view.component
 
+import android.R.attr.checked
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.BasicTextField
@@ -17,7 +18,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.group10.uxuiapp.data.TaskItem
+import com.group10.uxuiapp.data.data_class.TaskItem
 import com.group10.uxuiapp.view_model.ListViewModel
 
 @Composable
@@ -48,10 +49,10 @@ fun TaskRowItem(
         ) {
             // Checkbox
             Checkbox(
-                checked = isChecked,
-                onCheckedChange = {
-                    isChecked = it
-                    viewModel.toggleIsCompleted(task)
+                checked = isChecked, // Use local isChecked state
+                onCheckedChange = { newChecked ->
+                    isChecked = newChecked // Update local state
+                    viewModel.updateTaskItem(taskItem = task, isComplete = newChecked)
                 },
                 colors = CheckboxDefaults.colors(
                     checkedColor = MaterialTheme.colorScheme.primary,
@@ -64,9 +65,9 @@ fun TaskRowItem(
             // Editable text
             BasicTextField(
                 value = text,
-                onValueChange = {
-                    text = it
-                    viewModel.updateTaskLabel(task, it)
+                onValueChange = { newText ->
+                    text = newText // Update local state
+                    viewModel.updateTaskItem(taskItem = task, label = newText) // Update ViewModel
                 },
                 textStyle = MaterialTheme.typography.bodyLarge.copy(
                     textDecoration = if (isChecked) TextDecoration.LineThrough else null,
@@ -80,7 +81,6 @@ fun TaskRowItem(
                     .weight(1f)
                     .padding(start = 4.dp)
             ) {
-                // Placeholder and content
                 if (text.isEmpty()) {
                     Text(
                         text = "New Task",
@@ -93,4 +93,3 @@ fun TaskRowItem(
         }
     }
 }
-

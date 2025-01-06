@@ -1,108 +1,84 @@
 package com.group10.uxuiapp.view_model
 
-import android.util.Log
-import androidx.compose.runtime.State
-import androidx.compose.runtime.mutableStateOf
-import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.group10.uxuiapp.data.TaskItem
-import com.group10.uxuiapp.data.TaskList
-import com.group10.uxuiapp.data.TaskListWithItems
-import com.group10.uxuiapp.data.TaskRepository
-import com.group10.uxuiapp.domain.ListManager
-import kotlinx.coroutines.Job
+import com.group10.uxuiapp.data.data_class.TaskItem
+import com.group10.uxuiapp.data.data_class.TodoList
+import com.group10.uxuiapp.data.data_class.TodoListWithTaskItem
+import com.group10.uxuiapp.data.TaskDataSource
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
-class ListViewModel(private val taskRepository: TaskRepository) : ViewModel() {
-    private val _lists = MutableStateFlow<List<TaskListWithItems>>(emptyList())
-    val lists: StateFlow<List<TaskListWithItems>> = _lists
+class ListViewModel(private val taskDataSource: TaskDataSource) : ViewModel() {
+    private val _lists = MutableStateFlow<List<TodoListWithTaskItem>>(emptyList())
+    val lists: StateFlow<List<TodoListWithTaskItem>> = _lists
 
-    private val _currentTaskList = MutableStateFlow<TaskListWithItems?>(null)
-    val currentTaskList: StateFlow<TaskListWithItems?> = _currentTaskList
+    private val _currentTodoList = MutableStateFlow<TodoListWithTaskItem?>(null)
+    val currentTodoList: StateFlow<TodoListWithTaskItem?> = _currentTodoList
 
     init {
         // Observe all task lists with their items
         viewModelScope.launch {
-            taskRepository.getTaskListsWithItems()
-                .collect { taskListsWithItems ->
-                    _lists.value = taskListsWithItems
+            taskDataSource.getTodoListWithTask()
+                .collect { todoListWithTaskItem ->
+                    _lists.value = todoListWithTaskItem
                     // Update the current list if it is being viewed
-                    _currentTaskList.value?.let { current ->
-                        _currentTaskList.value = taskListsWithItems.find { it.taskList.id == current.taskList.id }
+                    _currentTodoList.value?.let { current ->
+                        _currentTodoList.value = todoListWithTaskItem.find { it.todoList.id == current.todoList.id }
                     }
                 }
         }
     }
 
-    fun selectTaskList(taskListId: Int) {
+    fun selectTodoList(todoListId: Int) {
         // Find the specific task list to observe
-        val selectedList = _lists.value.find { it.taskList.id == taskListId }
-        _currentTaskList.value = selectedList
+        val selectedList = _lists.value.find { it.todoList.id == todoListId }
+        _currentTodoList.value = selectedList
     }
 
     fun addList(title: String) {
         viewModelScope.launch {
-            val newList = TaskList(title = title)
-            taskRepository.insertTaskList(newList)
+            val newList = TodoList(title = title)
+            taskDataSource.insertTodoList(newList)
         }
     }
 
-    fun removeList(taskList: TaskList) {
+    fun removeList(todoList: TodoList) {
         viewModelScope.launch {
-            taskRepository.deleteTaskList(taskList)
-        }
-    }
-
-    fun updateTitle(taskList: TaskList, title: String) {
-        viewModelScope.launch {
-            val updatedList = taskList.copy(title = title)
-            taskRepository.insertTaskList(updatedList)
-        }
-    }
-
-    fun toggleLikedStatus(taskList: TaskList) {
-        viewModelScope.launch {
-            val updatedList = taskList.copy(isLiked = !taskList.isLiked)
-            taskRepository.insertTaskList(updatedList)
+            taskDataSource.deleteTodoList(todoList)
         }
     }
 
     fun addTaskToList(taskItem: TaskItem) {
         viewModelScope.launch {
-            taskRepository.insertTaskItem(taskItem)
+            taskDataSource.insertTaskItem(taskItem)
         }
     }
 
-    fun updateTask(taskItem: TaskItem, newLabel: String? = null, isComplete: Boolean? = null) {
+    fun updateTodoList(todoList: TodoList, title: String? = null, isLiked: Boolean? = null) {
         viewModelScope.launch {
-            val updatedTask = taskItem.copy(
-                label = newLabel ?: taskItem.label,
-                isComplete = isComplete ?: taskItem.isComplete
+            taskDataSource.updateTodoList(
+                todoList = todoList,
+                title = title,
+                isLiked = isLiked
             )
-            taskRepository.insertTaskItem(updatedTask)
         }
     }
 
-    fun toggleIsCompleted(taskItem: TaskItem) {
+    fun updateTaskItem(taskItem: TaskItem, label: String? = null, isComplete: Boolean? = null) {
         viewModelScope.launch {
-            val updatedTask = taskItem.copy(isComplete = !taskItem.isComplete)
-            taskRepository.insertTaskItem(updatedTask)
-        }
-    }
-
-    fun updateTaskLabel(taskItem: TaskItem, newLabel: String) {
-        viewModelScope.launch {
-            val updatedTask = taskItem.copy(label = newLabel)
-            taskRepository.insertTaskItem(updatedTask)
+            taskDataSource.updateTaskItem(
+                taskItem = taskItem,
+                label = label,
+                isComplete = isComplete
+            )
         }
     }
 
     fun deleteTask(taskItem: TaskItem) {
         viewModelScope.launch {
-            taskRepository.deleteTaskItem(taskItem)
+            taskDataSource.deleteTaskItem(taskItem)
         }
     }
 }
