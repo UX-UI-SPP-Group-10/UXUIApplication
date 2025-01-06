@@ -45,6 +45,8 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import com.group10.uxuiapp.data.data_class.TaskItem
+import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.tooling.preview.Preview
 import com.group10.uxuiapp.view.component.SettingsButton
 import com.group10.uxuiapp.view.component.TaskRowItem
 import com.group10.uxuiapp.view.component.buttons.AddTaskButton
@@ -92,7 +94,9 @@ fun TaskPage(taskId: Int, onNavigateBack: () -> Unit, viewModel: ListViewModel) 
                         Icon(Icons.Filled.Search, contentDescription = "Search")
                     }
                     SettingsButton(context = context)
-                }
+                },
+                colors = TopAppBarDefaults.topAppBarColors(),
+                scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
             )
         },
         bottomBar = {

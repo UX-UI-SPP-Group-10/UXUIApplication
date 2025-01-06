@@ -26,10 +26,7 @@ fun TaskRowItem(
     task: TaskItem,
     viewModel: ListViewModel
 ) {
-    // Sync isChecked with task.isComplete
     var isChecked by remember { mutableStateOf(task.isComplete) }
-
-    // Sync text with task.label
     var text by remember { mutableStateOf(task.label) }
 
     // Main container
@@ -39,14 +36,16 @@ fun TaskRowItem(
             .height(40.dp)
             .fillMaxWidth()
             .background(
-                color = MaterialTheme.colorScheme.tertiary,
-                shape = MaterialTheme.shapes.small
+                color = MaterialTheme.colorScheme.surfaceVariant,
+                shape = MaterialTheme.shapes.small // Subtle corner rounding
             )
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(8.dp),
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 12.dp)
         ) {
             // Checkbox
             Checkbox(
@@ -56,9 +55,9 @@ fun TaskRowItem(
                     viewModel.updateTaskItem(taskItem = task, isComplete = newChecked)
                 },
                 colors = CheckboxDefaults.colors(
-                    checkedColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f),
-                    uncheckedColor = MaterialTheme.colorScheme.onSurface,
-                    checkmarkColor = MaterialTheme.colorScheme.tertiary
+                    checkedColor = MaterialTheme.colorScheme.primary,
+                    uncheckedColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
+                    checkmarkColor = MaterialTheme.colorScheme.onPrimary
                 ),
                 modifier = Modifier.size(28.dp)
             )
@@ -68,11 +67,12 @@ fun TaskRowItem(
                 value = text,
                 onValueChange = { newText ->
                     text = newText // Update local state
-                    viewModel.updateTaskItem(task.copy(label = newText)) // Update ViewModel
+                    viewModel.updateTaskItem(taskItem = task, label = newText) // Update ViewModel
                 },
-                textStyle = MaterialTheme.typography.titleMedium.copy(
+                textStyle = MaterialTheme.typography.bodyLarge.copy(
                     textDecoration = if (isChecked) TextDecoration.LineThrough else null,
-                    color = if (isChecked) MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f) else MaterialTheme.colorScheme.onSurface
+                    fontWeight = FontWeight.Medium,
+                    color = if (isChecked) MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f) else MaterialTheme.colorScheme.onSurface
                 ),
                 singleLine = true,
                 keyboardOptions = KeyboardOptions.Default,
@@ -85,7 +85,7 @@ fun TaskRowItem(
                     Text(
                         text = "New Task",
                         fontSize = 16.sp,
-                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f)
+                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.4f) // Softer placeholder color
                     )
                 }
                 it()
