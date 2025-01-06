@@ -54,6 +54,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.room.Query
 import com.example.uxuiapplication.ChangeButton
 import com.group10.uxuiapp.data.TaskList
 import com.group10.uxuiapp.view.component.ListNameInputDialog
@@ -69,8 +70,12 @@ fun ListOverviewPage(navigateTo: (route: String) -> Unit, viewModel: ListViewMod
     val showDialog = remember { mutableStateOf(false) }
     val listNameState = remember { mutableStateOf("") }
     val context = LocalContext.current
+    val query = remember { mutableStateOf("") }
 
     // Collect the lists from the ViewModel's Flow
+    //val taskListsWithItems2 = remember(query.value) {
+       // viewModel.filterLists(query.value)
+    //}
     val taskListsWithItems by viewModel.lists.collectAsState(emptyList())
 
     // Use LaunchedEffect to reset selectedIndex if list size changes
@@ -82,7 +87,7 @@ fun ListOverviewPage(navigateTo: (route: String) -> Unit, viewModel: ListViewMod
     }
 
     Scaffold(
-        topBar = { TopAppBarWithMenu() },
+        topBar = { TopAppBarWithMenu(query)},
         floatingActionButton = {
             AddNewListButton {
                 showDialog.value = true // activate add list name popup
@@ -130,18 +135,27 @@ fun ListOverviewPage(navigateTo: (route: String) -> Unit, viewModel: ListViewMod
 // Top app bar with search and settings icons and dropdown menu
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun TopAppBarWithMenu() {
+private fun TopAppBarWithMenu(query: MutableState<String>) {
     val context = LocalContext.current
 
     TopAppBar(
-        title = {},
+        title = {
+            TextField(
+                value = query.value,
+                onValueChange = {query.value = it}, // Update the query state
+                placeholder = {Text("Search...")},
+                singleLine = true,
+                modifier = Modifier.fillMaxWidth()
+            )
+        },
         modifier = Modifier,
         navigationIcon = {
-            IconButton(onClick = {
+            /*IconButton(onClick = {
                 Toast.makeText(context, "Search clicked", Toast.LENGTH_SHORT).show()
             }) {
                 Icon(Icons.Filled.Search, contentDescription = "Search")
-            }
+            } */
+            Icon(Icons.Filled.Search, contentDescription = "Search")
         },
         actions = {
             SettingsButton(context = context)
