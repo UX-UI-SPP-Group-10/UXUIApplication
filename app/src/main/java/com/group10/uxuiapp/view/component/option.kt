@@ -1,5 +1,6 @@
 package com.example.uxuiapplication
 
+import android.content.Intent
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
@@ -20,13 +21,15 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import com.giphy.sdk.analytics.GiphyPingbacks.context
 import com.group10.uxuiapp.R
+import com.group10.uxuiapp.data.GiphyActivity
 
 @Composable
 fun ChangeButton(onClose: () -> Unit,
                  onDelete: () -> Unit,
-                 onOpdate: () -> Unit,
-                 onGifSelect: () -> Unit) {
+                 onOpdate: () -> Unit)
+{
     Box(
         modifier = Modifier
             .clip(RoundedCornerShape(16.dp))
@@ -58,7 +61,7 @@ fun ChangeButton(onClose: () -> Unit,
 
             // GIF button: Add a GIF to the list
             Button(
-                onClick = onGifSelect,
+                onClick = { context.startActivity(Intent(context, GiphyActivity::class.java)) },
                 modifier = Modifier
                     .width(45.dp) // Set button width
                     .height(38.dp), // Set button height
