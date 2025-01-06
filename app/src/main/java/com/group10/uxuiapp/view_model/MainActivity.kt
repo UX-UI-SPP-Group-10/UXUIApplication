@@ -3,11 +3,9 @@ package com.group10.uxuiapp
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.isSystemInDarkTheme
 import com.group10.uxuiapp.data.DatabaseProvider
 import com.group10.uxuiapp.data.TaskRepository
-import com.group10.uxuiapp.navigation.navigation.MainNavigation
+import com.group10.uxuiapp.ui.navigation.MainNavigation
 import com.group10.uxuiapp.ui.theme.UXUIApplicationTheme
 import com.group10.uxuiapp.view_model.ListViewModelFactory
 

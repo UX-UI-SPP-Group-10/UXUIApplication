@@ -58,6 +58,7 @@ import com.group10.uxuiapp.data.data_class.TodoList
 import com.group10.uxuiapp.view.component.ListNameInputDialog
 import com.group10.uxuiapp.view.component.SettingsButton
 import com.group10.uxuiapp.view_model.ListViewModel
+import com.group10.uxuiapp.ui.navigation.Screen
 
 
 // Main ListOverviewPage with Scaffold and LazyColumn
@@ -186,7 +187,7 @@ private fun ListItem(
                         onTap = {
                             val refreshedTaskList = viewModel.lists.value.find { it.todoList.id == todoList.id }
                             if (refreshedTaskList != null) {
-                                navigateTo("taskList/${refreshedTaskList.todoList.id}")
+                                navigateTo(Screen.TaskList.createRoute(refreshedTaskList.todoList.id))
                             } else {
                                 Log.e("ListItem", "Attempted to navigate to a deleted or invalid list.")
                             }

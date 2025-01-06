@@ -1,4 +1,4 @@
-package com.group10.uxuiapp.navigation.navigation
+package com.group10.uxuiapp.ui.navigation
 
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.core.FastOutSlowInEasing
@@ -10,60 +10,50 @@ import androidx.compose.animation.scaleOut
 import androidx.compose.runtime.Composable
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import androidx.navigation.compose.rememberNavController
+import com.group10.uxuiapp.ui.navigation.Screen
 import com.group10.uxuiapp.view.ListOverviewPage
 import com.group10.uxuiapp.view.TaskScreen
 import com.group10.uxuiapp.view_model.ListViewModel
 
-@OptIn(ExperimentalAnimationApi::class)  // Enable experimental animation APIs
+@OptIn(ExperimentalAnimationApi::class)
 @Composable
-fun MainNavigation(viewModelFactory: ViewModelProvider.Factory) {
-    val navController = rememberNavController()
+fun NavigationGraph(
+    navController: NavHostController,
+    viewModelFactory: ViewModelProvider.Factory
+) {
     val viewModel: ListViewModel = viewModel(factory = viewModelFactory)
 
-    // Set up the NavHost with scale and fade transitions
     NavHost(
         navController = navController,
         startDestination = Screen.ListOverview.route
     ) {
-        // ListOverview screen composable with scale and fade transitions
-        composable(
-            route = Screen.ListOverview.route,
-        ) {
+        composable(route = Screen.ListOverview.route) {
             ListOverviewPage(
                 viewModel = viewModel,
                 navigateTo = { route -> navController.navigate(route) }
             )
         }
 
-        // TaskList screen composable with taskId as an argument, using scale and fade transitions
         composable(
             route = Screen.TaskList.route,
             enterTransition = {
-                scaleIn(
-                    initialScale = 0.8f,
-                    animationSpec = tween(500, easing = FastOutSlowInEasing)
-                ) + fadeIn(animationSpec = tween(300))
+                scaleIn(initialScale = 0.8f, animationSpec = tween(500, easing = FastOutSlowInEasing)) +
+                        fadeIn(animationSpec = tween(300))
             },
             exitTransition = {
-                scaleOut(
-                    targetScale = 0.8f,
-                    animationSpec = tween(500, easing = FastOutSlowInEasing)
-                ) + fadeOut(animationSpec = tween(300))
+                scaleOut(targetScale = 0.8f, animationSpec = tween(500, easing = FastOutSlowInEasing)) +
+                        fadeOut(animationSpec = tween(300))
             },
             popEnterTransition = {
-                scaleIn(
-                    initialScale = 0.8f,
-                    animationSpec = tween(500, easing = FastOutSlowInEasing)
-                ) + fadeIn(animationSpec = tween(300))
+                scaleIn(initialScale = 0.8f, animationSpec = tween(500, easing = FastOutSlowInEasing)) +
+                        fadeIn(animationSpec = tween(300))
             },
             popExitTransition = {
-                scaleOut(
-                    targetScale = 0.5f,
-                    animationSpec = tween(700, easing = FastOutSlowInEasing)
-                ) + fadeOut(animationSpec = tween(300))
+                scaleOut(targetScale = 0.5f, animationSpec = tween(700, easing = FastOutSlowInEasing)) +
+                        fadeOut(animationSpec = tween(300))
             }
         ) { backStackEntry ->
             val taskId = backStackEntry.arguments?.getString("taskId")?.toIntOrNull() ?: -1
@@ -74,10 +64,4 @@ fun MainNavigation(viewModelFactory: ViewModelProvider.Factory) {
             )
         }
     }
-}
-
-
-sealed class Screen(val route: String) {
-    object ListOverview : Screen("ListOverview")
-    object TaskList : Screen("taskList/{taskId}")
 }
