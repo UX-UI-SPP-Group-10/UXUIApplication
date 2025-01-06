@@ -1,34 +1,34 @@
 package com.group10.uxuiapp.domain
 
 import com.group10.uxuiapp.data.data_class.TaskItem
-import com.group10.uxuiapp.data.data_class.TaskList
-import com.group10.uxuiapp.data.data_class.TaskListWithItems
+import com.group10.uxuiapp.data.data_class.TodoList
+import com.group10.uxuiapp.data.data_class.TodoListWithTaskItem
 import com.group10.uxuiapp.data.TaskRepository
 import kotlinx.coroutines.flow.Flow
 
 class ListManager(private val taskRepository: TaskRepository) {
 
-    fun getLists(): Flow<List<TaskListWithItems>> {
-        return taskRepository.getTaskListsWithItems()
+    fun getLists(): Flow<List<TodoListWithTaskItem>> {
+        return taskRepository.getTodoListWithTask()
     }
 
     suspend fun addList(title: String) {
-        val newList = TaskList(title = title)
-        taskRepository.insertTaskList(newList)
+        val newList = TodoList(title = title)
+        taskRepository.insertTodoList(newList)
     }
 
-    suspend fun removeList(taskList: TaskList) {
-        taskRepository.deleteTaskList(taskList)
+    suspend fun removeList(todoList: TodoList) {
+        taskRepository.deleteTodoList(todoList)
     }
 
-    suspend fun updateTitle(taskList: TaskList, title: String) {
-        val updatedList = taskList.copy(title = title)
-        taskRepository.insertTaskList(updatedList)
+    suspend fun updateTitle(todoList: TodoList, title: String) {
+        val updatedList = todoList.copy(title = title)
+        taskRepository.insertTodoList(updatedList)
     }
 
-    suspend fun toggleLikedStatus(taskList: TaskList) {
-        val updatedList = taskList.copy(isLiked = !taskList.isLiked)
-        taskRepository.insertTaskList(updatedList)
+    suspend fun toggleLikedStatus(todoList: TodoList) {
+        val updatedList = todoList.copy(isLiked = !todoList.isLiked)
+        taskRepository.insertTodoList(updatedList)
     }
 
     suspend fun addTaskToList(taskItem: TaskItem) {

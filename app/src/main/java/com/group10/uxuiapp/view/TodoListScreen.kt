@@ -52,12 +52,11 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.uxuiapplication.ChangeButton
+import com.group10.uxuiapp.data.data_class.TodoList
 import com.group10.uxuiapp.data.GiphyActivity
-import com.group10.uxuiapp.data.data_class.TaskList
 import com.group10.uxuiapp.view.component.ListNameInputDialog
 import com.group10.uxuiapp.view.component.SettingsButton
 import com.group10.uxuiapp.view_model.ListViewModel
@@ -78,7 +77,7 @@ fun ListOverviewPage(navigateTo: (route: String) -> Unit, viewModel: ListViewMod
     // Use LaunchedEffect to reset selectedIndex if list size changes
     LaunchedEffect(taskListsWithItems) {
         if (selectedIndex.value != null &&
-            taskListsWithItems.none { it.taskList.id == selectedIndex.value }) {
+            taskListsWithItems.none { it.todoList.id == selectedIndex.value }) {
             selectedIndex.value = null
         }
     }
@@ -99,9 +98,9 @@ fun ListOverviewPage(navigateTo: (route: String) -> Unit, viewModel: ListViewMod
                 bottom = innerPadding.calculateBottomPadding() + 50.dp
             )
         ) {
-            items(taskListsWithItems, key = { it.taskList.id }) { taskListWithItems ->
+            items(taskListsWithItems, key = { it.todoList.id }) { taskListWithItems ->
                 ListItem(
-                    taskList = taskListWithItems.taskList,
+                    todoList = taskListWithItems.todoList,
                     navigateTo = navigateTo,
                     selectedIndex = selectedIndex,
                     viewModel = viewModel
@@ -154,13 +153,13 @@ private fun TopAppBarWithMenu() {
 }
 @Composable
 private fun ListItem(
-    taskList: TaskList,
+    todoList: TodoList,
     navigateTo: (String) -> Unit,
     selectedIndex: MutableState<Int?>,
     viewModel: ListViewModel
 ) {
     val context = LocalContext.current
-    val listNameState = remember { mutableStateOf(taskList.title) }
+    val listNameState = remember { mutableStateOf(todoList.title) }
     val showDialog = remember { mutableStateOf(false) }
 
     Box(
@@ -187,15 +186,15 @@ private fun ListItem(
                 .pointerInput(Unit) {
                     detectTapGestures(
                         onTap = {
-                            val refreshedTaskList = viewModel.lists.value.find { it.taskList.id == taskList.id }
+                            val refreshedTaskList = viewModel.lists.value.find { it.todoList.id == todoList.id }
                             if (refreshedTaskList != null) {
-                                navigateTo("taskList/${refreshedTaskList.taskList.id}")
+                                navigateTo("taskList/${refreshedTaskList.todoList.id}")
                             } else {
                                 Log.e("ListItem", "Attempted to navigate to a deleted or invalid list.")
                             }
                         },
                         onLongPress = {
-                            selectedIndex.value = taskList.id
+                            selectedIndex.value = todoList.id
                         }
                     )
                 }
@@ -208,15 +207,15 @@ private fun ListItem(
                 verticalAlignment = Alignment.Top
             ) {
                 Text(
-                    text = taskList.title,
+                    text = todoList.title,
                     color = MaterialTheme.colorScheme.background,
                     modifier = Modifier.width(320.dp)
                 )
-                LikedButton(taskList, viewModel)
+                LikedButton(todoList, viewModel)
             }
         }
 
-        if (selectedIndex.value == taskList.id) {
+        if (selectedIndex.value == todoList.id) {
             Box(
                 modifier = Modifier
                     .align(Alignment.BottomCenter)
@@ -227,14 +226,14 @@ private fun ListItem(
                         selectedIndex.value = null
                     },
                     onDelete = {
-                        viewModel.removeList(taskList)
+                        viewModel.removeList(todoList)
                         selectedIndex.value = null // Reset index after deletion
                     },
                     onOpdate = { showDialog.value = true // activate add list name popup
                     },
                     onGifSelect = {
                         val intent = Intent(context, GiphyActivity::class.java).apply {
-                            putExtra("taskListId", taskList.id)
+                            putExtra("todoListId", todoList.id)
                         }
                         context.startActivity(intent)
                     }
@@ -246,7 +245,7 @@ private fun ListItem(
         ListNameInputDialog(
             onDismiss = { showDialog.value = false },
             onConfirm = { name ->
-                viewModel.updateTaskList(taskList = taskList, title = name)
+                viewModel.updateTodoList(todoList = todoList, title = name)
                 listNameState.value = name
                 showDialog.value = false
                 Toast.makeText(context, "List '$name' created", Toast.LENGTH_SHORT).show()
@@ -255,7 +254,7 @@ private fun ListItem(
         )
     }
 
-    if (selectedIndex.value == taskList.id) {
+    if (selectedIndex.value == todoList.id) {
         Spacer(modifier = Modifier.height(24.dp))
     }
 }
@@ -264,8 +263,8 @@ private fun ListItem(
 
 
 @Composable
-private fun LikedButton(taskList: TaskList, viewModel: ListViewModel) {
-    val isLiked = taskList.isLiked
+private fun LikedButton(todoList: TodoList, viewModel: ListViewModel) {
+    val isLiked = todoList.isLiked
 
     Icon(
         imageVector = if (isLiked) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
@@ -273,7 +272,7 @@ private fun LikedButton(taskList: TaskList, viewModel: ListViewModel) {
         modifier = Modifier
             .size(25.dp)
             .clickable {
-                viewModel.updateTaskList(taskList = taskList, isLiked = !isLiked)
+                viewModel.updateTodoList(todoList = todoList, isLiked = !isLiked)
             },
         tint = if (isLiked) Color.Red else Color.White
     )

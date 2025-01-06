@@ -3,11 +3,11 @@ package com.group10.uxuiapp.data.data_class
 import androidx.room.Embedded
 import androidx.room.Relation
 
-data class TaskListWithItems(
-    @Embedded val taskList: TaskList,
+data class TodoListWithTaskItem(
+    @Embedded val todoList: TodoList,
     @Relation(
         parentColumn = "id",
-        entityColumn = "taskListId"
+        entityColumn = "todoListId"
     )
     val taskItems: List<TaskItem>
 )
