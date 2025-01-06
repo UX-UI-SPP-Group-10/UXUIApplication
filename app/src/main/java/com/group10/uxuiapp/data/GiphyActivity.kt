@@ -37,7 +37,7 @@ class GiphyActivity : AppCompatActivity() {
             }
 
             override fun onDismissed(selectedContentType: GPHContentType) {
-                TODO("Not yet implemented")
+                finish() // Close the activity when the dialog is dismissed
             }
         }
 

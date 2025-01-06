@@ -19,6 +19,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.giphy.sdk.analytics.GiphyPingbacks.context
@@ -30,6 +31,8 @@ fun ChangeButton(onClose: () -> Unit,
                  onDelete: () -> Unit,
                  onOpdate: () -> Unit)
 {
+    val context = LocalContext.current
+
     Box(
         modifier = Modifier
             .clip(RoundedCornerShape(16.dp))
@@ -61,7 +64,9 @@ fun ChangeButton(onClose: () -> Unit,
 
             // GIF button: Add a GIF to the list
             Button(
-                onClick = { context.startActivity(Intent(context, GiphyActivity::class.java)) },
+                onClick = {
+                    context.startActivity(Intent(context, GiphyActivity::class.java))
+                },
                 modifier = Modifier
                     .width(45.dp) // Set button width
                     .height(38.dp), // Set button height
