@@ -1,63 +1,92 @@
+package com.group10.uxuiapp.ui.tasks.viewmodel
+
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.group10.uxuiapp.data.data_class.TaskItem
-import com.group10.uxuiapp.data.data_class.TodoList
 import com.group10.uxuiapp.data.TaskDataSource
+import com.group10.uxuiapp.data.data_class.TodoList
+import com.group10.uxuiapp.data.data_class.TodoListWithTaskItem
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
-class TaskListViewModel(private val taskDataSource: TaskDataSource) : ViewModel() {
-    private val _tasks = MutableStateFlow<List<TaskItem>>(emptyList())
-    val tasks: StateFlow<List<TaskItem>> = _tasks
+class TaskViewModel(private val taskDataSource: TaskDataSource) : ViewModel() {
 
-    private val _currentTodoList = MutableStateFlow<TodoList?>(null)
-    val currentTodoList: StateFlow<TodoList?> = _currentTodoList
+    private val TAG = "TaskViewModel" // Tag for logging
+    private val _currentTodoListId = MutableStateFlow<Int?>(null)
 
-    fun loadTodoList(todoListId: Int) {
-        viewModelScope.launch {
-            taskDataSource.getTodoListById(todoListId).collect { todoList ->
-                _currentTodoList.value = todoList
-                loadTasksForTodoList(todoListId) // Load tasks whenever the TodoList changes
-            }
-        }
-    }
+    private val _selectedTask = MutableStateFlow<TaskItem?>(null)
+    val selectedTaskItem: StateFlow<TaskItem?> = _selectedTask
 
-    private fun loadTasksForTodoList(todoListId: Int) {
-        viewModelScope.launch {
-            taskDataSource.getTaskItemsByListId(todoListId).collect { taskItems ->
-                _tasks.value = taskItems
-            }
-        }
-    }
-
-    fun addTask(label: String) {
-        val todoListId = _currentTodoList.value?.id
+    @OptIn(ExperimentalCoroutinesApi::class)
+    val currentTodoList: StateFlow<TodoListWithTaskItem?> = _currentTodoListId.flatMapLatest { todoListId ->
         if (todoListId != null) {
-            viewModelScope.launch {
-                val newTask = TaskItem(label = label, isComplete = false, todoListId = todoListId)
-                taskDataSource.insertTaskItem(newTask)
-                loadTasksForTodoList(todoListId) // Refresh tasks after adding
+            Log.d(TAG, "Fetching TodoListWithTaskItem for id: $todoListId")
+            taskDataSource.getTodoListWithTaskById(todoListId)
+        } else {
+            Log.d(TAG, "No TodoList selected, emitting null")
+            flowOf(null)
+        }
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), null)
+
+    fun selectTodoList(todoListId: Int) {
+        Log.d(TAG, "Selecting TodoList with id: $todoListId")
+        _currentTodoListId.value = todoListId
+    }
+
+    fun addTaskToList(taskItem: TaskItem) {
+        viewModelScope.launch {
+            Log.d(TAG, "Adding TaskItem: $taskItem")
+            try {
+                taskDataSource.insertTaskItem(taskItem)
+                Log.d(TAG, "TaskItem added successfully: $taskItem")
+            } catch (e: Exception) {
+                Log.e(TAG, "Error adding TaskItem: ${e.message}", e)
             }
         }
     }
 
-    fun updateTask(taskItem: TaskItem, label: String? = null, isComplete: Boolean? = null) {
+    fun updateTaskItem(taskItem: TaskItem, label: String? = null, isComplete: Boolean? = null) {
         viewModelScope.launch {
-            taskDataSource.updateTaskItem(
-                taskItem = taskItem.copy(
-                    label = label ?: taskItem.label,
-                    isComplete = isComplete ?: taskItem.isComplete
-                )
+            val updatedTask = taskItem.copy(
+                label = label ?: taskItem.label,
+                isComplete = isComplete ?: taskItem.isComplete
             )
-            loadTasksForTodoList(taskItem.todoListId) // Refresh tasks after updating
+
+            Log.d(TAG, "Updating TaskItem with id: ${updatedTask.id}, label: ${updatedTask.label}, isComplete: ${updatedTask.isComplete}")
+
+            try {
+                taskDataSource.updateTaskItem(updatedTask, label = updatedTask.label, isComplete = updatedTask.isComplete)
+                Log.d(TAG, "TaskItem updated successfully: $updatedTask")
+            } catch (e: Exception) {
+                Log.e(TAG, "Error updating TaskItem: ${e.message}", e)
+            }
         }
     }
+
+
 
     fun deleteTask(taskItem: TaskItem) {
         viewModelScope.launch {
-            taskDataSource.deleteTaskItem(taskItem)
-            loadTasksForTodoList(taskItem.todoListId) // Refresh tasks after deleting
+            Log.d(TAG, "Deleting TaskItem: $taskItem")
+            try {
+                taskDataSource.deleteTaskItem(taskItem)
+                Log.d(TAG, "TaskItem deleted successfully: $taskItem")
+            } catch (e: Exception) {
+                Log.e(TAG, "Error deleting TaskItem: ${e.message}", e)
+            }
         }
+    }
+
+    fun selectTask(taskItem: TaskItem?) {
+        Log.d(TAG, "Selecting TaskItem: ${taskItem?.id.toString()}")
+        _selectedTask.value = taskItem
     }
 }

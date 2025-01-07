@@ -21,18 +21,16 @@ import com.group10.uxuiapp.ui.todolist.viewmodel.TodoListViewModel
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.runtime.remember
 import androidx.compose.ui.input.pointer.pointerInput
+import com.group10.uxuiapp.ui.tasks.viewmodel.TaskViewModel
 
 
 @Composable
 fun TaskRowItem(
     task: TaskItem,
-    viewModel: TaskListViewModel
+    viewModel: TaskViewModel
 ) {
-    var isChecked by remember { mutableStateOf(task.isComplete) }
-    var text by remember { mutableStateOf(task.label) }
-    var showPopup by remember { mutableStateOf(false) } // Track popup visibility
+    var isChecked = task.isComplete
 
-    // Main container
     Box(
         modifier = Modifier
             .padding(vertical = 6.dp, horizontal = 12.dp)
@@ -40,27 +38,26 @@ fun TaskRowItem(
             .fillMaxWidth()
             .background(
                 color = MaterialTheme.colorScheme.surfaceVariant,
-                shape = MaterialTheme.shapes.small // Subtle corner rounding
+                shape = MaterialTheme.shapes.small
             )
-            .pointerInput(Unit) {
-                detectTapGestures(
-                    onLongPress = { showPopup = true } // Show popup on long press
-                )
-            }
     ) {
         Row(
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 12.dp)
+                .height(56.dp)
+                .pointerInput(Unit) {
+                    // detectTapGestures only for the "empty space"
+                    detectTapGestures(onLongPress = { viewModel.selectTask(task) })
+                },
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            // Checkbox
+            Spacer(modifier = Modifier.width(16.dp))
+            // 2) Checkbox
             Checkbox(
                 checked = isChecked,
                 onCheckedChange = { newChecked ->
                     isChecked = newChecked
-                    viewModel.updateTask(taskItem = task, isComplete = newChecked)
+                    viewModel.updateTaskItem(task, isComplete = newChecked)
                 },
                 colors = CheckboxDefaults.colors(
                     checkedColor = MaterialTheme.colorScheme.primary,
@@ -70,51 +67,38 @@ fun TaskRowItem(
                 modifier = Modifier.size(28.dp)
             )
 
-            // Editable text
+            // 3) Editable text
             BasicTextField(
-                value = text,
+                value = task.label,
                 onValueChange = { newText ->
-                    text = newText
-                    viewModel.updateTask(taskItem = task, label = newText)
+                    viewModel.updateTaskItem(task, label = newText)
                 },
                 textStyle = MaterialTheme.typography.bodyLarge.copy(
                     textDecoration = if (isChecked) TextDecoration.LineThrough else null,
                     fontWeight = FontWeight.Medium,
-                    color = if (isChecked) MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f) else MaterialTheme.colorScheme.onSurface
+                    color = if (isChecked) {
+                        MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
+                    } else {
+                        MaterialTheme.colorScheme.onSurface
+                    }
                 ),
                 singleLine = true,
-                keyboardOptions = KeyboardOptions.Default,
-                keyboardActions = KeyboardActions.Default,
                 modifier = Modifier
-                    .weight(1f)
+                    .widthIn(max = 200.dp)
                     .padding(start = 4.dp)
             ) {
-                if (text.isEmpty()) {
+                // Placeholder if you want one
+                if (task.label.isEmpty()) {
                     Text(
-                        text = "",
+                        text = "new Task",
                         fontSize = 16.sp,
                         color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.4f)
                     )
                 }
                 it()
             }
+            Spacer(modifier = Modifier.weight(1f))
         }
     }
-
-    // Show popup if `showPopup` is true
-    if (showPopup) {
-        EditTaskPopup(
-            taskName = text,
-            onEditTask = { newName ->
-                text = newName
-                viewModel.updateTask(taskItem = task, label = newName)
-            },
-            onDeleteTask = {
-                // viewModel.deleteTaskItem(task)
-            },
-            onDismiss = {
-                showPopup = false
-            }
-        )
-    }
 }
+

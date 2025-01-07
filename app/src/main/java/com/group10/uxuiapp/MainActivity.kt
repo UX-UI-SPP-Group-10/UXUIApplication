@@ -9,7 +9,7 @@ import com.giphy.sdk.ui.Giphy
 import com.group10.uxuiapp.data.DatabaseProvider
 import com.group10.uxuiapp.data.TaskDataSource
 import com.group10.uxuiapp.ui.navigation.MainNavigation
-import com.group10.uxuiapp.ui.tasks.viewmodel.TaskListViewModelFactory
+import com.group10.uxuiapp.ui.tasks.viewmodel.TaskViewModelFactory
 import com.group10.uxuiapp.ui.theme.UXUIApplicationTheme
 import com.group10.uxuiapp.ui.todolist.viewmodel.TodoListViewModelFactory
 
@@ -26,7 +26,7 @@ class MainActivity : FragmentActivity() {  //FragmentActivity
         setContent {
             UXUIApplicationTheme {
                 // Pass the ViewModelFactory to the MainNavigation
-                MainNavigation(taskListViewModelFactory = TaskListViewModelFactory(taskDataSource), todoListViewModelFactory = TodoListViewModelFactory(taskDataSource))
+                MainNavigation(taskListViewModelFactory = TaskViewModelFactory(taskDataSource), todoListViewModelFactory = TodoListViewModelFactory(taskDataSource))
             }
         }
     }

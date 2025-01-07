@@ -7,8 +7,8 @@ class AppNavigator(private val navController: NavController) {
         navController.navigate(Screen.TodoList.route)
     }
 
-    fun navigateToTask(taskId: Int) {
-        navController.navigate(Screen.Tasks.createRoute(taskId))
+    fun navigateToTask(todoID: Int) {
+        navController.navigate(Screen.Tasks.createRoute(todoID))
     }
 
     fun popBackStack() {

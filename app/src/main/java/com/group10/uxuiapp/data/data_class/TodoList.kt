@@ -8,5 +8,6 @@ data class TodoList(
     @PrimaryKey(autoGenerate = true) val id: Int = 0,
     var title: String,
     val isLiked: Boolean = false,
-    val gifUrl: String? = null // Add this field to store the GIF URL
+    val gifUrl: String? = null, // Add this field to store the GIF URL
+    var listIndex: Int = 0
 )

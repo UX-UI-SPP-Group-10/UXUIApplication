@@ -24,30 +24,39 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
+import com.group10.uxuiapp.data.data_class.TaskItem
 import com.group10.uxuiapp.ui.todolist.view.components.SettingsButton
 import com.group10.uxuiapp.ui.tasks.view.components.TaskRowItem
 import com.group10.uxuiapp.ui.tasks.view.components.AddTaskButton
 import com.group10.uxuiapp.ui.navigation.AppNavigator
+import com.group10.uxuiapp.ui.tasks.view.components.EditTaskPopup
+import com.group10.uxuiapp.ui.tasks.viewmodel.TaskViewModel
 import com.group10.uxuiapp.ui.todolist.viewmodel.TodoListViewModel
 import okhttp3.internal.concurrent.Task
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
+import androidx.compose.foundation.lazy.items
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun TaskScreen(todoListId: Int, appNavigator: AppNavigator, viewModel: TaskListViewModel) {
+fun TaskScreen(todoListId: Int, appNavigator: AppNavigator, viewModel: TaskViewModel) {
     val context = LocalContext.current
 
-    // Load the TodoList and its tasks when the screen is displayed
+    // Set the selected TodoList ID
     LaunchedEffect(todoListId) {
-        viewModel.loadTodoList(todoListId)
+        viewModel.selectTodoList(todoListId)
     }
 
-    // Collect the current TodoList and its tasks as state
-    val currentTodoList by viewModel.currentTodoList.collectAsState()
-    val tasks by viewModel.tasks.collectAsState()
+    // Observe the current TodoList and its tasks
+    val taskListWithItems by viewModel.currentTodoList.collectAsState()
+    val selectedTask by viewModel.selectedTaskItem.collectAsState()
 
-    // Show a loading indicator if the TodoList data is not yet available
-    if (currentTodoList == null) {
+    if (taskListWithItems == null) {
+        // Loading state
         Box(
             modifier = Modifier.fillMaxSize(),
             contentAlignment = Alignment.Center
@@ -60,7 +69,7 @@ fun TaskScreen(todoListId: Int, appNavigator: AppNavigator, viewModel: TaskListV
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text(currentTodoList!!.title) }, // Use the TodoList title
+                title = { Text(taskListWithItems!!.todoList.title) },
                 navigationIcon = {
                     IconButton(onClick = { appNavigator.popBackStack() }) {
                         Icon(
@@ -70,9 +79,7 @@ fun TaskScreen(todoListId: Int, appNavigator: AppNavigator, viewModel: TaskListV
                     }
                 },
                 actions = {
-                    IconButton(onClick = {
-                        Log.d("TaskPage", "Search clicked")
-                    }) {
+                    IconButton(onClick = { Log.d("TaskPage", "Search clicked") }) {
                         Icon(Icons.Filled.Search, contentDescription = "Search")
                     }
                     SettingsButton(context = context)
@@ -83,8 +90,9 @@ fun TaskScreen(todoListId: Int, appNavigator: AppNavigator, viewModel: TaskListV
         },
         bottomBar = {
             AddTaskButton(onClick = {
-                // Add a new task to the current TodoList
-                viewModel.addTask("New Task")
+                // Add a new task to the TodoList
+                val newTask = TaskItem(label = "", todoListId = todoListId)
+                viewModel.addTaskToList(newTask)
             })
         }
     ) { innerPadding ->
@@ -94,8 +102,8 @@ fun TaskScreen(todoListId: Int, appNavigator: AppNavigator, viewModel: TaskListV
                 .padding(innerPadding),
             contentAlignment = Alignment.TopCenter
         ) {
-            if (tasks.isEmpty()) {
-                // Show a message if no tasks are present
+            if (taskListWithItems!!.taskItems.isEmpty()) {
+                // Empty state
                 Box(
                     modifier = Modifier.fillMaxSize(),
                     contentAlignment = Alignment.Center
@@ -103,13 +111,35 @@ fun TaskScreen(todoListId: Int, appNavigator: AppNavigator, viewModel: TaskListV
                     Text("No tasks yet. Add some!")
                 }
             } else {
-                // Display the list of tasks
+                // Display task list
                 LazyColumn {
-                    itemsIndexed(tasks) { _, task ->
+                    items(
+                        items = taskListWithItems!!.taskItems,
+                        key = { task -> task.id }
+                    ) { task ->
                         TaskRowItem(task = task, viewModel = viewModel)
                     }
                 }
+
             }
         }
     }
+
+    if (selectedTask != null) {
+        EditTaskPopup(
+            taskName = selectedTask!!.label,
+            onSaveTask = { newName ->
+                viewModel.updateTaskItem(taskItem = selectedTask!!, label = newName)
+                viewModel.selectTask(null)
+            },
+            onDeleteTask = {
+                viewModel.deleteTask(selectedTask!!)
+                viewModel.selectTask(null)
+            },
+            onDismiss = {
+                viewModel.selectTask(null)
+            }
+        )
+    }
+
 }

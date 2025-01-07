@@ -16,6 +16,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.group10.uxuiapp.ui.todolist.view.TodoListScreen
 import com.group10.uxuiapp.ui.tasks.view.TaskScreen
+import com.group10.uxuiapp.ui.tasks.viewmodel.TaskViewModel
 import com.group10.uxuiapp.ui.todolist.viewmodel.TodoListViewModel
 import com.group10.uxuiapp.ui.todolist.viewmodel.TodoListViewModelFactory
 
@@ -31,7 +32,7 @@ fun NavigationGraph(
 
     // ViewModel instance
     val todoListViewModel: TodoListViewModel = viewModel(factory = todoListViewModelFactory)
-    val taskListViewModel: TaskListViewModel = viewModel(factory = taskListViewModel)
+    val taskListViewModel: TaskViewModel = viewModel(factory = taskListViewModel)
 
     NavHost(
         navController = navController,

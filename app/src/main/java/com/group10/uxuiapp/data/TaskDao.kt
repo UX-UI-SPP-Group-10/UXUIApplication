@@ -12,7 +12,7 @@ interface TaskDao {
     suspend fun insertTodoList(todoList: TodoList): Long
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertTaskItem(taskItem: TaskItem)
+    suspend fun insertTaskItem(taskItem: TaskItem): Long
 
     @Query("SELECT * FROM TodoList WHERE id = :id")
     fun getTodoListById(id: Int): Flow<TodoList>
@@ -24,22 +24,36 @@ interface TaskDao {
     @Query("SELECT * FROM TodoList")
     fun getTodoListsWithItems(): Flow<List<TodoListWithTaskItem>>
 
-    @Query(
-        """
-        UPDATE TodoList
-        SET 
-            title = COALESCE(:title, title),
-            isLiked = COALESCE(:isLiked, isLiked),
-            gifUrl = COALESCE(:gifUrl, gifUrl)        
-        WHERE id = :id
-    """
-    )
+    @Transaction
+    @Query("SELECT * FROM TodoList WHERE id = :todoListId")
+    fun getTodoListWithTaskById(todoListId: Int): Flow<TodoListWithTaskItem>
+
+    @Query("""
+    UPDATE TodoList
+    SET 
+        title = :title,
+        isLiked = :isLiked,
+        gifUrl = :gifUrl
+    WHERE id = :id
+""")
     suspend fun updateTodoList(
         id: Int,
-        title: String? = null,
-        isLiked: Boolean? = null,
-        gifUrl: String? = null
+        title: String,
+        isLiked: Boolean,
+        gifUrl: String
     )
+
+
+    @Query("""
+    UPDATE TodoList
+    SET listIndex = :listIndex
+    WHERE id = :todoListId
+""")
+    suspend fun updateListIndex(
+        todoListId: Int,
+        listIndex: Int
+    )
+
 
     @Query("""
         UPDATE TaskItem
@@ -53,15 +67,20 @@ interface TaskDao {
         label: String? = null,
         isComplete: Boolean? = null
     )
-    @Query("""
-        UPDATE TodoList
-        SET gifUrl = :gifUrl
-        WHERE id = :todoListId
-    """)
-    suspend fun updateGifUrl(todoListId: Int, gifUrl: String)
 
-    @Query("SELECT * FROM TaskItem WHERE id = :taskId")
-    fun getTaskItemById(taskId: Int): Flow<TaskItem>
+    @Query("""
+        DELETE FROM TaskItem WHERE id = :taskId
+    """)
+    suspend fun deleteTaskItemById(taskId: Int)
+
+    @Query("""
+        DELETE FROM TaskItem WHERE todoListId = :todoListId
+    """)
+    suspend fun deleteTasksByTodoListId(todoListId: Int)
+
+    @Query("SELECT * FROM TaskItem WHERE isComplete = :isComplete")
+    fun getTasksByCompletionStatus(isComplete: Boolean): Flow<List<TaskItem>>
+
 
     @Delete
     suspend fun deleteTodoList(todoList: TodoList)

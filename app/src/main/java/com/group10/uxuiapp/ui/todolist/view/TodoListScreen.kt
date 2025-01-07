@@ -1,6 +1,7 @@
 package com.group10.uxuiapp.ui.todolist.view
 
 import GiphyDialog
+import android.content.Intent
 import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.Image
@@ -22,6 +23,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -63,40 +65,46 @@ import coil.request.ImageRequest
 import com.example.uxuiapplication.ChangeButton
 import com.group10.uxuiapp.data.data_class.TodoList
 import com.group10.uxuiapp.ui.navigation.AppNavigator
+import com.group10.uxuiapp.data.GiphyActivity
+import com.group10.uxuiapp.data.data_class.TodoListWithTaskItem
 import com.group10.uxuiapp.ui.todolist.view.components.ListNameInputDialog
 import com.group10.uxuiapp.ui.todolist.view.components.SettingsButton
 import com.group10.uxuiapp.ui.todolist.viewmodel.TodoListViewModel
+import kotlin.collections.find
 
 // Main TodoListScreen with Scaffold and LazyColumn
 @Composable
 fun TodoListScreen(viewModel: TodoListViewModel, appNavigator: AppNavigator) {
-    val selectedIndex = remember { mutableStateOf<Int?>(null) }
     val showDialog = remember { mutableStateOf(false) }
     val showGiphyDialog = remember { mutableStateOf(false) } // Add this state
     val listNameState = remember { mutableStateOf("") }
     val context = LocalContext.current
     val query = remember { mutableStateOf("") }
     val changeButtonAnchor = remember { mutableStateOf<Offset?>(null) }
-    val currentTaskList = remember { mutableStateOf<TodoList?>(null) }
+    val selectedIndex = remember { mutableStateOf<Int?>(null) }
 
     // Collect the lists from the ViewModel's Flow
-    //val taskListsWithItems2 = remember(query.value) {
-    // viewModel.filterLists(query.value)
-    //}
-    val taskListsWithItems by viewModel.lists.collectAsState(emptyList())
+    val todoListsWithItems by viewModel.lists.collectAsState(emptyList())
+    val selectedTodoList by viewModel.selectedTodoList.collectAsState()
 
     // Use LaunchedEffect to reset selectedIndex if list size changes
-    LaunchedEffect(taskListsWithItems) {
-        if (selectedIndex.value != null &&
-            taskListsWithItems.none { it.todoList.id == selectedIndex.value }
+    LaunchedEffect(todoListsWithItems) {
+        if (selectedTodoList != null &&
+            todoListsWithItems.none { it.todoList == selectedTodoList }
         ) {
-            selectedIndex.value = null
+            viewModel.selectTodoList(null)
         }
     }
 
-    val filteredLists = taskListsWithItems.filter {
-        it.todoList.title.contains(query.value, ignoreCase = true)
+    // Filter the lists whenever query.value changes
+    val filteredLists = remember(query.value, todoListsWithItems) {
+        todoListsWithItems.filter {
+            it.todoList.title.contains(query.value, ignoreCase = true)
+        }
     }
+
+    // Decide which list to show: full or filtered
+    val listsToShow = if (query.value.isBlank()) todoListsWithItems else filteredLists
 
     Box(modifier = Modifier.fillMaxSize()) {
         Scaffold(
@@ -106,39 +114,38 @@ fun TodoListScreen(viewModel: TodoListViewModel, appNavigator: AppNavigator) {
                     showDialog.value = true
                 }
             }
-        ) { innerPadding ->
+        ) { innerPadding  ->
 
-            // Main content area
-            LazyColumn(
+            LazyColumn (
                 contentPadding = PaddingValues(
-                    start = innerPadding.calculateStartPadding(LocalLayoutDirection.current),
-                    top = innerPadding.calculateTopPadding(),
-                    end = innerPadding.calculateEndPadding(LocalLayoutDirection.current),
-                    bottom = innerPadding.calculateBottomPadding() + 50.dp
-                )
-            ) {
-                // Use the filtered list directly or fallback to the full list
-                val listsToShow = if (query.value.isNotEmpty()) filteredLists else taskListsWithItems
+                start = innerPadding.calculateStartPadding(LocalLayoutDirection.current),
+                top = innerPadding.calculateTopPadding(),
+                end = innerPadding.calculateEndPadding(LocalLayoutDirection.current),
+                bottom = innerPadding.calculateBottomPadding()
+            )){
+                items(
+                    items = listsToShow,
+                    key = { it.todoList.id }
+                ) { taskListWithItems ->
+                    val isSelected = (selectedTodoList?.id == taskListWithItems.todoList.id)
 
-
-                itemsIndexed(taskListsWithItems){index,  taskListWithItems->
                     ListItem(
                         todoList = taskListWithItems.todoList,
-                        index = index,
-                        selectedIndex = selectedIndex,
-                        viewModel = viewModel,
-                        appNavigator = appNavigator,
+                        isSelected = isSelected,
                         onPositionChange = { offset, todoList ->
                             changeButtonAnchor.value = offset
-                            currentTaskList.value = todoList
-                        }
+                            viewModel.selectTodoList(todoList)
+                        },
+                        viewModel = viewModel,
+                        appNavigator = appNavigator,
+                        taskListsWithItems = todoListsWithItems
                     )
                 }
             }
         }
 
         // Render ChangeButton
-        if (selectedIndex.value != null && changeButtonAnchor.value != null) {
+        if (selectedTodoList != null && changeButtonAnchor.value != null) {
             Box(
                 modifier = Modifier
                     .offset(
@@ -149,16 +156,13 @@ fun TodoListScreen(viewModel: TodoListViewModel, appNavigator: AppNavigator) {
             ) {
                 ChangeButton(
                     onClose = {
-                        selectedIndex.value = null
+                        viewModel.selectTodoList(null)
                     },
                     onDelete = {
-                        selectedIndex.value?.let { id ->
-                            val taskList = taskListsWithItems.find { it.todoList.id == id }?.todoList
-                            if (taskList != null) {
-                                viewModel.removeTodoList(taskList)
-                            }
+                        selectedTodoList?.let { todoList ->
+                            viewModel.removeTodoList(todoList)
                         }
-                        selectedIndex.value = null
+                        viewModel.selectTodoList(null)
                     },
                     onOpdate = { showDialog.value = true },
                     onGifSelect = {
@@ -169,36 +173,37 @@ fun TodoListScreen(viewModel: TodoListViewModel, appNavigator: AppNavigator) {
         }
 
         // Full-screen overlay to detect taps
-        if (selectedIndex.value != null) {
+        if (selectedTodoList != null) {
             Box(
                 Modifier
                     .fillMaxSize()
                     .background(Color.Black.copy(alpha = 0.3f))
                     .pointerInput(Unit) {
-                        detectTapGestures(onTap = { selectedIndex.value = null })
+                        detectTapGestures(onTap = { viewModel.selectTodoList(null) })
                     }
             )
         }
 
-        if(showDialog.value && currentTaskList.value != null){
+        if(showDialog.value && selectedTodoList != null) {
+            Log.d("TodoListScreen", "showDialog.value && currentTaskList.value != null")
             ListNameInputDialog(
                 onDismiss = { showDialog.value = false },
                 onConfirm = { newName ->
-                    currentTaskList.value?.let { taskList ->
+                    selectedTodoList?.let { taskList ->
                         viewModel.updateTodoList(taskList, newName)
                     }
                     showDialog.value = false
                     Toast.makeText(context, "List '$newName' created", Toast.LENGTH_SHORT).show()
-                    selectedIndex.value = null
-                    currentTaskList.value = null
+                    viewModel.selectTodoList(null)
                 }
             )
         }
         else if (showDialog.value){
+            Log.d("TodoListScreen", "showDialog.value")
             ListNameInputDialog(
                 onDismiss = { showDialog.value = false },
                 onConfirm = { name ->
-                    if (name.isNotBlank()) {
+                    if (true) {  // Can add a check for valid name here
                         viewModel.addTodoList(name)
                         listNameState.value = name
                         showDialog.value = false
@@ -275,11 +280,11 @@ private fun TopAppBarWithMenu(query: MutableState<String>) {
 @Composable
 private fun ListItem(
     todoList: TodoList,
-    index: Int,
-    selectedIndex: MutableState<Int?>,
+    isSelected: Boolean,
     viewModel: TodoListViewModel,
     appNavigator: AppNavigator,
-    onPositionChange: (Offset, TodoList) -> Unit
+    onPositionChange: (Offset, TodoList) -> Unit,
+    taskListsWithItems: List<TodoListWithTaskItem>
 ) {
     val context = LocalContext.current
     val listNameState = remember { mutableStateOf(todoList.title) }
@@ -322,18 +327,17 @@ private fun ListItem(
                 .pointerInput(Unit) {
                     detectTapGestures(
                         onTap = {
-                            val refreshedTaskList = viewModel.lists.value.find { it.todoList.id == todoList.id }
+                            val refreshedTaskList = taskListsWithItems.find { it.todoList.id == todoList.id }
+                            Log.d("ListItem", "Tapped Item Index: Task ID: ${todoList.id}, Refreshed Task: ${refreshedTaskList?.todoList?.id}")
                             if (refreshedTaskList != null) {
                                 appNavigator.navigateToTask(refreshedTaskList.todoList.id)
                             } else {
-                                Log.e("ListItem", "Attempted to navigate to a deleted or invalid list.")
+                                Log.e("ListItem", "No valid list to navigate to.")
                             }
                         },
                         onLongPress = {
-                            // Calculate dynamic yOffset based on the item's index and scroll state
-                            val yOffset = with(density) { itemPosition.y * (index+1) + 4.dp.toPx() }
+                            val yOffset = with(density) { itemPosition.y * ( + 1) + 4.dp.toPx() }
                             onPositionChange(Offset(98f, yOffset), todoList)
-                            selectedIndex.value = todoList.id
                         }
                     )
                 }
@@ -382,18 +386,20 @@ private fun ListItem(
                     color = MaterialTheme.colorScheme.background,
                     modifier = Modifier.width(320.dp)
                 )
-                LikedButton(todoList, viewModel)
+                LikedButton(todoList, onClick = {
+                    viewModel.updateTodoList(todoList, isLiked = !todoList.isLiked)
+                })
             }
         }
     }
 
-    if (selectedIndex.value == todoList.id) {
+    if (isSelected) {
         Spacer(modifier = Modifier.height(24.dp))
     }
 }
 
 @Composable
-private fun LikedButton(todoList: TodoList, viewModel: TodoListViewModel) {
+private fun LikedButton(todoList: TodoList, onClick: () -> Unit) {
     val isLiked = todoList.isLiked
 
     Icon(
@@ -401,12 +407,13 @@ private fun LikedButton(todoList: TodoList, viewModel: TodoListViewModel) {
         contentDescription = if (isLiked) "Liked" else "Add Favorite",
         modifier = Modifier
             .size(25.dp)
-            .clickable {
-                viewModel.updateTodoList(todoList = todoList, isLiked = !isLiked)
-            },
+            .clickable { onClick() }, // Use the passed lambda here
         tint = if (isLiked) Color.Red else Color.White
     )
 }
+
+
+
 
 // Floating Action Button composable for adding a new list item
 @Composable

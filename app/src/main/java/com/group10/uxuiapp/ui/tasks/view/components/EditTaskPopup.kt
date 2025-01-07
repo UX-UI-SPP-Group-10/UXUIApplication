@@ -14,7 +14,7 @@ import androidx.compose.ui.unit.sp
 @Composable
 fun EditTaskPopup(
     taskName: String,
-    onEditTask: (String) -> Unit,
+    onSaveTask: (String) -> Unit,
     onDeleteTask: () -> Unit,
     onDismiss: () -> Unit
 ) {
@@ -64,7 +64,7 @@ fun EditTaskPopup(
                 ) {
                     // Save Button
                     Button(onClick = {
-                        onEditTask(taskText)
+                        onSaveTask(taskText)
                         onDismiss()
                     }) {
                         Text("Save")
@@ -97,7 +97,7 @@ fun EditTaskPopupPreview() {
     MaterialTheme {
         EditTaskPopup(
             taskName = "Sample Task",
-            onEditTask = { newName -> println("Task edited to: $newName") },
+            onSaveTask = { newName -> println("Task edited to: $newName") },
             onDeleteTask = { println("Task deleted") },
             onDismiss = { println("Popup dismissed") }
         )
