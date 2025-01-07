@@ -39,20 +39,24 @@ class TaskListViewModel(private val taskDataSource: TaskDataSource) : ViewModel(
 
     fun updateTaskItem(taskItem: TaskItem, label: String? = null, isComplete: Boolean? = null) {
         viewModelScope.launch {
-            taskDataSource.updateTaskItem(
-                taskItem = taskItem.copy(
-                    label = label ?: taskItem.label,
-                    isComplete = isComplete ?: taskItem.isComplete
-                )
+            // Update the TaskItem in the database
+            val updatedTask = taskItem.copy(
+                label = label ?: taskItem.label,
+                isComplete = isComplete ?: taskItem.isComplete
             )
+            taskDataSource.updateTaskItem(updatedTask)
 
-            // Refresh tasks for the current TodoList
-            val currentTodoListId = _currentTodoList.value?.todoList?.id
-            if (currentTodoListId != null) {
-                refreshTodoList(currentTodoListId)
+            // Update the in-memory state (_currentTodoList)
+            val currentTodoList = _currentTodoList.value
+            if (currentTodoList != null) {
+                val updatedTasks = currentTodoList.taskItems.map {
+                    if (it.id == updatedTask.id) updatedTask else it
+                }
+                _currentTodoList.value = currentTodoList.copy(taskItems = updatedTasks)
             }
         }
     }
+
 
     fun deleteTask(taskItem: TaskItem) {
         viewModelScope.launch {
