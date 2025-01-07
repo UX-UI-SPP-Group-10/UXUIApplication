@@ -22,10 +22,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyListState
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
@@ -48,34 +45,30 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.paint
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
-import androidx.room.Query
 import com.example.uxuiapplication.ChangeButton
 import com.group10.uxuiapp.data.data_class.TodoList
 import com.group10.uxuiapp.ui.navigation.AppNavigator
 import com.group10.uxuiapp.data.GiphyActivity
 import com.group10.uxuiapp.ui.todolist.view.components.ListNameInputDialog
 import com.group10.uxuiapp.ui.todolist.view.components.SettingsButton
-import com.group10.uxuiapp.ui.todolist.viewmodel.ListViewModel
+import com.group10.uxuiapp.ui.todolist.viewmodel.TodoListViewModel
 
 
 // Main ListOverviewPage with Scaffold and LazyColumn
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun TodoListScreen(viewModel: ListViewModel, appNavigator: AppNavigator) {
+fun TodoListScreen(viewModel: TodoListViewModel, appNavigator: AppNavigator) {
     val selectedIndex = remember { mutableStateOf<Int?>(null) }
     val showDialog = remember { mutableStateOf(false) }
     val listNameState = remember { mutableStateOf("") }
@@ -162,7 +155,7 @@ fun TodoListScreen(viewModel: ListViewModel, appNavigator: AppNavigator) {
                         selectedIndex.value?.let { id ->
                             val taskList = taskListsWithItems.find { it.todoList.id == id }?.todoList
                             if (taskList != null) {
-                                viewModel.removeList(taskList)
+                                viewModel.removeTodoList(taskList)
                             }
                         }
                         selectedIndex.value = null
@@ -214,7 +207,7 @@ fun TodoListScreen(viewModel: ListViewModel, appNavigator: AppNavigator) {
                 onDismiss = { showDialog.value = false },
                 onConfirm = { name ->
                     if (name.isNotBlank()) {
-                        viewModel.addList(name)
+                        viewModel.addTodoList(name)
                         listNameState.value = name
                         showDialog.value = false
                         Toast.makeText(context, "List '$name' created", Toast.LENGTH_SHORT).show()
@@ -276,7 +269,7 @@ private fun ListItem(
     todoList: TodoList,
     index: Int,
     selectedIndex: MutableState<Int?>,
-    viewModel: ListViewModel,
+    viewModel: TodoListViewModel,
     appNavigator: AppNavigator,
     onPositionChange: (Offset, TodoList) -> Unit
 ) {
@@ -362,7 +355,7 @@ private fun ListItem(
 }
 
 @Composable
-private fun LikedButton(todoList: TodoList, viewModel: ListViewModel) {
+private fun LikedButton(todoList: TodoList, viewModel: TodoListViewModel) {
     val isLiked = todoList.isLiked
 
     Icon(

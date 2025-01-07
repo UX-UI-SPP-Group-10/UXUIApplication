@@ -27,6 +27,8 @@ class TaskDataSource(private val taskDao: TaskDao) {
         taskDao.updateGifUrl(todoListID, gifUrl)
     }
 
+    fun getTaskItemById(taskId: Int): Flow<TaskItem> = taskDao.getTaskItemById(taskId)
+
     suspend fun deleteTodoList(todoList: TodoList) = taskDao.deleteTodoList(todoList)
     suspend fun deleteTaskItem(taskItem: TaskItem) = taskDao.deleteTaskItem(taskItem)
 }

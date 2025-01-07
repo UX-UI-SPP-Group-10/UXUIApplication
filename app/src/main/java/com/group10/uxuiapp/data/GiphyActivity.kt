@@ -8,12 +8,12 @@ import com.giphy.sdk.core.models.Media
 import com.giphy.sdk.ui.GPHContentType
 import com.giphy.sdk.ui.Giphy
 import com.giphy.sdk.ui.views.GiphyDialogFragment
-import com.group10.uxuiapp.ui.todolist.viewmodel.ListViewModel
-import com.group10.uxuiapp.ui.todolist.viewmodel.ListViewModelFactory
+import com.group10.uxuiapp.ui.todolist.viewmodel.TodoListViewModel
+import com.group10.uxuiapp.ui.todolist.viewmodel.TodoListViewModelFactory
 
 class GiphyActivity : AppCompatActivity() {
 
-    private lateinit var listViewModel: ListViewModel
+    private lateinit var todoListViewModel: TodoListViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -25,8 +25,8 @@ class GiphyActivity : AppCompatActivity() {
         val taskDatasource = TaskDataSource(database.taskDao())
 
         // Initialize ViewModelFactory and ViewModel
-        val viewModelFactory = ListViewModelFactory(taskDatasource)
-        listViewModel = ViewModelProvider(this, viewModelFactory).get(ListViewModel::class.java)
+        val viewModelFactory = TodoListViewModelFactory(taskDatasource)
+        todoListViewModel = ViewModelProvider(this, viewModelFactory).get(TodoListViewModel::class.java)
 
         // Existing Giphy setup
         val giphyDialog = GiphyDialogFragment.newInstance()
@@ -37,7 +37,7 @@ class GiphyActivity : AppCompatActivity() {
                 // Assuming taskListId is passed to this activity
                 val todoListId = intent.getIntExtra("todoListId", -1)
                 if (todoListId != -1 && gifUrl != null) {
-                    listViewModel.updateGifUrl(todoListId, gifUrl)
+                    todoListViewModel.updateGifUrl(todoListId, gifUrl)
 
                     Toast.makeText(this@GiphyActivity, "GIF updated successfully", Toast.LENGTH_SHORT).show()
                 }

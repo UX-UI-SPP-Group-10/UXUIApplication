@@ -17,7 +17,7 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.group10.uxuiapp.data.data_class.TaskItem
-import com.group10.uxuiapp.ui.todolist.viewmodel.ListViewModel
+import com.group10.uxuiapp.ui.todolist.viewmodel.TodoListViewModel
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.runtime.remember
 import androidx.compose.ui.input.pointer.pointerInput
@@ -26,7 +26,7 @@ import androidx.compose.ui.input.pointer.pointerInput
 @Composable
 fun TaskRowItem(
     task: TaskItem,
-    viewModel: ListViewModel
+    viewModel: TaskListViewModel
 ) {
     var isChecked by remember { mutableStateOf(task.isComplete) }
     var text by remember { mutableStateOf(task.label) }
@@ -60,7 +60,7 @@ fun TaskRowItem(
                 checked = isChecked,
                 onCheckedChange = { newChecked ->
                     isChecked = newChecked
-                    viewModel.updateTaskItem(taskItem = task, isComplete = newChecked)
+                    viewModel.updateTask(taskItem = task, isComplete = newChecked)
                 },
                 colors = CheckboxDefaults.colors(
                     checkedColor = MaterialTheme.colorScheme.primary,
@@ -75,7 +75,7 @@ fun TaskRowItem(
                 value = text,
                 onValueChange = { newText ->
                     text = newText
-                    viewModel.updateTaskItem(taskItem = task, label = newText)
+                    viewModel.updateTask(taskItem = task, label = newText)
                 },
                 textStyle = MaterialTheme.typography.bodyLarge.copy(
                     textDecoration = if (isChecked) TextDecoration.LineThrough else null,
@@ -107,7 +107,7 @@ fun TaskRowItem(
             taskName = text,
             onEditTask = { newName ->
                 text = newName
-                viewModel.updateTaskItem(taskItem = task, label = newName)
+                viewModel.updateTask(taskItem = task, label = newName)
             },
             onDeleteTask = {
                 // viewModel.deleteTaskItem(task)

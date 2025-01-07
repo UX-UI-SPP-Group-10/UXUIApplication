@@ -6,14 +6,15 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.compose.rememberNavController
 
 import androidx.compose.runtime.remember
+import androidx.lifecycle.viewmodel.viewModelFactory
 
 @Composable
-fun MainNavigation(viewModelFactory: ViewModelProvider.Factory) {
+fun MainNavigation(todoListViewModelFactory: ViewModelProvider.Factory, taskListViewModelFactory: ViewModelProvider.Factory) {
     val navController = rememberNavController()
-    val appNavigator = remember { AppNavigator(navController) }
 
     NavigationGraph(
         navController = navController,
-        viewModelFactory = viewModelFactory
+        taskListViewModel = taskListViewModelFactory,
+        todoListViewModelFactory = todoListViewModelFactory
     )
 }

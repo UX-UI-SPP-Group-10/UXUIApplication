@@ -60,6 +60,9 @@ interface TaskDao {
     """)
     suspend fun updateGifUrl(todoListId: Int, gifUrl: String)
 
+    @Query("SELECT * FROM TaskItem WHERE id = :taskId")
+    fun getTaskItemById(taskId: Int): Flow<TaskItem>
+
     @Delete
     suspend fun deleteTodoList(todoList: TodoList)
 

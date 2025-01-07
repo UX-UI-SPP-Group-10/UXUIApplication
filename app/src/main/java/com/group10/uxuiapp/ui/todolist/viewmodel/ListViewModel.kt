@@ -10,7 +10,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
-class ListViewModel(private val taskDataSource: TaskDataSource) : ViewModel() {
+class OldViewModel(private val taskDataSource: TaskDataSource) : ViewModel() {
     private val _lists = MutableStateFlow<List<TodoListWithTaskItem>>(emptyList())
     val lists: StateFlow<List<TodoListWithTaskItem>> = _lists
 
