@@ -127,18 +127,17 @@ fun TaskScreen(todoListId: Int, appNavigator: AppNavigator, viewModel: TaskViewM
 
     if (selectedTask != null) {
         EditTaskPopup(
-            taskName = selectedTask!!.label, // Pass the current task name
+            taskName = selectedTask!!.label,
             onSaveTask = { newName ->
-                // Update the selected task with the new name
                 viewModel.updateTaskItem(taskItem = selectedTask!!, label = newName)
-                viewModel.selectTask(null) // Dismiss the popup
+                viewModel.selectTask(null)
             },
             onDeleteTask = {
-                viewModel.deleteTask(selectedTask!!) // Delete the selected task
-                viewModel.selectTask(null) // Dismiss the popup
+                viewModel.deleteTask(selectedTask!!)
+                viewModel.selectTask(null)
             },
             onDismiss = {
-                viewModel.selectTask(null) // Dismiss the popup without saving
+                viewModel.selectTask(null)
             }
         )
     }
