@@ -391,7 +391,7 @@ private fun AddNewListButton(onClick: () -> Unit) {
             .padding(16.dp)
             .width(135.dp)
             .height(60.dp)
-            .offset(x = 22.dp, y = (-8).dp)
+            .offset(x = 15.dp, y = (-10).dp)
     ) {
         // Row to position icon and text horizontally
         Row(
