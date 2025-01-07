@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.group10.uxuiapp.data.data_class.TodoList
 import com.group10.uxuiapp.data.data_class.TodoListWithTaskItem
 import com.group10.uxuiapp.data.TaskDataSource
+import com.group10.uxuiapp.data.data_class.TaskItem
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -17,29 +18,23 @@ class TodoListViewModel(private val taskDataSource: TaskDataSource) : ViewModel(
     val currentTodoList: StateFlow<TodoListWithTaskItem?> = _currentTodoList
 
     init {
-        observeTodoListsWithTasks()
-    }
-
-    private fun observeTodoListsWithTasks() {
+        // Observe all task lists with their items
         viewModelScope.launch {
-            taskDataSource.getTodoListWithTask().collect { todoListWithTaskItems ->
-                _lists.value = todoListWithTaskItems
-                // Update the current TodoList if it is being viewed
-                _currentTodoList.value?.let { current ->
-                    _currentTodoList.value = todoListWithTaskItems.find { it.todoList.id == current.todoList.id }
+            taskDataSource.getTodoListWithTask()
+                .collect { todoListWithTaskItem ->
+                    _lists.value = todoListWithTaskItem
+                    // Update the current list if it is being viewed
+                    _currentTodoList.value?.let { current ->
+                        _currentTodoList.value = todoListWithTaskItem.find { it.todoList.id == current.todoList.id }
+                    }
                 }
-            }
         }
     }
 
     fun selectTodoList(todoListId: Int) {
-        // Select and observe a specific TodoList
-        _currentTodoList.value = _lists.value.find { it.todoList.id == todoListId }
-    }
-
-    fun refreshTodoLists() {
-        // Force refresh
-        observeTodoListsWithTasks()
+        // Find the specific task list to observe
+        val selectedList = _lists.value.find { it.todoList.id == todoListId }
+        _currentTodoList.value = selectedList
     }
 
     fun addTodoList(title: String) {
@@ -55,14 +50,28 @@ class TodoListViewModel(private val taskDataSource: TaskDataSource) : ViewModel(
         }
     }
 
-    fun updateTodoList(todoList: TodoList, title: String? = null, isLiked: Boolean? = null, gifUrl: String? = null) {
+    fun addTaskToList(taskItem: TaskItem) {
+        viewModelScope.launch {
+            taskDataSource.insertTaskItem(taskItem)
+        }
+    }
+
+    fun updateTodoList(todoList: TodoList, title: String? = null, isLiked: Boolean? = null) {
         viewModelScope.launch {
             taskDataSource.updateTodoList(
-                todoList.copy(
-                    title = title ?: todoList.title,
-                    isLiked = isLiked ?: todoList.isLiked,
-                    gifUrl = gifUrl ?: todoList.gifUrl
-                )
+                todoList = todoList,
+                title = title,
+                isLiked = isLiked
+            )
+        }
+    }
+
+    fun updateTaskItem(taskItem: TaskItem, label: String? = null, isComplete: Boolean? = null) {
+        viewModelScope.launch {
+            taskDataSource.updateTaskItem(
+                taskItem = taskItem,
+                label = label,
+                isComplete = isComplete
             )
         }
     }
@@ -73,6 +82,12 @@ class TodoListViewModel(private val taskDataSource: TaskDataSource) : ViewModel(
             if (todoList != null) {
                 taskDataSource.updateTodoList(todoList.copy(gifUrl = gifUrl))
             }
+        }
+    }
+
+    fun deleteTask(taskItem: TaskItem) {
+        viewModelScope.launch {
+            taskDataSource.deleteTaskItem(taskItem)
         }
     }
 }
