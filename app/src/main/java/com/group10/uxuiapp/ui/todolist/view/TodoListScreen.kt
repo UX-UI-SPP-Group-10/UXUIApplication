@@ -1,4 +1,4 @@
-package com.group10.uxuiapp.view
+package com.group10.uxuiapp.ui.todolist.view
 
 
 import android.content.Intent
@@ -45,27 +45,22 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.paint
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.room.Query
 import com.example.uxuiapplication.ChangeButton
 import com.group10.uxuiapp.data.data_class.TodoList
 import com.group10.uxuiapp.ui.navigation.AppNavigator
 import com.group10.uxuiapp.data.GiphyActivity
-import com.group10.uxuiapp.view.component.ListNameInputDialog
-import com.group10.uxuiapp.view.component.SettingsButton
-import com.group10.uxuiapp.view_model.ListViewModel
-import com.group10.uxuiapp.ui.navigation.Screen
+import com.group10.uxuiapp.ui.todolist.view.components.ListNameInputDialog
+import com.group10.uxuiapp.ui.todolist.view.components.SettingsButton
+import com.group10.uxuiapp.ui.todolist.viewmodel.ListViewModel
 
 
 // Main ListOverviewPage with Scaffold and LazyColumn

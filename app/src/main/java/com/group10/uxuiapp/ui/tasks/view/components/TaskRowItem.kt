@@ -1,6 +1,5 @@
-package com.group10.uxuiapp.view.component
+package com.group10.uxuiapp.ui.tasks.view.components
 
-import android.R.attr.checked
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.BasicTextField
@@ -13,17 +12,15 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.group10.uxuiapp.data.data_class.TaskItem
-import com.group10.uxuiapp.view_model.ListViewModel
+import com.group10.uxuiapp.ui.todolist.viewmodel.ListViewModel
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.runtime.remember
 import androidx.compose.ui.input.pointer.pointerInput
-import com.group10.uxuiapp.ui.tasks.view.EditTaskPopup
 
 
 @Composable

@@ -1,4 +1,4 @@
-package com.group10.uxuiapp.view_model
+package com.group10.uxuiapp.ui.todolist.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope

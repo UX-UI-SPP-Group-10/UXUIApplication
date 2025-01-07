@@ -1,4 +1,4 @@
-package com.group10.uxuiapp.view
+package com.group10.uxuiapp.ui.tasks.view
 
 import android.util.Log
 import androidx.compose.foundation.layout.Box
@@ -25,10 +25,10 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import com.group10.uxuiapp.data.data_class.TaskItem
-import com.group10.uxuiapp.view.component.SettingsButton
-import com.group10.uxuiapp.view.component.TaskRowItem
-import com.group10.uxuiapp.view.component.buttons.AddTaskButton
-import com.group10.uxuiapp.view_model.ListViewModel
+import com.group10.uxuiapp.ui.todolist.view.components.SettingsButton
+import com.group10.uxuiapp.ui.tasks.view.components.TaskRowItem
+import com.group10.uxuiapp.ui.tasks.view.components.AddTaskButton
+import com.group10.uxuiapp.ui.todolist.viewmodel.ListViewModel
 import com.group10.uxuiapp.ui.navigation.AppNavigator
 
 @OptIn(ExperimentalMaterial3Api::class)

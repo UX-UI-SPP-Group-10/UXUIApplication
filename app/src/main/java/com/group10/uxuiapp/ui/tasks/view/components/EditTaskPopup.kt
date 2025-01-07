@@ -1,4 +1,4 @@
-package com.group10.uxuiapp.ui.tasks.view
+package com.group10.uxuiapp.ui.tasks.view.components
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*

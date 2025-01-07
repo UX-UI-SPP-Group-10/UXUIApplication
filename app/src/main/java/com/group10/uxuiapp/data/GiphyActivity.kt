@@ -8,8 +8,8 @@ import com.giphy.sdk.core.models.Media
 import com.giphy.sdk.ui.GPHContentType
 import com.giphy.sdk.ui.Giphy
 import com.giphy.sdk.ui.views.GiphyDialogFragment
-import com.group10.uxuiapp.view_model.ListViewModel
-import com.group10.uxuiapp.view_model.ListViewModelFactory
+import com.group10.uxuiapp.ui.todolist.viewmodel.ListViewModel
+import com.group10.uxuiapp.ui.todolist.viewmodel.ListViewModelFactory
 
 class GiphyActivity : AppCompatActivity() {
 

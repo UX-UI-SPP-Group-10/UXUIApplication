@@ -1,4 +1,4 @@
-package com.group10.uxuiapp.view.component
+package com.group10.uxuiapp.ui.todolist.view.components
 
 import android.content.Context
 import android.widget.Toast
