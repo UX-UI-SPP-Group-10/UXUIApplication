@@ -58,6 +58,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.room.Query
+import coil.compose.AsyncImage
 import coil.compose.SubcomposeAsyncImage
 import coil.compose.rememberAsyncImagePainter
 import coil.compose.rememberImagePainter
@@ -202,28 +203,6 @@ private fun ListItem(
     val listNameState = remember { mutableStateOf(todoList.title) }
     val showDialog = remember { mutableStateOf(false) }
 
-    // Remember the background based on gifUrl
-    val backgroundModifier = if (!todoList.gifUrl.isNullOrEmpty()) {
-
-        Modifier.fillMaxSize()
-            .then(
-                Modifier.background(Color.Transparent)
-            )
-
-    } else {
-        Modifier.background(
-            Brush.linearGradient(
-                colors = listOf(
-                    MaterialTheme.colorScheme.primary,
-                    MaterialTheme.colorScheme.secondary,
-                    Color(0xFFC0DCEF)
-                ),
-                start = Offset(0f, 0f),
-                end = Offset(0f, Float.POSITIVE_INFINITY)
-            )
-        )
-    }
-
     Box(
         modifier = Modifier
             .fillMaxWidth()
@@ -234,8 +213,6 @@ private fun ListItem(
                 .fillMaxWidth()
                 .height(100.dp)
                 .clip(RoundedCornerShape(20.dp))
-                .then(backgroundModifier)
-                // Apply dynamic background
                 .pointerInput(Unit) {
                     detectTapGestures(
                         onTap = {
@@ -252,6 +229,32 @@ private fun ListItem(
                     )
                 }
         ) {
+            // GIF as background (placed first to be behind everything else)
+            if (!todoList.gifUrl.isNullOrEmpty()) {
+                AsyncImage(
+                    model = todoList.gifUrl,
+                    contentDescription = "GIF Background",
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier.fillMaxSize()
+                )
+            } else {
+                // Default gradient background if no GIF is provided
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(
+                            Brush.linearGradient(
+                                colors = listOf(
+                                    MaterialTheme.colorScheme.primary,
+                                    MaterialTheme.colorScheme.secondary,
+                                    Color(0xFFC0DCEF)
+                                ),
+                                start = Offset(0f, 0f),
+                                end = Offset(0f, Float.POSITIVE_INFINITY)
+                            )
+                        )
+                )
+            }
             Row(
                 modifier = Modifier
                     .fillMaxSize()
