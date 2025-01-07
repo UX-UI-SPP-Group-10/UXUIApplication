@@ -44,6 +44,17 @@ interface TaskDao {
     )
 
     @Query("""
+    UPDATE TodoList
+    SET listIndex = :listIndex
+    WHERE id = :todoListId
+""")
+    suspend fun updateListIndex(
+        todoListId: Int,
+        listIndex: Int
+    )
+
+
+    @Query("""
         UPDATE TaskItem
         SET 
             label = COALESCE(:label, label),

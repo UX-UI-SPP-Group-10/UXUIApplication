@@ -63,6 +63,7 @@ import com.group10.uxuiapp.data.GiphyActivity
 import com.group10.uxuiapp.ui.todolist.view.components.ListNameInputDialog
 import com.group10.uxuiapp.ui.todolist.view.components.SettingsButton
 import com.group10.uxuiapp.ui.todolist.viewmodel.TodoListViewModel
+import kotlinx.coroutines.flow.map
 
 
 // Main ListOverviewPage with Scaffold and LazyColumn
@@ -81,16 +82,21 @@ fun TodoListScreen(viewModel: TodoListViewModel, appNavigator: AppNavigator) {
     //val taskListsWithItems2 = remember(query.value) {
     // viewModel.filterLists(query.value)
     //}
-    val taskListsWithItems by viewModel.lists.collectAsState(emptyList())
+    val taskListsWithItems by viewModel.lists
+        .map { lists -> lists.sortedBy { it.todoList.listIndex } }
+        .collectAsState(emptyList())
 
+
+    // Use LaunchedEffect to reset selectedIndex if list size changes
     // Use LaunchedEffect to reset selectedIndex if list size changes
     LaunchedEffect(taskListsWithItems) {
         if (selectedIndex.value != null &&
             taskListsWithItems.none { it.todoList.id == selectedIndex.value }
         ) {
-            selectedIndex.value = null
+            selectedIndex.value = taskListsWithItems.firstOrNull()?.todoList?.id
         }
     }
+
 
     val filteredLists = taskListsWithItems.filter {
         it.todoList.title.contains(query.value, ignoreCase = true)
@@ -158,8 +164,15 @@ fun TodoListScreen(viewModel: TodoListViewModel, appNavigator: AppNavigator) {
                                 viewModel.removeTodoList(taskList)
                             }
                         }
-                        selectedIndex.value = null
-                    },
+
+                        // Update selectedIndex to the next valid list
+                        val nextValidId = taskListsWithItems
+                            .filter { it.todoList.id != selectedIndex.value }
+                            .firstOrNull()?.todoList?.id
+
+                        selectedIndex.value = nextValidId
+                    }
+                    ,
                     onOpdate = { showDialog.value = true },
                     onGifSelect = {
                         val intent = Intent(context, GiphyActivity::class.java).apply {
@@ -320,7 +333,13 @@ private fun ListItem(
                             if (refreshedTaskList != null) {
                                 appNavigator.navigateToTask(refreshedTaskList.todoList.id)
                             } else {
-                                Log.e("ListItem", "Attempted to navigate to a deleted or invalid list.")
+                                // Fallback to first valid list or show an error
+                                val firstValidId = viewModel.lists.value.firstOrNull()?.todoList?.id
+                                if (firstValidId != null) {
+                                    appNavigator.navigateToTask(firstValidId)
+                                } else {
+                                    Log.e("ListItem", "No valid list to navigate to.")
+                                }
                             }
                         },
                         onLongPress = {

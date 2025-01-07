@@ -35,6 +35,13 @@ class TaskDataSource(private val taskDao: TaskDao) {
         )
     }
 
+    suspend fun updateListIndex(todoListId: Int, newIndex: Int) {
+        Log.d("TaskDataSource", "Updating listIndex for TodoList with id=$todoListId to newIndex=$newIndex")
+        taskDao.updateListIndex(
+            todoListId = todoListId,
+            listIndex = newIndex
+        )
+    }
 
 
     fun getTasksByCompletionStatus(isComplete: Boolean): Flow<List<TaskItem>> {

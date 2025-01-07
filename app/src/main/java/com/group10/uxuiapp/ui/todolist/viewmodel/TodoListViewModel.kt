@@ -21,23 +21,18 @@ class TodoListViewModel(private val taskDataSource: TaskDataSource) : ViewModel(
     val currentTodoList: StateFlow<TodoListWithTaskItem?> = _currentTodoList
 
     init {
-        Log.d(TAG, "Initializing TodoListViewModel")
-        // Observe all task lists with their items
         viewModelScope.launch {
             try {
                 taskDataSource.getTodoListsWithTasks()
                     .collect { todoListWithTaskItem ->
-                        Log.d(TAG, "Fetched ${todoListWithTaskItem.size} TodoLists with tasks")
-                        _lists.value = todoListWithTaskItem
-                        _currentTodoList.value?.let { current ->
-                            _currentTodoList.value = todoListWithTaskItem.find { it.todoList.id == current.todoList.id }
-                        }
+                        _lists.value = todoListWithTaskItem.sortedBy { it.todoList.listIndex }
                     }
             } catch (e: Exception) {
-                Log.e(TAG, "Error initializing TodoListViewModel: ${e.message}", e)
+                Log.e(TAG, "Error fetching TodoLists: ${e.message}", e)
             }
         }
     }
+
 
     fun selectTodoList(todoListId: Int) {
         Log.d(TAG, "Selecting TodoList with id: $todoListId")
@@ -52,7 +47,10 @@ class TodoListViewModel(private val taskDataSource: TaskDataSource) : ViewModel(
 
     fun addTodoList(title: String) {
         viewModelScope.launch {
-            val newList = TodoList(title = title)
+            val newList = TodoList(
+                title = title,
+                listIndex = _lists.value.size // Set index to the current list size
+            )
             try {
                 val id = taskDataSource.insertTodoList(newList)
                 Log.d(TAG, "Added new TodoList with id: $id and title: $title")
@@ -62,16 +60,48 @@ class TodoListViewModel(private val taskDataSource: TaskDataSource) : ViewModel(
         }
     }
 
+
     fun removeTodoList(todoList: TodoList) {
         viewModelScope.launch {
             try {
+                // Remove the selected TodoList
                 taskDataSource.deleteTodoList(todoList)
                 Log.d(TAG, "Removed TodoList with id: ${todoList.id}")
+
+                // Recalculate listIndex for remaining lists
+                val updatedLists = _lists.value
+                    .filter { it.todoList.id != todoList.id } // Exclude the removed list
+                    .sortedBy { it.todoList.listIndex } // Sort by current listIndex
+                    .mapIndexed { index, todoListWithTaskItem ->
+                        val updatedTodoList = todoListWithTaskItem.todoList.copy(listIndex = index)
+                        taskDataSource.updateListIndex(updatedTodoList.id, index) // Update database
+                        todoListWithTaskItem.copy(todoList = updatedTodoList)
+                    }
+
+                // Update the ViewModel's state
+                _lists.value = updatedLists
             } catch (e: Exception) {
                 Log.e(TAG, "Error removing TodoList: ${e.message}", e)
             }
         }
     }
+
+
+    fun updateListOrder(updatedOrder: List<TodoList>) {
+        viewModelScope.launch {
+            try {
+                updatedOrder.forEachIndexed { index, todoList ->
+                    taskDataSource.updateListIndex(todoList.id, index)
+                }
+                Log.d(TAG, "Updated list order successfully")
+            } catch (e: Exception) {
+                Log.e(TAG, "Error updating list order: ${e.message}", e)
+            }
+        }
+    }
+
+
+
 
     fun addTaskToList(taskItem: TaskItem) {
         viewModelScope.launch {
@@ -84,21 +114,29 @@ class TodoListViewModel(private val taskDataSource: TaskDataSource) : ViewModel(
         }
     }
 
-    fun updateTodoList(todoList: TodoList, title: String? = null, isLiked: Boolean? = null) {
+    fun updateTodoList(todoList: TodoList, title: String? = null, isLiked: Boolean? = null, newIndex: Int? = null) {
         viewModelScope.launch {
             try {
-                Log.d(TAG, "Updating TodoList with id: ${todoList.id}, title: $title, isLiked: $isLiked")
-                taskDataSource.updateTodoList(
-                    todoList = todoList,
-                    title = title,
-                    isLiked = isLiked
+                val updatedTodoList = todoList.copy(
+                    title = title ?: todoList.title,
+                    isLiked = isLiked ?: todoList.isLiked
                 )
-                Log.d(TAG, "TodoList updated successfully")
+
+                // If newIndex is provided, update the listIndex
+                newIndex?.let {
+                    taskDataSource.updateListIndex(todoList.id, it)
+                    Log.d(TAG, "Updated listIndex for TodoList with id: ${todoList.id} to $it")
+                }
+
+                // Update other fields in the database
+                taskDataSource.updateTodoList(updatedTodoList)
+                Log.d(TAG, "Updated TodoList with id: ${updatedTodoList.id}")
             } catch (e: Exception) {
                 Log.e(TAG, "Error updating TodoList: ${e.message}", e)
             }
         }
     }
+
 
     fun updateTaskItem(taskItem: TaskItem, label: String? = null, isComplete: Boolean? = null) {
         viewModelScope.launch {
