@@ -175,6 +175,7 @@ fun TodoListScreen(viewModel: TodoListViewModel, appNavigator: AppNavigator) {
                             viewModel.removeTodoList(todoList)
                         }
                         viewModel.selectTodoList(null)
+                        currentTaskList.value = null
                     },
                     onOpdate = { showDialog.value = true },
                     onGifSelect = {
@@ -203,6 +204,7 @@ fun TodoListScreen(viewModel: TodoListViewModel, appNavigator: AppNavigator) {
         }
 
         if(showDialog.value && currentTaskList.value != null){
+            Log.d("TodoListScreen", "showDialog.value && currentTaskList.value != null")
             ListNameInputDialog(
                 onDismiss = { showDialog.value = false },
                 onConfirm = { newName ->
@@ -217,10 +219,11 @@ fun TodoListScreen(viewModel: TodoListViewModel, appNavigator: AppNavigator) {
             )
         }
         else if (showDialog.value){
+            Log.d("TodoListScreen", "showDialog.value")
             ListNameInputDialog(
                 onDismiss = { showDialog.value = false },
                 onConfirm = { name ->
-                    if (name.isNotBlank()) {
+                    if (true) {  // Can add a check for valid name here
                         viewModel.addTodoList(name)
                         listNameState.value = name
                         showDialog.value = false

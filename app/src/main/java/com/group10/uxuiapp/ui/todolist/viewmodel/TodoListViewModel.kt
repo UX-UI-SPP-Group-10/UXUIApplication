@@ -43,6 +43,7 @@ class TodoListViewModel(private val taskDataSource: TaskDataSource) : ViewModel(
 
     fun addTodoList(title: String) {
         viewModelScope.launch {
+            Log.d(TAG, "addTodoList() called with title=$title")
             val newList = TodoList(
                 title = title,
                 listIndex = _lists.value.size // Set index to the current list size

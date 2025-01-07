@@ -9,7 +9,13 @@ import kotlinx.coroutines.flow.Flow
 class TaskDataSource(private val taskDao: TaskDao) {
 
     // Insert Operations
-    suspend fun insertTodoList(todoList: TodoList) = taskDao.insertTodoList(todoList)
+    suspend fun insertTodoList(todoList: TodoList): Long {
+        Log.d("TaskDataSource", "Creating new TodoList with title='${todoList.title}'")
+        val insertedId = taskDao.insertTodoList(todoList)
+        Log.d("TaskDataSource", "New TodoList created with ID=$insertedId")
+        return insertedId
+    }
+
     suspend fun insertTaskItem(taskItem: TaskItem) = taskDao.insertTaskItem(taskItem)
 
     // Fetch TodoList and Related Tasks

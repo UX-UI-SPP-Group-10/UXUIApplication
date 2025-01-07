@@ -81,7 +81,7 @@ class OldViewModel(private val taskDataSource: TaskDataSource) : ViewModel() {
         viewModelScope.launch {
             val todoList = _lists.value.find { it.todoList.id == todoListId }?.todoList
             if (todoList != null) {
-                taskDataSource.updateGifUrl(todoListId, gifUrl)
+                //taskDataSource.updateGifUrl(todoListId, gifUrl)
             }
         }
     }
