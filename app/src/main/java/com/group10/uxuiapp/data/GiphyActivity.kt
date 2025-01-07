@@ -22,10 +22,10 @@ class GiphyActivity : AppCompatActivity() {
 
         // Create the database and repository
         val database = DatabaseProvider.getDatabase(this)
-        val taskDatasource = TaskDataSource(database.taskDao())
+        val taskRepository = TaskDataSource(database.taskDao())
 
         // Initialize ViewModelFactory and ViewModel
-        val viewModelFactory = TodoListViewModelFactory(taskDatasource)
+        val viewModelFactory = TodoListViewModelFactory(taskRepository)
         todoListViewModel = ViewModelProvider(this, viewModelFactory).get(TodoListViewModel::class.java)
 
         // Existing Giphy setup

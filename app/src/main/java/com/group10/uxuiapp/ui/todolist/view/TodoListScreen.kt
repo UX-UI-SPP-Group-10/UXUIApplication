@@ -1,9 +1,9 @@
 package com.group10.uxuiapp.ui.todolist.view
 
-
 import android.content.Intent
 import android.util.Log
 import android.widget.Toast
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectTapGestures
@@ -22,6 +22,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
@@ -48,6 +50,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLayoutDirection
@@ -55,6 +58,13 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
+import androidx.room.Query
+import coil.compose.AsyncImage
+import coil.compose.SubcomposeAsyncImage
+import coil.compose.rememberAsyncImagePainter
+import coil.compose.rememberImagePainter
+import coil.decode.GifDecoder
+import coil.request.ImageRequest
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.uxuiapplication.ChangeButton
 import com.giphy.sdk.analytics.GiphyPingbacks.context
@@ -99,12 +109,9 @@ fun TodoListScreen(viewModel: TodoListViewModel, appNavigator: AppNavigator) {
     }
 
 
-
-
     val filteredLists = taskListsWithItems.filter {
         it.todoList.title.contains(query.value, ignoreCase = true)
     }
-
 
 
     Box(modifier = Modifier.fillMaxSize()) {
@@ -318,8 +325,6 @@ private fun ListItem(
                 .fillMaxWidth()
                 .height(100.dp)
                 .clip(RoundedCornerShape(20.dp))
-                .then(backgroundModifier)
-                // Apply dynamic background
                 .pointerInput(Unit) {
                     detectTapGestures(
                         onTap = {
@@ -337,8 +342,39 @@ private fun ListItem(
                         }
                     )
                 }
-
         ) {
+            // GIF as background (placed first to be behind everything else)
+            if (!todoList.gifUrl.isNullOrEmpty()) {
+                val gifPainter = rememberAsyncImagePainter(
+                    model = ImageRequest.Builder(LocalContext.current)
+                        .data(todoList.gifUrl)
+                        .decoderFactory(GifDecoder.Factory())
+                        .build()
+                )
+                Image(
+                    painter = gifPainter,
+                    contentDescription = "GIF Background",
+                    modifier = Modifier.fillMaxSize(),
+                    contentScale = ContentScale.Crop // Ensures the GIF fills the box area
+                )
+            } else {
+                // Default gradient background if no GIF is provided
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(
+                            Brush.linearGradient(
+                                colors = listOf(
+                                    MaterialTheme.colorScheme.primary,
+                                    MaterialTheme.colorScheme.secondary,
+                                    Color(0xFFC0DCEF)
+                                ),
+                                start = Offset(0f, 0f),
+                                end = Offset(0f, Float.POSITIVE_INFINITY)
+                            )
+                        )
+                )
+            }
             Row(
                 modifier = Modifier
                     .fillMaxSize()

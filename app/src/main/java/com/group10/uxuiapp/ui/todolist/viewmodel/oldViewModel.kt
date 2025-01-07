@@ -2,6 +2,7 @@ package com.group10.uxuiapp.ui.todolist.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import coil.Coil
 import com.group10.uxuiapp.data.data_class.TaskItem
 import com.group10.uxuiapp.data.data_class.TodoList
 import com.group10.uxuiapp.data.data_class.TodoListWithTaskItem
@@ -80,7 +81,7 @@ class OldViewModel(private val taskDataSource: TaskDataSource) : ViewModel() {
         viewModelScope.launch {
             val todoList = _lists.value.find { it.todoList.id == todoListId }?.todoList
             if (todoList != null) {
-                taskDataSource.updateTodoList(todoList.copy(gifUrl = gifUrl))
+                taskDataSource.updateGifUrl(todoListId, gifUrl)
             }
         }
     }

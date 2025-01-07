@@ -81,7 +81,7 @@ dependencies {
     implementation("androidx.room:room-ktx:2.6.1")
 
     implementation ("com.giphy.sdk:ui:2.3.15")
-    implementation("io.coil-kt:coil-compose:2.0.0")
+    implementation("io.coil-kt:coil-compose:2.2.2")
     implementation ("io.coil-kt:coil-gif:2.4.0")
 
 
