@@ -1,4 +1,4 @@
-package com.group10.uxuiapp.view
+package com.group10.uxuiapp.ui.todolist.view
 
 
 import android.content.Intent
@@ -23,6 +23,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
@@ -52,11 +53,13 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.zIndex
 import androidx.room.Query
 import coil.compose.AsyncImage
 import coil.compose.SubcomposeAsyncImage
@@ -67,10 +70,9 @@ import com.example.uxuiapplication.ChangeButton
 import com.group10.uxuiapp.data.data_class.TodoList
 import com.group10.uxuiapp.ui.navigation.AppNavigator
 import com.group10.uxuiapp.data.GiphyActivity
-import com.group10.uxuiapp.view.component.ListNameInputDialog
-import com.group10.uxuiapp.view.component.SettingsButton
-import com.group10.uxuiapp.view_model.ListViewModel
-import com.group10.uxuiapp.ui.navigation.Screen
+import com.group10.uxuiapp.ui.todolist.view.components.ListNameInputDialog
+import com.group10.uxuiapp.ui.todolist.view.components.SettingsButton
+import com.group10.uxuiapp.ui.todolist.viewmodel.ListViewModel
 
 
 // Main ListOverviewPage with Scaffold and LazyColumn
@@ -82,6 +84,8 @@ fun TodoListScreen(viewModel: ListViewModel, appNavigator: AppNavigator) {
     val listNameState = remember { mutableStateOf("") }
     val context = LocalContext.current
     val query = remember { mutableStateOf("") }
+    val changeButtonAnchor = remember { mutableStateOf<Offset?>(null) }
+    val currentTaskList = remember { mutableStateOf<TodoList?>(null) }
 
     // Collect the lists from the ViewModel's Flow
     //val taskListsWithItems2 = remember(query.value) {
@@ -102,42 +106,119 @@ fun TodoListScreen(viewModel: ListViewModel, appNavigator: AppNavigator) {
         it.todoList.title.contains(query.value, ignoreCase = true)
     }
 
-    Scaffold(
-        topBar = { TopAppBarWithMenu(query) },
-        floatingActionButton = {
-            AddNewListButton {
-                showDialog.value = true // activate add list name popup
+
+
+    Box(modifier = Modifier.fillMaxSize()) {
+        Scaffold(
+            topBar = { TopAppBarWithMenu(query) },
+            floatingActionButton = {
+                AddNewListButton {
+                    showDialog.value = true
+                }
+            }
+        ) { innerPadding ->
+
+            // Main content area
+            LazyColumn(
+                contentPadding = PaddingValues(
+                    start = innerPadding.calculateStartPadding(LocalLayoutDirection.current),
+                    top = innerPadding.calculateTopPadding(),
+                    end = innerPadding.calculateEndPadding(LocalLayoutDirection.current),
+                    bottom = innerPadding.calculateBottomPadding() + 50.dp
+                )
+            ) {
+                // Use the filtered list directly or fallback to the full list
+                val listsToShow = if (query.value.isNotEmpty()) filteredLists else taskListsWithItems
+
+
+                itemsIndexed(taskListsWithItems){index,  taskListWithItems->
+                    ListItem(
+                        todoList = taskListWithItems.todoList,
+                        index = index,
+                        selectedIndex = selectedIndex,
+                        viewModel = viewModel,
+                        appNavigator = appNavigator,
+                        onPositionChange = { offset, todoList ->
+                            changeButtonAnchor.value = offset
+                            currentTaskList.value = todoList
+                        }
+                    )
+                }
             }
         }
-    ) { innerPadding ->
-        LazyColumn(
-            contentPadding = PaddingValues(
-                start = innerPadding.calculateStartPadding(LocalLayoutDirection.current),
-                top = innerPadding.calculateTopPadding(),
-                end = innerPadding.calculateEndPadding(LocalLayoutDirection.current),
-                bottom = innerPadding.calculateBottomPadding() + 50.dp
-            )
-        ) {
-            // Use the filtered list directly or fallback to the full list
-            val listsToShow = if (query.value.isNotEmpty()) filteredLists else taskListsWithItems
 
-            items(listsToShow, key = { it.todoList.id }) { taskListWithItems ->
-                ListItem(
-                    todoList = taskListWithItems.todoList,
-                    selectedIndex = selectedIndex,
-                    viewModel = viewModel,
-                    appNavigator = appNavigator
+        // Render ChangeButton
+        if (selectedIndex.value != null && changeButtonAnchor.value != null) {
+            Box(
+                modifier = Modifier
+                    .offset(
+                        x = changeButtonAnchor.value!!.x.dp,
+                        y = 24.dp + changeButtonAnchor.value!!.y.dp
+                    )
+                    .zIndex(1f) // Ensure ChangeButton is on top
+            ) {
+                ChangeButton(
+                    onClose = {
+                        selectedIndex.value = null
+                    },
+                    onDelete = {
+                        selectedIndex.value?.let { id ->
+                            val taskList = taskListsWithItems.find { it.todoList.id == id }?.todoList
+                            if (taskList != null) {
+                                viewModel.removeList(taskList)
+                            }
+                        }
+                        selectedIndex.value = null
+                    },
+                    onOpdate = { showDialog.value = true },
+                    onGifSelect = {
+                        val intent = Intent(context, GiphyActivity::class.java).apply {
+                            selectedIndex.value?.let { id ->
+                                val taskList = taskListsWithItems.find { it.todoList.id == id }?.todoList
+                                if (taskList != null) {
+                                    putExtra("todoListId", taskList.id)
+                                }
+                            }
+                        }
+                        context.startActivity(intent)
+                    }
                 )
             }
         }
 
+        // Full-screen overlay to detect taps
+        if (selectedIndex.value != null) {
+            Box(
+                Modifier
+                    .fillMaxSize()
+                    .background(Color.Black.copy(alpha = 0.3f))
+                    .pointerInput(Unit) {
+                        detectTapGestures(onTap = { selectedIndex.value = null })
+                    }
+            )
+        }
 
-        if (showDialog.value) {
+        if(showDialog.value && currentTaskList.value != null){
+            ListNameInputDialog(
+                onDismiss = { showDialog.value = false },
+                onConfirm = { newName ->
+                    currentTaskList.value?.let { taskList ->
+                        viewModel.updateTodoList(taskList, newName)
+                    }
+                    showDialog.value = false
+                    Toast.makeText(context, "List '$newName' created", Toast.LENGTH_SHORT).show()
+                    selectedIndex.value = null
+                    currentTaskList.value = null
+                }
+            )
+        }
+        else if (showDialog.value){
             ListNameInputDialog(
                 onDismiss = { showDialog.value = false },
                 onConfirm = { name ->
                     if (name.isNotBlank()) {
                         viewModel.addList(name)
+                        listNameState.value = name
                         showDialog.value = false
                         Toast.makeText(context, "List '$name' created", Toast.LENGTH_SHORT).show()
                     } else {
@@ -196,13 +277,39 @@ private fun TopAppBarWithMenu(query: MutableState<String>) {
 @Composable
 private fun ListItem(
     todoList: TodoList,
+    index: Int,
     selectedIndex: MutableState<Int?>,
     viewModel: ListViewModel,
-    appNavigator: AppNavigator
+    appNavigator: AppNavigator,
+    onPositionChange: (Offset, TodoList) -> Unit
 ) {
     val context = LocalContext.current
     val listNameState = remember { mutableStateOf(todoList.title) }
     val showDialog = remember { mutableStateOf(false) }
+    val density = LocalDensity.current
+    var itemPosition by remember { mutableStateOf(Offset.Zero) }
+
+    // Remember the background based on gifUrl
+    val backgroundModifier = if (!todoList.gifUrl.isNullOrEmpty()) {
+
+        Modifier.fillMaxSize()
+            .then(
+                Modifier.background(Color.Transparent)
+            )
+
+    } else {
+        Modifier.background(
+            Brush.linearGradient(
+                colors = listOf(
+                    MaterialTheme.colorScheme.primary,
+                    MaterialTheme.colorScheme.secondary,
+                    Color(0xFFC0DCEF)
+                ),
+                start = Offset(0f, 0f),
+                end = Offset(0f, Float.POSITIVE_INFINITY)
+            )
+        )
+    }
 
     Box(
         modifier = Modifier
@@ -225,6 +332,9 @@ private fun ListItem(
                             }
                         },
                         onLongPress = {
+                            // Calculate dynamic yOffset based on the item's index and scroll state
+                            val yOffset = with(density) { itemPosition.y * (index+1) + 4.dp.toPx() }
+                            onPositionChange(Offset(98f, yOffset), todoList)
                             selectedIndex.value = todoList.id
                         }
                     )
@@ -274,44 +384,6 @@ private fun ListItem(
                 LikedButton(todoList, viewModel)
             }
         }
-
-        if (selectedIndex.value == todoList.id) {
-            Box(
-                modifier = Modifier
-                    .align(Alignment.BottomCenter)
-                    .offset(y = 24.dp)
-            ) {
-                ChangeButton(
-                    onClose = {
-                        selectedIndex.value = null
-                    },
-                    onDelete = {
-                        viewModel.removeList(todoList)
-                        selectedIndex.value = null // Reset index after deletion
-                    },
-                    onOpdate = { showDialog.value = true // activate add list name popup
-                    },
-                    onGifSelect = {
-                        val intent = Intent(context, GiphyActivity::class.java).apply {
-                            putExtra("todoListId", todoList.id)
-                        }
-                        context.startActivity(intent)
-                    }
-                )
-            }
-        }
-    }
-    if(showDialog.value){
-        ListNameInputDialog(
-            onDismiss = { showDialog.value = false },
-            onConfirm = { name ->
-                viewModel.updateTodoList(todoList = todoList, title = name)
-                listNameState.value = name
-                showDialog.value = false
-                Toast.makeText(context, "List '$name' created", Toast.LENGTH_SHORT).show()
-                selectedIndex.value = null
-            }
-        )
     }
 
     if (selectedIndex.value == todoList.id) {

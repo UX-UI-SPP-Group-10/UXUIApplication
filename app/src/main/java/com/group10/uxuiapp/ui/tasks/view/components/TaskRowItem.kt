@@ -1,6 +1,5 @@
-package com.group10.uxuiapp.view.component
+package com.group10.uxuiapp.ui.tasks.view.components
 
-import android.R.attr.checked
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.BasicTextField
@@ -13,13 +12,16 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.group10.uxuiapp.data.data_class.TaskItem
-import com.group10.uxuiapp.view_model.ListViewModel
+import com.group10.uxuiapp.ui.todolist.viewmodel.ListViewModel
+import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.runtime.remember
+import androidx.compose.ui.input.pointer.pointerInput
+
 
 @Composable
 fun TaskRowItem(
@@ -28,6 +30,7 @@ fun TaskRowItem(
 ) {
     var isChecked by remember { mutableStateOf(task.isComplete) }
     var text by remember { mutableStateOf(task.label) }
+    var showPopup by remember { mutableStateOf(false) } // Track popup visibility
 
     // Main container
     Box(
@@ -39,6 +42,11 @@ fun TaskRowItem(
                 color = MaterialTheme.colorScheme.surfaceVariant,
                 shape = MaterialTheme.shapes.small // Subtle corner rounding
             )
+            .pointerInput(Unit) {
+                detectTapGestures(
+                    onLongPress = { showPopup = true } // Show popup on long press
+                )
+            }
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
@@ -49,9 +57,9 @@ fun TaskRowItem(
         ) {
             // Checkbox
             Checkbox(
-                checked = isChecked, // Use local isChecked state
+                checked = isChecked,
                 onCheckedChange = { newChecked ->
-                    isChecked = newChecked // Update local state
+                    isChecked = newChecked
                     viewModel.updateTaskItem(taskItem = task, isComplete = newChecked)
                 },
                 colors = CheckboxDefaults.colors(
@@ -66,8 +74,8 @@ fun TaskRowItem(
             BasicTextField(
                 value = text,
                 onValueChange = { newText ->
-                    text = newText // Update local state
-                    viewModel.updateTaskItem(taskItem = task, label = newText) // Update ViewModel
+                    text = newText
+                    viewModel.updateTaskItem(taskItem = task, label = newText)
                 },
                 textStyle = MaterialTheme.typography.bodyLarge.copy(
                     textDecoration = if (isChecked) TextDecoration.LineThrough else null,
@@ -83,13 +91,30 @@ fun TaskRowItem(
             ) {
                 if (text.isEmpty()) {
                     Text(
-                        text = "New Task",
+                        text = "",
                         fontSize = 16.sp,
-                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.4f) // Softer placeholder color
+                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.4f)
                     )
                 }
                 it()
             }
         }
+    }
+
+    // Show popup if `showPopup` is true
+    if (showPopup) {
+        EditTaskPopup(
+            taskName = text,
+            onEditTask = { newName ->
+                text = newName
+                viewModel.updateTaskItem(taskItem = task, label = newName)
+            },
+            onDeleteTask = {
+                // viewModel.deleteTaskItem(task)
+            },
+            onDismiss = {
+                showPopup = false
+            }
+        )
     }
 }

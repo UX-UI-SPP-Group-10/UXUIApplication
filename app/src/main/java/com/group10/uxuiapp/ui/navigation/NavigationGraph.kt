@@ -13,11 +13,9 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import com.group10.uxuiapp.ui.navigation.AppNavigator
-import com.group10.uxuiapp.ui.navigation.Screen
-import com.group10.uxuiapp.view.TodoListScreen
-import com.group10.uxuiapp.view.TaskScreen
-import com.group10.uxuiapp.view_model.ListViewModel
+import com.group10.uxuiapp.ui.todolist.view.TodoListScreen
+import com.group10.uxuiapp.ui.tasks.view.TaskScreen
+import com.group10.uxuiapp.ui.todolist.viewmodel.ListViewModel
 
 @OptIn(ExperimentalAnimationApi::class)
 @Composable

@@ -2,16 +2,14 @@ package com.group10.uxuiapp.data
 
 import android.os.Bundle
 import android.widget.Toast
-import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
 import com.giphy.sdk.core.models.Media
 import com.giphy.sdk.ui.GPHContentType
 import com.giphy.sdk.ui.Giphy
 import com.giphy.sdk.ui.views.GiphyDialogFragment
-import com.group10.uxuiapp.data.data_class.TodoList
-import com.group10.uxuiapp.view_model.ListViewModel
-import com.group10.uxuiapp.view_model.ListViewModelFactory
+import com.group10.uxuiapp.ui.todolist.viewmodel.ListViewModel
+import com.group10.uxuiapp.ui.todolist.viewmodel.ListViewModelFactory
 
 class GiphyActivity : AppCompatActivity() {
 
@@ -27,7 +25,7 @@ class GiphyActivity : AppCompatActivity() {
         val taskRepository = TaskDataSource(database.taskDao())
 
         // Initialize ViewModelFactory and ViewModel
-        val viewModelFactory = ListViewModelFactory(taskRepository)
+        val viewModelFactory = ListViewModelFactory(taskDatasource)
         listViewModel = ViewModelProvider(this, viewModelFactory).get(ListViewModel::class.java)
 
         // Existing Giphy setup
