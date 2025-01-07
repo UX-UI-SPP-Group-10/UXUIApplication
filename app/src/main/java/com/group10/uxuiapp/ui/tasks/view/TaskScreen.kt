@@ -38,7 +38,7 @@ import okhttp3.internal.concurrent.Task
 fun TaskScreen(todoListId: Int, appNavigator: AppNavigator, viewModel: TaskListViewModel) {
     val context = LocalContext.current
 
-    // Observe the currently selected task list
+    // Load tasks for the selected TodoList
     LaunchedEffect(todoListId) {
         viewModel.selectTodoList(todoListId)
     }
@@ -46,7 +46,7 @@ fun TaskScreen(todoListId: Int, appNavigator: AppNavigator, viewModel: TaskListV
     val taskListWithItems by viewModel.currentTodoList.collectAsState()
 
     if (taskListWithItems == null) {
-        // Show a loading indicator while the data is being fetched
+        // Show loading indicator while the data is being fetched
         Box(
             modifier = Modifier.fillMaxSize(),
             contentAlignment = Alignment.Center
@@ -69,9 +69,7 @@ fun TaskScreen(todoListId: Int, appNavigator: AppNavigator, viewModel: TaskListV
                     }
                 },
                 actions = {
-                    IconButton(onClick = {
-                        Log.d("TaskPage", "Search clicked")
-                    }) {
+                    IconButton(onClick = { Log.d("TaskPage", "Search clicked") }) {
                         Icon(Icons.Filled.Search, contentDescription = "Search")
                     }
                     SettingsButton(context = context)

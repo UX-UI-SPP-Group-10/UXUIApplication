@@ -16,42 +16,63 @@ class TaskListViewModel(private val taskDataSource: TaskDataSource) : ViewModel(
 
     fun selectTodoList(todoListId: Int) {
         viewModelScope.launch {
-            // Fetch the TodoList
-            val todoListFlow = taskDataSource.getTodoListById(todoListId)
-            todoListFlow.collect { todoList ->
-                // Fetch associated TaskItems
-                val taskItems = taskDataSource.getTaskItemsByListId(todoListId)
-                    .first() // Collect tasks as a single list (non-flow)
+            // Fetch TodoList and associated TaskItems together
+            val todoList = taskDataSource.getTodoListById(todoListId).first()
+            val taskItems = taskDataSource.getTaskItemsByListId(todoListId).first()
 
-                // Combine into a TodoListWithTaskItem
-                val todoListWithTaskItem = TodoListWithTaskItem(todoList, taskItems)
-
-                // Update the state
-                _currentTodoList.value = todoListWithTaskItem
-            }
+            // Combine into a TodoListWithTaskItem and update state
+            _currentTodoList.value = TodoListWithTaskItem(todoList, taskItems)
         }
     }
-
 
     fun addTaskToList(taskItem: TaskItem) {
         viewModelScope.launch {
             taskDataSource.insertTaskItem(taskItem)
+
+            // Refresh tasks for the current TodoList
+            val currentTodoListId = _currentTodoList.value?.todoList?.id
+            if (currentTodoListId != null) {
+                refreshTodoList(currentTodoListId)
+            }
         }
     }
 
     fun updateTaskItem(taskItem: TaskItem, label: String? = null, isComplete: Boolean? = null) {
         viewModelScope.launch {
             taskDataSource.updateTaskItem(
-                taskItem = taskItem,
-                label = label,
-                isComplete = isComplete
+                taskItem = taskItem.copy(
+                    label = label ?: taskItem.label,
+                    isComplete = isComplete ?: taskItem.isComplete
+                )
             )
+
+            // Refresh tasks for the current TodoList
+            val currentTodoListId = _currentTodoList.value?.todoList?.id
+            if (currentTodoListId != null) {
+                refreshTodoList(currentTodoListId)
+            }
         }
     }
 
     fun deleteTask(taskItem: TaskItem) {
         viewModelScope.launch {
             taskDataSource.deleteTaskItem(taskItem)
+
+            // Refresh tasks for the current TodoList
+            val currentTodoListId = _currentTodoList.value?.todoList?.id
+            if (currentTodoListId != null) {
+                refreshTodoList(currentTodoListId)
+            }
         }
     }
+
+    private suspend fun refreshTodoList(todoListId: Int) {
+        // Fetch updated TodoList and TaskItems
+        val todoList = taskDataSource.getTodoListById(todoListId).first()
+        val taskItems = taskDataSource.getTaskItemsByListId(todoListId).first()
+
+        // Update the state with the refreshed data
+        _currentTodoList.value = TodoListWithTaskItem(todoList, taskItems)
+    }
 }
+
