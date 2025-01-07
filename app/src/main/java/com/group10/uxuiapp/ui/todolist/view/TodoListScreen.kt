@@ -92,12 +92,8 @@ fun TodoListScreen(viewModel: TodoListViewModel, appNavigator: AppNavigator) {
     val currentTaskList = remember { mutableStateOf<TodoList?>(null) }
 
     // Collect the lists from the ViewModel's Flow
-    //val taskListsWithItems2 = remember(query.value) {
-    // viewModel.filterLists(query.value)
-    //}
     val taskListsWithItems by viewModel.lists.collectAsState(emptyList())
     val selectedTodoList by viewModel.selectedTodoList.collectAsState()
-
 
     // Use LaunchedEffect to reset selectedIndex if list size changes
     LaunchedEffect(taskListsWithItems) {
@@ -108,11 +104,15 @@ fun TodoListScreen(viewModel: TodoListViewModel, appNavigator: AppNavigator) {
         }
     }
 
-
-    val filteredLists = taskListsWithItems.filter {
-        it.todoList.title.contains(query.value, ignoreCase = true)
+    // Filter the lists whenever query.value changes
+    val filteredLists = remember(query.value, taskListsWithItems) {
+        taskListsWithItems.filter {
+            it.todoList.title.contains(query.value, ignoreCase = true)
+        }
     }
 
+    // Decide which list to show: full or filtered
+    val listsToShow = if (query.value.isBlank()) taskListsWithItems else filteredLists
 
     Box(modifier = Modifier.fillMaxSize()) {
         Scaffold(
@@ -124,28 +124,25 @@ fun TodoListScreen(viewModel: TodoListViewModel, appNavigator: AppNavigator) {
             }
         ) { innerPadding  ->
 
-            LazyColumn (contentPadding = PaddingValues(
+            LazyColumn (
+                contentPadding = PaddingValues(
                 start = innerPadding.calculateStartPadding(LocalLayoutDirection.current),
                 top = innerPadding.calculateTopPadding(),
                 end = innerPadding.calculateEndPadding(LocalLayoutDirection.current),
                 bottom = innerPadding.calculateBottomPadding()
             )){
                 items(
-                    items = taskListsWithItems,
+                    items = listsToShow,
                     key = { it.todoList.id }
                 ) { taskListWithItems ->
-
-                    // 2) Determine if this list item is selected
                     val isSelected = (selectedTodoList?.id == taskListWithItems.todoList.id)
 
                     ListItem(
                         todoList = taskListWithItems.todoList,
-                        isSelected = isSelected,                 // <-- NEW
+                        isSelected = isSelected,
                         onPositionChange = { offset, todoList ->
-                            // This callback is triggered by a long-press
                             changeButtonAnchor.value = offset
                             currentTaskList.value = todoList
-                            // Mark this item as selected in the ViewModel
                             viewModel.selectTodoList(todoList)
                         },
                         viewModel = viewModel,
