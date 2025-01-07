@@ -25,7 +25,7 @@ class GiphyActivity : AppCompatActivity() {
         val taskRepository = TaskDataSource(database.taskDao())
 
         // Initialize ViewModelFactory and ViewModel
-        val viewModelFactory = ListViewModelFactory(taskDatasource)
+        val viewModelFactory = ListViewModelFactory(taskRepository)
         listViewModel = ViewModelProvider(this, viewModelFactory).get(ListViewModel::class.java)
 
         // Existing Giphy setup
