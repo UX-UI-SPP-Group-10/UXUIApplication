@@ -50,7 +50,6 @@ class GiphyActivity : AppCompatActivity() {
                 finish()
             }
 
-
             override fun didSearchTerm(term: String) {
                 // Not yet implemented
             }

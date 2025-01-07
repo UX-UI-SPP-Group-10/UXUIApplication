@@ -71,7 +71,7 @@ class TodoListViewModel(private val taskDataSource: TaskDataSource) : ViewModel(
         viewModelScope.launch {
             val todoList = _lists.value.find { it.todoList.id == todoListId }?.todoList
             if (todoList != null) {
-                taskDataSource.updateTodoList(todoList.copy(gifUrl = gifUrl))
+                taskDataSource.updateGifUrl(todoListId, gifUrl)
             }
         }
     }
