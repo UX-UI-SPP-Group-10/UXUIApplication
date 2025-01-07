@@ -3,6 +3,7 @@ package com.group10.uxuiapp.ui.tasks.view
 import android.util.Log
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material.icons.Icons
@@ -24,27 +25,29 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
-import com.group10.uxuiapp.data.data_class.TaskItem
 import com.group10.uxuiapp.ui.todolist.view.components.SettingsButton
 import com.group10.uxuiapp.ui.tasks.view.components.TaskRowItem
 import com.group10.uxuiapp.ui.tasks.view.components.AddTaskButton
-import com.group10.uxuiapp.ui.todolist.viewmodel.ListViewModel
 import com.group10.uxuiapp.ui.navigation.AppNavigator
+import com.group10.uxuiapp.ui.todolist.viewmodel.TodoListViewModel
+import okhttp3.internal.concurrent.Task
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun TaskScreen(taskId: Int, appNavigator: AppNavigator, viewModel: ListViewModel) {
+fun TaskScreen(todoListId: Int, appNavigator: AppNavigator, viewModel: TaskListViewModel) {
     val context = LocalContext.current
 
-    // Observe the currently selected task list
-    LaunchedEffect(taskId) {
-        viewModel.selectTodoList(taskId)
+    // Load the TodoList and its tasks when the screen is displayed
+    LaunchedEffect(todoListId) {
+        viewModel.loadTodoList(todoListId)
     }
 
-    val taskListWithItems by viewModel.currentTodoList.collectAsState()
+    // Collect the current TodoList and its tasks as state
+    val currentTodoList by viewModel.currentTodoList.collectAsState()
+    val tasks by viewModel.tasks.collectAsState()
 
-    if (taskListWithItems == null) {
-        // Show a loading indicator while the data is being fetched
+    // Show a loading indicator if the TodoList data is not yet available
+    if (currentTodoList == null) {
         Box(
             modifier = Modifier.fillMaxSize(),
             contentAlignment = Alignment.Center
@@ -57,7 +60,7 @@ fun TaskScreen(taskId: Int, appNavigator: AppNavigator, viewModel: ListViewModel
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text(taskListWithItems!!.todoList.title) },
+                title = { Text(currentTodoList!!.title) }, // Use the TodoList title
                 navigationIcon = {
                     IconButton(onClick = { appNavigator.popBackStack() }) {
                         Icon(
@@ -80,24 +83,31 @@ fun TaskScreen(taskId: Int, appNavigator: AppNavigator, viewModel: ListViewModel
         },
         bottomBar = {
             AddTaskButton(onClick = {
-                val newTask = TaskItem(label = "New Task", todoListId = taskId)
-                viewModel.addTaskToList(newTask)
+                // Add a new task to the current TodoList
+                viewModel.addTask("New Task")
             })
         }
     ) { innerPadding ->
-        if (taskListWithItems!!.taskItems.isEmpty()) {
-            // Show a message if no tasks are present
-            Box(
-                modifier = Modifier.fillMaxSize(),
-                contentAlignment = Alignment.Center
-            ) {
-                Text("No tasks yet. Add some!")
-            }
-        } else {
-            // Display the list of tasks
-            LazyColumn(contentPadding = innerPadding) {
-                itemsIndexed(taskListWithItems!!.taskItems) { _, task ->
-                    TaskRowItem(task = task, viewModel = viewModel)
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(innerPadding),
+            contentAlignment = Alignment.TopCenter
+        ) {
+            if (tasks.isEmpty()) {
+                // Show a message if no tasks are present
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text("No tasks yet. Add some!")
+                }
+            } else {
+                // Display the list of tasks
+                LazyColumn {
+                    itemsIndexed(tasks) { _, task ->
+                        TaskRowItem(task = task, viewModel = viewModel)
+                    }
                 }
             }
         }

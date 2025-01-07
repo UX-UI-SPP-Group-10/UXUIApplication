@@ -10,24 +10,28 @@ import androidx.compose.animation.scaleOut
 import androidx.compose.runtime.Composable
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.lifecycle.viewmodel.viewModelFactory
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.group10.uxuiapp.ui.todolist.view.TodoListScreen
 import com.group10.uxuiapp.ui.tasks.view.TaskScreen
-import com.group10.uxuiapp.ui.todolist.viewmodel.ListViewModel
+import com.group10.uxuiapp.ui.todolist.viewmodel.TodoListViewModel
+import com.group10.uxuiapp.ui.todolist.viewmodel.TodoListViewModelFactory
 
 @OptIn(ExperimentalAnimationApi::class)
 @Composable
 fun NavigationGraph(
     navController: NavHostController,
-    viewModelFactory: ViewModelProvider.Factory
+    taskListViewModel: ViewModelProvider.Factory,
+    todoListViewModelFactory: ViewModelProvider.Factory
 ) {
     // Create AppNavigator
     val appNavigator = AppNavigator(navController)
 
     // ViewModel instance
-    val viewModel: ListViewModel = viewModel(factory = viewModelFactory)
+    val todoListViewModel: TodoListViewModel = viewModel(factory = todoListViewModelFactory)
+    val taskListViewModel: TaskListViewModel = viewModel(factory = taskListViewModel)
 
     NavHost(
         navController = navController,
@@ -36,7 +40,7 @@ fun NavigationGraph(
         // TodoListScreen
         composable(route = Screen.TodoList.route) {
             TodoListScreen(
-                viewModel = viewModel,
+                viewModel = todoListViewModel,
                 appNavigator = appNavigator
             )
         }
@@ -69,11 +73,11 @@ fun NavigationGraph(
                 ) + fadeOut(animationSpec = tween(300))
             }
         ) { backStackEntry ->
-            val taskId = backStackEntry.arguments?.getString("taskId")?.toIntOrNull() ?: -1
+            val todoListId = backStackEntry.arguments?.getString("todoListId")?.toIntOrNull() ?: -1
             TaskScreen(
-                taskId = taskId,
+                todoListId = todoListId,
                 appNavigator = appNavigator,
-                viewModel = viewModel
+                viewModel = taskListViewModel
             )
         }
     }

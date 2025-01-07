@@ -6,8 +6,9 @@ import androidx.activity.compose.setContent
 import com.group10.uxuiapp.data.DatabaseProvider
 import com.group10.uxuiapp.data.TaskDataSource
 import com.group10.uxuiapp.ui.navigation.MainNavigation
+import com.group10.uxuiapp.ui.tasks.viewmodel.TaskListViewModelFactory
 import com.group10.uxuiapp.ui.theme.UXUIApplicationTheme
-import com.group10.uxuiapp.ui.todolist.viewmodel.ListViewModelFactory
+import com.group10.uxuiapp.ui.todolist.viewmodel.TodoListViewModelFactory
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -20,7 +21,7 @@ class MainActivity : ComponentActivity() {
         setContent {
             UXUIApplicationTheme {
                 // Pass the ViewModelFactory to the MainNavigation
-                MainNavigation(viewModelFactory = ListViewModelFactory(taskDataSource))
+                MainNavigation(taskListViewModelFactory = TaskListViewModelFactory(taskDataSource), todoListViewModelFactory = TodoListViewModelFactory(taskDataSource))
             }
         }
     }
