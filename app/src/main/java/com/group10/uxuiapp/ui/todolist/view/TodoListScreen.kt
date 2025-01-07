@@ -390,7 +390,9 @@ private fun ListItem(
                     color = MaterialTheme.colorScheme.background,
                     modifier = Modifier.width(320.dp)
                 )
-                LikedButton(todoList, viewModel)
+                LikedButton(todoList, onClick = {
+                    viewModel.updateTodoList(todoList, isLiked = !todoList.isLiked)
+                })
             }
         }
     }
@@ -401,7 +403,7 @@ private fun ListItem(
 }
 
 @Composable
-private fun LikedButton(todoList: TodoList, viewModel: TodoListViewModel) {
+private fun LikedButton(todoList: TodoList, onClick: () -> Unit) {
     val isLiked = todoList.isLiked
 
     Icon(
@@ -409,12 +411,11 @@ private fun LikedButton(todoList: TodoList, viewModel: TodoListViewModel) {
         contentDescription = if (isLiked) "Liked" else "Add Favorite",
         modifier = Modifier
             .size(25.dp)
-            .clickable {
-                viewModel.updateTodoList(todoList = todoList, isLiked = !isLiked)
-            },
+            .clickable { onClick() }, // Use the passed lambda here
         tint = if (isLiked) Color.Red else Color.White
     )
 }
+
 
 
 

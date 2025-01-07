@@ -29,19 +29,20 @@ interface TaskDao {
     fun getTodoListWithTaskById(todoListId: Int): Flow<TodoListWithTaskItem>
 
     @Query("""
-        UPDATE TodoList
-        SET 
-            title = COALESCE(:title, title),
-            isLiked = COALESCE(:isLiked, isLiked),
-            gifUrl = COALESCE(:gifUrl, gifUrl)        
-        WHERE id = :id
-    """)
+    UPDATE TodoList
+    SET 
+        title = :title,
+        isLiked = :isLiked,
+        gifUrl = :gifUrl
+    WHERE id = :id
+""")
     suspend fun updateTodoList(
         id: Int,
-        title: String? = null,
-        isLiked: Boolean? = null,
-        gifUrl: String? = null
+        title: String,
+        isLiked: Boolean,
+        gifUrl: String
     )
+
 
     @Query("""
     UPDATE TodoList

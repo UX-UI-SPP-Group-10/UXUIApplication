@@ -25,8 +25,24 @@ class TaskDataSource(private val taskDao: TaskDao) {
 
     // Update Operations
     suspend fun updateTodoList(todoList: TodoList, title: String? = null, isLiked: Boolean? = null, gifUrl: String? = null) {
-        taskDao.updateTodoList(todoList.id, title, isLiked, gifUrl)
+        val updatedTitle = title ?: todoList.title
+        val updatedIsLiked = isLiked ?: todoList.isLiked
+        val updatedGifUrl = gifUrl ?: todoList.gifUrl ?: ""
+
+        Log.d(
+            "TaskDataSource",
+            "Updating TodoList: id=${todoList.id}, title=$updatedTitle, isLiked=$updatedIsLiked, gifUrl=$updatedGifUrl"
+        )
+
+        // Pass non-nullable values to the DAO
+        taskDao.updateTodoList(
+            id = todoList.id,
+            title = updatedTitle,
+            isLiked = updatedIsLiked,
+            gifUrl = updatedGifUrl
+        )
     }
+
 
     suspend fun updateTaskItem(taskItem: TaskItem, label: String? = null, isComplete: Boolean? = null) {
         val updatedLabel = label ?: taskItem.label
