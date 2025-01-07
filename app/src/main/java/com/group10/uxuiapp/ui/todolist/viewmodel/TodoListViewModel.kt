@@ -9,6 +9,7 @@ import com.group10.uxuiapp.data.TaskDataSource
 import com.group10.uxuiapp.data.data_class.TaskItem
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
 class TodoListViewModel(private val taskDataSource: TaskDataSource) : ViewModel() {
@@ -17,8 +18,9 @@ class TodoListViewModel(private val taskDataSource: TaskDataSource) : ViewModel(
     private val _lists = MutableStateFlow<List<TodoListWithTaskItem>>(emptyList())
     val lists: StateFlow<List<TodoListWithTaskItem>> = _lists
 
-    private val _currentTodoList = MutableStateFlow<TodoListWithTaskItem?>(null)
-    val currentTodoList: StateFlow<TodoListWithTaskItem?> = _currentTodoList
+    private val _selectedTodoList = MutableStateFlow<TodoList?>(null)
+    val selectedTodoList = _selectedTodoList.asStateFlow()
+
 
     init {
         viewModelScope.launch {
@@ -34,15 +36,9 @@ class TodoListViewModel(private val taskDataSource: TaskDataSource) : ViewModel(
     }
 
 
-    fun selectTodoList(todoListId: Int) {
-        Log.d(TAG, "Selecting TodoList with id: $todoListId")
-        val selectedList = _lists.value.find { it.todoList.id == todoListId }
-        if (selectedList != null) {
-            _currentTodoList.value = selectedList
-            Log.d(TAG, "Selected TodoList: $selectedList")
-        } else {
-            Log.w(TAG, "TodoList with id $todoListId not found")
-        }
+    fun selectTodoList(todoList: TodoList?) {
+        // If null is passed, it means we want to clear the selection
+        _selectedTodoList.value = todoList
     }
 
     fun addTodoList(title: String) {

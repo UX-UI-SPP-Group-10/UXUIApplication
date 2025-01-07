@@ -22,7 +22,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
@@ -68,13 +67,13 @@ import com.group10.uxuiapp.ui.todolist.view.components.SettingsButton
 import com.group10.uxuiapp.ui.todolist.viewmodel.TodoListViewModel
 import kotlinx.coroutines.flow.map
 import kotlin.collections.find
+import androidx.compose.foundation.lazy.items
 
 
 // Main ListOverviewPage with Scaffold and LazyColumn
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TodoListScreen(viewModel: TodoListViewModel, appNavigator: AppNavigator) {
-    val selectedIndex = remember { mutableStateOf<Int?>(null) }
     val showDialog = remember { mutableStateOf(false) }
     val listNameState = remember { mutableStateOf("") }
     val context = LocalContext.current
@@ -87,14 +86,15 @@ fun TodoListScreen(viewModel: TodoListViewModel, appNavigator: AppNavigator) {
     // viewModel.filterLists(query.value)
     //}
     val taskListsWithItems by viewModel.lists.collectAsState(emptyList())
+    val selectedTodoList by viewModel.selectedTodoList.collectAsState()
 
 
     // Use LaunchedEffect to reset selectedIndex if list size changes
     LaunchedEffect(taskListsWithItems) {
-        if (selectedIndex.value != null &&
-            taskListsWithItems.none { it.todoList.id == selectedIndex.value }
+        if (selectedTodoList != null &&
+            taskListsWithItems.none { it.todoList == selectedTodoList }
         ) {
-            selectedIndex.value = null
+            viewModel.selectTodoList(null)
         }
     }
 
@@ -115,31 +115,34 @@ fun TodoListScreen(viewModel: TodoListViewModel, appNavigator: AppNavigator) {
                     showDialog.value = true
                 }
             }
-        ) { innerPadding ->
+        ) { innerPadding  ->
 
-            // Main content area
-            LazyColumn(
-                contentPadding = PaddingValues(
-                    start = innerPadding.calculateStartPadding(LocalLayoutDirection.current),
-                    top = innerPadding.calculateTopPadding(),
-                    end = innerPadding.calculateEndPadding(LocalLayoutDirection.current),
-                    bottom = innerPadding.calculateBottomPadding() + 50.dp
-                )
-            ) {
-                // Use the filtered list directly or fallback to the full list
-                val listsToShow = if (query.value.isNotEmpty()) filteredLists else taskListsWithItems
+            LazyColumn (contentPadding = PaddingValues(
+                start = innerPadding.calculateStartPadding(LocalLayoutDirection.current),
+                top = innerPadding.calculateTopPadding(),
+                end = innerPadding.calculateEndPadding(LocalLayoutDirection.current),
+                bottom = innerPadding.calculateBottomPadding()
+            )){
+                items(
+                    items = taskListsWithItems,
+                    key = { it.todoList.id }
+                ) { taskListWithItems ->
 
+                    // 2) Determine if this list item is selected
+                    val isSelected = (selectedTodoList?.id == taskListWithItems.todoList.id)
 
-                items(taskListsWithItems, key = { it.todoList.id }) { taskListWithItems ->
                     ListItem(
                         todoList = taskListWithItems.todoList,
-                        selectedIndex = selectedIndex,
-                        viewModel = viewModel,
-                        appNavigator = appNavigator,
+                        isSelected = isSelected,                 // <-- NEW
                         onPositionChange = { offset, todoList ->
+                            // This callback is triggered by a long-press
                             changeButtonAnchor.value = offset
                             currentTaskList.value = todoList
+                            // Mark this item as selected in the ViewModel
+                            viewModel.selectTodoList(todoList)
                         },
+                        viewModel = viewModel,
+                        appNavigator = appNavigator,
                         taskListsWithItems = taskListsWithItems
                     )
                 }
@@ -147,7 +150,7 @@ fun TodoListScreen(viewModel: TodoListViewModel, appNavigator: AppNavigator) {
         }
 
         // Render ChangeButton
-        if (selectedIndex.value != null && changeButtonAnchor.value != null) {
+        if (selectedTodoList != null && changeButtonAnchor.value != null) {
             Box(
                 modifier = Modifier
                     .offset(
@@ -158,25 +161,20 @@ fun TodoListScreen(viewModel: TodoListViewModel, appNavigator: AppNavigator) {
             ) {
                 ChangeButton(
                     onClose = {
-                        selectedIndex.value = null
+                        viewModel.selectTodoList(null)
                     },
                     onDelete = {
-                        selectedIndex.value?.let { id ->
-                            val taskList = taskListsWithItems.find { it.todoList.id == id }?.todoList
-                            if (taskList != null) {
-                                viewModel.removeTodoList(taskList)
-                            }
+                        selectedTodoList?.let { todoList ->
+                            viewModel.removeTodoList(todoList)
                         }
-                        selectedIndex.value = null
+                        viewModel.selectTodoList(null)
                     },
                     onOpdate = { showDialog.value = true },
                     onGifSelect = {
                         val intent = Intent(context, GiphyActivity::class.java).apply {
-                            selectedIndex.value?.let { id ->
-                                val taskList = taskListsWithItems.find { it.todoList.id == id }?.todoList
-                                if (taskList != null) {
-                                    putExtra("todoListId", taskList.id)
-                                }
+                            // If we have a selected list, drop in its ID
+                            selectedTodoList?.let { todoList ->
+                                putExtra("todoListId", todoList.id)
                             }
                         }
                         context.startActivity(intent)
@@ -186,13 +184,13 @@ fun TodoListScreen(viewModel: TodoListViewModel, appNavigator: AppNavigator) {
         }
 
         // Full-screen overlay to detect taps
-        if (selectedIndex.value != null) {
+        if (selectedTodoList != null) {
             Box(
                 Modifier
                     .fillMaxSize()
                     .background(Color.Black.copy(alpha = 0.3f))
                     .pointerInput(Unit) {
-                        detectTapGestures(onTap = { selectedIndex.value = null })
+                        detectTapGestures(onTap = { viewModel.selectTodoList(null) })
                     }
             )
         }
@@ -206,7 +204,7 @@ fun TodoListScreen(viewModel: TodoListViewModel, appNavigator: AppNavigator) {
                     }
                     showDialog.value = false
                     Toast.makeText(context, "List '$newName' created", Toast.LENGTH_SHORT).show()
-                    selectedIndex.value = null
+                    viewModel.selectTodoList(null)
                     currentTaskList.value = null
                 }
             )
@@ -276,7 +274,7 @@ private fun TopAppBarWithMenu(query: MutableState<String>) {
 @Composable
 private fun ListItem(
     todoList: TodoList,
-    selectedIndex: MutableState<Int?>,
+    isSelected: Boolean,
     viewModel: TodoListViewModel,
     appNavigator: AppNavigator,
     onPositionChange: (Offset, TodoList) -> Unit,
@@ -327,8 +325,6 @@ private fun ListItem(
                         onTap = {
                             val refreshedTaskList = taskListsWithItems.find { it.todoList.id == todoList.id }
                             Log.d("ListItem", "Tapped Item Index: Task ID: ${todoList.id}, Refreshed Task: ${refreshedTaskList?.todoList?.id}")
-                            Log.d("ListItem", "Selected Index: ${selectedIndex.value}, TaskLists: $taskListsWithItems")
-
                             if (refreshedTaskList != null) {
                                 appNavigator.navigateToTask(refreshedTaskList.todoList.id)
                             } else {
@@ -338,8 +334,6 @@ private fun ListItem(
                         onLongPress = {
                             val yOffset = with(density) { itemPosition.y * ( + 1) + 4.dp.toPx() }
                             onPositionChange(Offset(98f, yOffset), todoList)
-                            selectedIndex.value = todoList.id
-                            Log.d("ListItem", "Long Pressed Item: Index: , ID: ${todoList.id}, Updated SelectedIndex: ${selectedIndex.value}")
                         }
                     )
                 }
@@ -362,7 +356,7 @@ private fun ListItem(
         }
     }
 
-    if (selectedIndex.value == todoList.id) {
+    if (isSelected) {
         Spacer(modifier = Modifier.height(24.dp))
     }
 }
