@@ -3,61 +3,80 @@ import androidx.lifecycle.viewModelScope
 import com.group10.uxuiapp.data.data_class.TaskItem
 import com.group10.uxuiapp.data.data_class.TodoList
 import com.group10.uxuiapp.data.TaskDataSource
+import com.group10.uxuiapp.data.data_class.TodoListWithTaskItem
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 
 class TaskListViewModel(private val taskDataSource: TaskDataSource) : ViewModel() {
-    private val _tasks = MutableStateFlow<List<TaskItem>>(emptyList())
-    val tasks: StateFlow<List<TaskItem>> = _tasks
 
-    private val _currentTodoList = MutableStateFlow<TodoList?>(null)
-    val currentTodoList: StateFlow<TodoList?> = _currentTodoList
+    private val _currentTodoList = MutableStateFlow<TodoListWithTaskItem?>(null)
+    val currentTodoList: StateFlow<TodoListWithTaskItem?> = _currentTodoList
 
-    fun loadTodoList(todoListId: Int) {
+    fun selectTodoList(todoListId: Int) {
         viewModelScope.launch {
-            taskDataSource.getTodoListById(todoListId).collect { todoList ->
-                _currentTodoList.value = todoList
-                loadTasksForTodoList(todoListId) // Load tasks whenever the TodoList changes
+            // Fetch TodoList and associated TaskItems together
+            val todoList = taskDataSource.getTodoListById(todoListId).first()
+            val taskItems = taskDataSource.getTaskItemsByListId(todoListId).first()
+
+            // Combine into a TodoListWithTaskItem and update state
+            _currentTodoList.value = TodoListWithTaskItem(todoList, taskItems)
+        }
+    }
+
+    fun addTaskToList(taskItem: TaskItem) {
+        viewModelScope.launch {
+            taskDataSource.insertTaskItem(taskItem)
+
+            // Refresh tasks for the current TodoList
+            val currentTodoListId = _currentTodoList.value?.todoList?.id
+            if (currentTodoListId != null) {
+                refreshTodoList(currentTodoListId)
             }
         }
     }
 
-    private fun loadTasksForTodoList(todoListId: Int) {
+    fun updateTaskItem(taskItem: TaskItem, label: String? = null, isComplete: Boolean? = null) {
         viewModelScope.launch {
-            taskDataSource.getTaskItemsByListId(todoListId).collect { taskItems ->
-                _tasks.value = taskItems
-            }
-        }
-    }
-
-    fun addTask(label: String) {
-        val todoListId = _currentTodoList.value?.id
-        if (todoListId != null) {
-            viewModelScope.launch {
-                val newTask = TaskItem(label = label, isComplete = false, todoListId = todoListId)
-                taskDataSource.insertTaskItem(newTask)
-                loadTasksForTodoList(todoListId) // Refresh tasks after adding
-            }
-        }
-    }
-
-    fun updateTask(taskItem: TaskItem, label: String? = null, isComplete: Boolean? = null) {
-        viewModelScope.launch {
-            taskDataSource.updateTaskItem(
-                taskItem = taskItem.copy(
-                    label = label ?: taskItem.label,
-                    isComplete = isComplete ?: taskItem.isComplete
-                )
+            // Update the TaskItem in the database
+            val updatedTask = taskItem.copy(
+                label = label ?: taskItem.label,
+                isComplete = isComplete ?: taskItem.isComplete
             )
-            loadTasksForTodoList(taskItem.todoListId) // Refresh tasks after updating
+            taskDataSource.updateTaskItem(updatedTask)
+
+            // Update the in-memory state (_currentTodoList)
+            val currentTodoList = _currentTodoList.value
+            if (currentTodoList != null) {
+                val updatedTasks = currentTodoList.taskItems.map {
+                    if (it.id == updatedTask.id) updatedTask else it
+                }
+                _currentTodoList.value = currentTodoList.copy(taskItems = updatedTasks)
+            }
         }
     }
+
 
     fun deleteTask(taskItem: TaskItem) {
         viewModelScope.launch {
             taskDataSource.deleteTaskItem(taskItem)
-            loadTasksForTodoList(taskItem.todoListId) // Refresh tasks after deleting
+
+            // Refresh tasks for the current TodoList
+            val currentTodoListId = _currentTodoList.value?.todoList?.id
+            if (currentTodoListId != null) {
+                refreshTodoList(currentTodoListId)
+            }
         }
     }
+
+    private suspend fun refreshTodoList(todoListId: Int) {
+        // Fetch updated TodoList and TaskItems
+        val todoList = taskDataSource.getTodoListById(todoListId).first()
+        val taskItems = taskDataSource.getTaskItemsByListId(todoListId).first()
+
+        // Update the state with the refreshed data
+        _currentTodoList.value = TodoListWithTaskItem(todoList, taskItems)
+    }
 }
+

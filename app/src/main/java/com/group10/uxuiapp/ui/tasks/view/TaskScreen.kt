@@ -25,6 +25,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
+import com.group10.uxuiapp.data.data_class.TaskItem
 import com.group10.uxuiapp.ui.todolist.view.components.SettingsButton
 import com.group10.uxuiapp.ui.tasks.view.components.TaskRowItem
 import com.group10.uxuiapp.ui.tasks.view.components.AddTaskButton
@@ -37,17 +38,15 @@ import okhttp3.internal.concurrent.Task
 fun TaskScreen(todoListId: Int, appNavigator: AppNavigator, viewModel: TaskListViewModel) {
     val context = LocalContext.current
 
-    // Load the TodoList and its tasks when the screen is displayed
+    // Load tasks for the selected TodoList
     LaunchedEffect(todoListId) {
-        viewModel.loadTodoList(todoListId)
+        viewModel.selectTodoList(todoListId)
     }
 
-    // Collect the current TodoList and its tasks as state
-    val currentTodoList by viewModel.currentTodoList.collectAsState()
-    val tasks by viewModel.tasks.collectAsState()
+    val taskListWithItems by viewModel.currentTodoList.collectAsState()
 
-    // Show a loading indicator if the TodoList data is not yet available
-    if (currentTodoList == null) {
+    if (taskListWithItems == null) {
+        // Show loading indicator while the data is being fetched
         Box(
             modifier = Modifier.fillMaxSize(),
             contentAlignment = Alignment.Center
@@ -60,7 +59,7 @@ fun TaskScreen(todoListId: Int, appNavigator: AppNavigator, viewModel: TaskListV
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text(currentTodoList!!.title) }, // Use the TodoList title
+                title = { Text(taskListWithItems!!.todoList.title) },
                 navigationIcon = {
                     IconButton(onClick = { appNavigator.popBackStack() }) {
                         Icon(
@@ -70,9 +69,7 @@ fun TaskScreen(todoListId: Int, appNavigator: AppNavigator, viewModel: TaskListV
                     }
                 },
                 actions = {
-                    IconButton(onClick = {
-                        Log.d("TaskPage", "Search clicked")
-                    }) {
+                    IconButton(onClick = { Log.d("TaskPage", "Search clicked") }) {
                         Icon(Icons.Filled.Search, contentDescription = "Search")
                     }
                     SettingsButton(context = context)
@@ -83,31 +80,24 @@ fun TaskScreen(todoListId: Int, appNavigator: AppNavigator, viewModel: TaskListV
         },
         bottomBar = {
             AddTaskButton(onClick = {
-                // Add a new task to the current TodoList
-                viewModel.addTask("New Task")
+                val newTask = TaskItem(label = "New Task", todoListId = todoListId)
+                viewModel.addTaskToList(newTask)
             })
         }
     ) { innerPadding ->
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(innerPadding),
-            contentAlignment = Alignment.TopCenter
-        ) {
-            if (tasks.isEmpty()) {
-                // Show a message if no tasks are present
-                Box(
-                    modifier = Modifier.fillMaxSize(),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text("No tasks yet. Add some!")
-                }
-            } else {
-                // Display the list of tasks
-                LazyColumn {
-                    itemsIndexed(tasks) { _, task ->
-                        TaskRowItem(task = task, viewModel = viewModel)
-                    }
+        if (taskListWithItems!!.taskItems.isEmpty()) {
+            // Show a message if no tasks are present
+            Box(
+                modifier = Modifier.fillMaxSize(),
+                contentAlignment = Alignment.Center
+            ) {
+                Text("No tasks yet. Add some!")
+            }
+        } else {
+            // Display the list of tasks
+            LazyColumn(contentPadding = innerPadding) {
+                itemsIndexed(taskListWithItems!!.taskItems) { _, task ->
+                    TaskRowItem(task = task, viewModel = viewModel)
                 }
             }
         }

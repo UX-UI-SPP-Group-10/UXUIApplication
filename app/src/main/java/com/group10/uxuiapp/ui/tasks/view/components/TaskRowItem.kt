@@ -60,7 +60,7 @@ fun TaskRowItem(
                 checked = isChecked,
                 onCheckedChange = { newChecked ->
                     isChecked = newChecked
-                    viewModel.updateTask(taskItem = task, isComplete = newChecked)
+                    viewModel.updateTaskItem(taskItem = task, isComplete = newChecked)
                 },
                 colors = CheckboxDefaults.colors(
                     checkedColor = MaterialTheme.colorScheme.primary,
@@ -75,7 +75,7 @@ fun TaskRowItem(
                 value = text,
                 onValueChange = { newText ->
                     text = newText
-                    viewModel.updateTask(taskItem = task, label = newText)
+                    viewModel.updateTaskItem(taskItem = task, label = newText)
                 },
                 textStyle = MaterialTheme.typography.bodyLarge.copy(
                     textDecoration = if (isChecked) TextDecoration.LineThrough else null,
@@ -107,7 +107,7 @@ fun TaskRowItem(
             taskName = text,
             onEditTask = { newName ->
                 text = newName
-                viewModel.updateTask(taskItem = task, label = newName)
+                viewModel.updateTaskItem(taskItem = task, label = newName)
             },
             onDeleteTask = {
                 // viewModel.deleteTaskItem(task)
