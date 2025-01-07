@@ -43,7 +43,6 @@ class TaskDataSource(private val taskDao: TaskDao) {
         )
     }
 
-
     suspend fun updateTaskItem(taskItem: TaskItem, label: String? = null, isComplete: Boolean? = null) {
         val updatedLabel = label ?: taskItem.label
         val updatedIsComplete = isComplete ?: taskItem.isComplete
@@ -64,7 +63,6 @@ class TaskDataSource(private val taskDao: TaskDao) {
             listIndex = newIndex
         )
     }
-
 
     fun getTasksByCompletionStatus(isComplete: Boolean): Flow<List<TaskItem>> {
         return taskDao.getTasksByCompletionStatus(isComplete)

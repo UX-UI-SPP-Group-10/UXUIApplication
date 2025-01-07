@@ -221,8 +221,8 @@ fun TodoListScreen(viewModel: TodoListViewModel, appNavigator: AppNavigator) {
                 context = context,
                 onGifSelected = { gifUrl ->
                     // Update the GIF URL in ViewModel
-                    selectedIndex.value?.let { id ->
-                        viewModel.updateGifUrl(id, gifUrl)
+                    selectedTodoList?.let { todoList ->
+                        viewModel.updateGifUrl(todoList.id, gifUrl)
                     }
                     showGiphyDialog.value = false
                 },

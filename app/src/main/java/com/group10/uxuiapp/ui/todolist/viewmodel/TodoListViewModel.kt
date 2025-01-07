@@ -95,9 +95,6 @@ class TodoListViewModel(private val taskDataSource: TaskDataSource) : ViewModel(
         }
     }
 
-
-
-
     fun addTaskToList(taskItem: TaskItem) {
         viewModelScope.launch {
             try {
@@ -131,7 +128,6 @@ class TodoListViewModel(private val taskDataSource: TaskDataSource) : ViewModel(
             }
         }
     }
-
 
     fun updateTaskItem(taskItem: TaskItem, label: String? = null, isComplete: Boolean? = null) {
         viewModelScope.launch {
