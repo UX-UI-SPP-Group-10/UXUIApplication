@@ -24,15 +24,22 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import com.group10.uxuiapp.data.data_class.TaskItem
 import com.group10.uxuiapp.ui.todolist.view.components.SettingsButton
 import com.group10.uxuiapp.ui.tasks.view.components.TaskRowItem
 import com.group10.uxuiapp.ui.tasks.view.components.AddTaskButton
 import com.group10.uxuiapp.ui.navigation.AppNavigator
+import com.group10.uxuiapp.ui.tasks.view.components.EditTaskPopup
 import com.group10.uxuiapp.ui.tasks.viewmodel.TaskViewModel
 import com.group10.uxuiapp.ui.todolist.viewmodel.TodoListViewModel
 import okhttp3.internal.concurrent.Task
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
+import androidx.compose.foundation.lazy.items
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -46,6 +53,7 @@ fun TaskScreen(todoListId: Int, appNavigator: AppNavigator, viewModel: TaskViewM
 
     // Observe the current TodoList and its tasks
     val taskListWithItems by viewModel.currentTodoList.collectAsState()
+    val selectedTask by viewModel.selectedTaskItem.collectAsState()
 
     if (taskListWithItems == null) {
         // Loading state
@@ -105,11 +113,28 @@ fun TaskScreen(todoListId: Int, appNavigator: AppNavigator, viewModel: TaskViewM
             } else {
                 // Display task list
                 LazyColumn {
-                    itemsIndexed(taskListWithItems!!.taskItems) { _, task ->
+                    items(
+                        items = taskListWithItems!!.taskItems,
+                        key = { task -> task.id }  // <--- Use each task’s unique ID here
+                    ) { task ->
                         TaskRowItem(task = task, viewModel = viewModel)
                     }
                 }
+
             }
         }
+    }
+
+    var text by remember { mutableStateOf("") }
+    if (selectedTask!= null) {
+        EditTaskPopup(
+            taskName = selectedTask!!.label,
+            onEditTask = { newName ->
+                text = newName
+                viewModel.updateTaskItem(selectedTask!!, label = newName)
+            },
+            onDeleteTask = { viewModel.deleteTask(selectedTask!!) },
+            onDismiss = { viewModel.selectTask(null) }
+        )
     }
 }

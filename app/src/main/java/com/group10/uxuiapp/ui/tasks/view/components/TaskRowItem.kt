@@ -31,7 +31,6 @@ fun TaskRowItem(
 ) {
     var isChecked by remember { mutableStateOf(task.isComplete) }
     var text by remember { mutableStateOf(task.label) }
-    var showPopup by remember { mutableStateOf(false) }
 
     Box(
         modifier = Modifier
@@ -42,18 +41,19 @@ fun TaskRowItem(
                 color = MaterialTheme.colorScheme.surfaceVariant,
                 shape = MaterialTheme.shapes.small
             )
-            .pointerInput(Unit) {
-                detectTapGestures(onLongPress = { showPopup = true })
-            }
     ) {
         Row(
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 12.dp)
+                .height(56.dp)
+                .pointerInput(Unit) {
+                    // detectTapGestures only for the "empty space"
+                    detectTapGestures(onLongPress = { viewModel.selectTask(task) })
+                },
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            // Checkbox for task completion
+            Spacer(modifier = Modifier.width(16.dp))
+            // 2) Checkbox
             Checkbox(
                 checked = isChecked,
                 onCheckedChange = { newChecked ->
@@ -68,7 +68,7 @@ fun TaskRowItem(
                 modifier = Modifier.size(28.dp)
             )
 
-            // Editable text for task label
+            // 3) Editable text
             BasicTextField(
                 value = text,
                 onValueChange = { newText ->
@@ -78,15 +78,18 @@ fun TaskRowItem(
                 textStyle = MaterialTheme.typography.bodyLarge.copy(
                     textDecoration = if (isChecked) TextDecoration.LineThrough else null,
                     fontWeight = FontWeight.Medium,
-                    color = if (isChecked) MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f) else MaterialTheme.colorScheme.onSurface
+                    color = if (isChecked) {
+                        MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
+                    } else {
+                        MaterialTheme.colorScheme.onSurface
+                    }
                 ),
                 singleLine = true,
-                keyboardOptions = KeyboardOptions.Default,
-                keyboardActions = KeyboardActions.Default,
                 modifier = Modifier
-                    .weight(1f)
+                    .widthIn(max = 200.dp)
                     .padding(start = 4.dp)
             ) {
+                // Placeholder if you want one
                 if (text.isEmpty()) {
                     Text(
                         text = "",
@@ -96,18 +99,8 @@ fun TaskRowItem(
                 }
                 it()
             }
+            Spacer(modifier = Modifier.weight(1f))
         }
     }
-
-    if (showPopup) {
-        EditTaskPopup(
-            taskName = text,
-            onEditTask = { newName ->
-                text = newName
-                viewModel.updateTaskItem(task, label = newName)
-            },
-            onDeleteTask = { viewModel.deleteTask(task) },
-            onDismiss = { showPopup = false }
-        )
-    }
 }
+
