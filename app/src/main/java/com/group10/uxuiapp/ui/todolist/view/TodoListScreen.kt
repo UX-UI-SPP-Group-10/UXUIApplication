@@ -23,7 +23,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
@@ -58,16 +57,10 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
-import androidx.room.Query
-import coil.compose.AsyncImage
-import coil.compose.SubcomposeAsyncImage
 import coil.compose.rememberAsyncImagePainter
-import coil.compose.rememberImagePainter
 import coil.decode.GifDecoder
 import coil.request.ImageRequest
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.uxuiapplication.ChangeButton
-import com.giphy.sdk.analytics.GiphyPingbacks.context
 import com.group10.uxuiapp.data.data_class.TodoList
 import com.group10.uxuiapp.ui.navigation.AppNavigator
 import com.group10.uxuiapp.data.GiphyActivity
@@ -75,9 +68,7 @@ import com.group10.uxuiapp.data.data_class.TodoListWithTaskItem
 import com.group10.uxuiapp.ui.todolist.view.components.ListNameInputDialog
 import com.group10.uxuiapp.ui.todolist.view.components.SettingsButton
 import com.group10.uxuiapp.ui.todolist.viewmodel.TodoListViewModel
-import kotlinx.coroutines.flow.map
 import kotlin.collections.find
-import androidx.compose.foundation.lazy.items
 
 
 // Main ListOverviewPage with Scaffold and LazyColumn
@@ -89,30 +80,29 @@ fun TodoListScreen(viewModel: TodoListViewModel, appNavigator: AppNavigator) {
     val context = LocalContext.current
     val query = remember { mutableStateOf("") }
     val changeButtonAnchor = remember { mutableStateOf<Offset?>(null) }
-    val currentTaskList = remember { mutableStateOf<TodoList?>(null) }
 
     // Collect the lists from the ViewModel's Flow
-    val taskListsWithItems by viewModel.lists.collectAsState(emptyList())
+    val todoListsWithItems by viewModel.lists.collectAsState(emptyList())
     val selectedTodoList by viewModel.selectedTodoList.collectAsState()
 
     // Use LaunchedEffect to reset selectedIndex if list size changes
-    LaunchedEffect(taskListsWithItems) {
+    LaunchedEffect(todoListsWithItems) {
         if (selectedTodoList != null &&
-            taskListsWithItems.none { it.todoList == selectedTodoList }
+            todoListsWithItems.none { it.todoList == selectedTodoList }
         ) {
             viewModel.selectTodoList(null)
         }
     }
 
     // Filter the lists whenever query.value changes
-    val filteredLists = remember(query.value, taskListsWithItems) {
-        taskListsWithItems.filter {
+    val filteredLists = remember(query.value, todoListsWithItems) {
+        todoListsWithItems.filter {
             it.todoList.title.contains(query.value, ignoreCase = true)
         }
     }
 
     // Decide which list to show: full or filtered
-    val listsToShow = if (query.value.isBlank()) taskListsWithItems else filteredLists
+    val listsToShow = if (query.value.isBlank()) todoListsWithItems else filteredLists
 
     Box(modifier = Modifier.fillMaxSize()) {
         Scaffold(
@@ -142,12 +132,11 @@ fun TodoListScreen(viewModel: TodoListViewModel, appNavigator: AppNavigator) {
                         isSelected = isSelected,
                         onPositionChange = { offset, todoList ->
                             changeButtonAnchor.value = offset
-                            currentTaskList.value = todoList
                             viewModel.selectTodoList(todoList)
                         },
                         viewModel = viewModel,
                         appNavigator = appNavigator,
-                        taskListsWithItems = taskListsWithItems
+                        taskListsWithItems = todoListsWithItems
                     )
                 }
             }
@@ -172,7 +161,6 @@ fun TodoListScreen(viewModel: TodoListViewModel, appNavigator: AppNavigator) {
                             viewModel.removeTodoList(todoList)
                         }
                         viewModel.selectTodoList(null)
-                        currentTaskList.value = null
                     },
                     onOpdate = { showDialog.value = true },
                     onGifSelect = {
@@ -200,18 +188,17 @@ fun TodoListScreen(viewModel: TodoListViewModel, appNavigator: AppNavigator) {
             )
         }
 
-        if(showDialog.value && currentTaskList.value != null){
+        if(showDialog.value && selectedTodoList != null) {
             Log.d("TodoListScreen", "showDialog.value && currentTaskList.value != null")
             ListNameInputDialog(
                 onDismiss = { showDialog.value = false },
                 onConfirm = { newName ->
-                    currentTaskList.value?.let { taskList ->
+                    selectedTodoList?.let { taskList ->
                         viewModel.updateTodoList(taskList, newName)
                     }
                     showDialog.value = false
                     Toast.makeText(context, "List '$newName' created", Toast.LENGTH_SHORT).show()
                     viewModel.selectTodoList(null)
-                    currentTaskList.value = null
                 }
             )
         }
