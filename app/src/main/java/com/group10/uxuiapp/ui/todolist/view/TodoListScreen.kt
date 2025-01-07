@@ -1,9 +1,9 @@
 package com.group10.uxuiapp.ui.todolist.view
 
-
 import android.content.Intent
 import android.util.Log
 import android.widget.Toast
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectTapGestures
@@ -65,6 +65,7 @@ import coil.compose.AsyncImage
 import coil.compose.SubcomposeAsyncImage
 import coil.compose.rememberAsyncImagePainter
 import coil.compose.rememberImagePainter
+import coil.decode.GifDecoder
 import coil.request.ImageRequest
 import com.example.uxuiapplication.ChangeButton
 import com.group10.uxuiapp.data.data_class.TodoList
@@ -342,14 +343,17 @@ private fun ListItem(
         ) {
             // GIF as background (placed first to be behind everything else)
             if (!todoList.gifUrl.isNullOrEmpty()) {
-                AsyncImage(
-                    model = ImageRequest.Builder(context)
+                val gifPainter = rememberAsyncImagePainter(
+                    model = ImageRequest.Builder(LocalContext.current)
                         .data(todoList.gifUrl)
-                        .crossfade(true) // Optional: smooth fade-in effect
-                        .build(),
+                        .decoderFactory(GifDecoder.Factory())
+                        .build()
+                )
+                Image(
+                    painter = gifPainter,
                     contentDescription = "GIF Background",
-                    contentScale = ContentScale.Crop,
-                    modifier = Modifier.fillMaxSize()
+                    modifier = Modifier.fillMaxSize(),
+                    contentScale = ContentScale.Crop // Ensures the GIF fills the box area
                 )
             } else {
                 // Default gradient background if no GIF is provided
