@@ -84,6 +84,9 @@ dependencies {
     implementation("io.coil-kt:coil-compose:2.2.2")
     implementation ("io.coil-kt:coil-gif:2.4.0")
 
+    implementation ("androidx.appcompat:appcompat:1.6.1")
+    implementation ("androidx.fragment:fragment-ktx:1.5.7")
+
 
 
 }

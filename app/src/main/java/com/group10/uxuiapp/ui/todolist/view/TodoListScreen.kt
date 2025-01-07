@@ -1,5 +1,6 @@
 package com.group10.uxuiapp.ui.todolist.view
 
+import GiphyDialog
 import android.content.Intent
 import android.util.Log
 import android.widget.Toast
@@ -73,13 +74,13 @@ import com.group10.uxuiapp.ui.todolist.view.components.ListNameInputDialog
 import com.group10.uxuiapp.ui.todolist.view.components.SettingsButton
 import com.group10.uxuiapp.ui.todolist.viewmodel.TodoListViewModel
 
-
 // Main ListOverviewPage with Scaffold and LazyColumn
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TodoListScreen(viewModel: TodoListViewModel, appNavigator: AppNavigator) {
     val selectedIndex = remember { mutableStateOf<Int?>(null) }
     val showDialog = remember { mutableStateOf(false) }
+    val showGiphyDialog = remember { mutableStateOf(false) } // Add this state
     val listNameState = remember { mutableStateOf("") }
     val context = LocalContext.current
     val query = remember { mutableStateOf("") }
@@ -171,15 +172,7 @@ fun TodoListScreen(viewModel: TodoListViewModel, appNavigator: AppNavigator) {
                     },
                     onOpdate = { showDialog.value = true },
                     onGifSelect = {
-                        val intent = Intent(context, GiphyActivity::class.java).apply {
-                            selectedIndex.value?.let { id ->
-                                val taskList = taskListsWithItems.find { it.todoList.id == id }?.todoList
-                                if (taskList != null) {
-                                    putExtra("todoListId", taskList.id)
-                                }
-                            }
-                        }
-                        context.startActivity(intent)
+                        showGiphyDialog.value = true
                     }
                 )
             }
@@ -227,7 +220,24 @@ fun TodoListScreen(viewModel: TodoListViewModel, appNavigator: AppNavigator) {
                 }
             )
         }
+        // Show GiphyDialog when needed
+        if (showGiphyDialog.value) {
+            GiphyDialog(
+                context = context,
+                onGifSelected = { gifUrl ->
+                    // Update the GIF URL in ViewModel
+                    selectedIndex.value?.let { id ->
+                        viewModel.updateGifUrl(id, gifUrl)
+                    }
+                    showGiphyDialog.value = false
+                },
+                onDismissed = {
+                    showGiphyDialog.value = false
+                }
+            )
+        }
     }
+
 }
 
 

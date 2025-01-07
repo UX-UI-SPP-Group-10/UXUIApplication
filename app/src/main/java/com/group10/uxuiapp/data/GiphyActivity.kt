@@ -18,7 +18,7 @@ class GiphyActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        Giphy.configure(this, "TfJpapxeqlrKMdtx82hDrPS9RsSCYgDG")
+        //Giphy.configure(this, "TfJpapxeqlrKMdtx82hDrPS9RsSCYgDG")
 
         // Create the database and repository
         val database = DatabaseProvider.getDatabase(this)
