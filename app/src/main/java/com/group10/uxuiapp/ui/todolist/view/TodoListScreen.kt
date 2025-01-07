@@ -311,7 +311,7 @@ private fun ListItem(
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 4.dp)
+            .padding(horizontal = 16.dp, vertical = 10.dp)
     ) {
         Box(
             modifier = Modifier
@@ -391,7 +391,7 @@ private fun AddNewListButton(onClick: () -> Unit) {
             .padding(16.dp)
             .width(135.dp)
             .height(60.dp)
-            .offset(x = 22.dp, y = (-18).dp)
+            .offset(x = 22.dp, y = (-8).dp)
     ) {
         // Row to position icon and text horizontally
         Row(
