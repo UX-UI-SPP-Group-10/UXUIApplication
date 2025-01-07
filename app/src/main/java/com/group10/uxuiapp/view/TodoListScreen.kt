@@ -62,6 +62,7 @@ import coil.compose.AsyncImage
 import coil.compose.SubcomposeAsyncImage
 import coil.compose.rememberAsyncImagePainter
 import coil.compose.rememberImagePainter
+import coil.request.ImageRequest
 import com.example.uxuiapplication.ChangeButton
 import com.group10.uxuiapp.data.data_class.TodoList
 import com.group10.uxuiapp.ui.navigation.AppNavigator
@@ -232,7 +233,10 @@ private fun ListItem(
             // GIF as background (placed first to be behind everything else)
             if (!todoList.gifUrl.isNullOrEmpty()) {
                 AsyncImage(
-                    model = todoList.gifUrl,
+                    model = ImageRequest.Builder(context)
+                        .data(todoList.gifUrl)
+                        .crossfade(true) // Optional: smooth fade-in effect
+                        .build(),
                     contentDescription = "GIF Background",
                     contentScale = ContentScale.Crop,
                     modifier = Modifier.fillMaxSize()
