@@ -30,12 +30,13 @@ import com.group10.uxuiapp.ui.todolist.view.components.SettingsButton
 import com.group10.uxuiapp.ui.tasks.view.components.TaskRowItem
 import com.group10.uxuiapp.ui.tasks.view.components.AddTaskButton
 import com.group10.uxuiapp.ui.navigation.AppNavigator
+import com.group10.uxuiapp.ui.tasks.viewmodel.TaskViewModel
 import com.group10.uxuiapp.ui.todolist.viewmodel.TodoListViewModel
 import okhttp3.internal.concurrent.Task
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun TaskScreen(todoListId: Int, appNavigator: AppNavigator, viewModel: TaskListViewModel) {
+fun TaskScreen(todoListId: Int, appNavigator: AppNavigator, viewModel: TaskViewModel) {
     val context = LocalContext.current
 
     // Load tasks for the selected TodoList

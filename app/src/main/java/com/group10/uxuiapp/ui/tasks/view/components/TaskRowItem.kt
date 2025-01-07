@@ -21,12 +21,13 @@ import com.group10.uxuiapp.ui.todolist.viewmodel.TodoListViewModel
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.runtime.remember
 import androidx.compose.ui.input.pointer.pointerInput
+import com.group10.uxuiapp.ui.tasks.viewmodel.TaskViewModel
 
 
 @Composable
 fun TaskRowItem(
     task: TaskItem,
-    viewModel: TaskListViewModel
+    viewModel: TaskViewModel
 ) {
     var isChecked by remember { mutableStateOf(task.isComplete) }
     var text by remember { mutableStateOf(task.label) }

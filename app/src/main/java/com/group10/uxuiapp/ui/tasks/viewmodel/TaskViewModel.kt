@@ -1,7 +1,8 @@
+package com.group10.uxuiapp.ui.tasks.viewmodel
+
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.group10.uxuiapp.data.data_class.TaskItem
-import com.group10.uxuiapp.data.data_class.TodoList
 import com.group10.uxuiapp.data.TaskDataSource
 import com.group10.uxuiapp.data.data_class.TodoListWithTaskItem
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -9,7 +10,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 
-class TaskListViewModel(private val taskDataSource: TaskDataSource) : ViewModel() {
+class TaskViewModel(private val taskDataSource: TaskDataSource) : ViewModel() {
 
     private val _currentTodoList = MutableStateFlow<TodoListWithTaskItem?>(null)
     val currentTodoList: StateFlow<TodoListWithTaskItem?> = _currentTodoList
