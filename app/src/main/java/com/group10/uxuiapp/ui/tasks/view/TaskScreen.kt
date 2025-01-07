@@ -91,7 +91,7 @@ fun TaskScreen(todoListId: Int, appNavigator: AppNavigator, viewModel: TaskViewM
         bottomBar = {
             AddTaskButton(onClick = {
                 // Add a new task to the TodoList
-                val newTask = TaskItem(label = "New Task", todoListId = todoListId)
+                val newTask = TaskItem(label = "", todoListId = todoListId)
                 viewModel.addTaskToList(newTask)
             })
         }
@@ -115,7 +115,7 @@ fun TaskScreen(todoListId: Int, appNavigator: AppNavigator, viewModel: TaskViewM
                 LazyColumn {
                     items(
                         items = taskListWithItems!!.taskItems,
-                        key = { task -> task.id }  // <--- Use each task’s unique ID here
+                        key = { task -> task.id }
                     ) { task ->
                         TaskRowItem(task = task, viewModel = viewModel)
                     }
@@ -125,16 +125,22 @@ fun TaskScreen(todoListId: Int, appNavigator: AppNavigator, viewModel: TaskViewM
         }
     }
 
-    var text by remember { mutableStateOf("") }
-    if (selectedTask!= null) {
+    if (selectedTask != null) {
         EditTaskPopup(
-            taskName = selectedTask!!.label,
-            onEditTask = { newName ->
-                text = newName
-                viewModel.updateTaskItem(selectedTask!!, label = newName)
+            taskName = selectedTask!!.label, // Pass the current task name
+            onSaveTask = { newName ->
+                // Update the selected task with the new name
+                viewModel.updateTaskItem(taskItem = selectedTask!!, label = newName)
+                viewModel.selectTask(null) // Dismiss the popup
             },
-            onDeleteTask = { viewModel.deleteTask(selectedTask!!) },
-            onDismiss = { viewModel.selectTask(null) }
+            onDeleteTask = {
+                viewModel.deleteTask(selectedTask!!) // Delete the selected task
+                viewModel.selectTask(null) // Dismiss the popup
+            },
+            onDismiss = {
+                viewModel.selectTask(null) // Dismiss the popup without saving
+            }
         )
     }
+
 }

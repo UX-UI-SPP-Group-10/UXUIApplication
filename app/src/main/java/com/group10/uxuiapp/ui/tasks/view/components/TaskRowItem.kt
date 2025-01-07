@@ -29,8 +29,7 @@ fun TaskRowItem(
     task: TaskItem,
     viewModel: TaskViewModel
 ) {
-    var isChecked by remember { mutableStateOf(task.isComplete) }
-    var text by remember { mutableStateOf(task.label) }
+    var isChecked = task.isComplete
 
     Box(
         modifier = Modifier
@@ -70,9 +69,8 @@ fun TaskRowItem(
 
             // 3) Editable text
             BasicTextField(
-                value = text,
+                value = task.label,
                 onValueChange = { newText ->
-                    text = newText
                     viewModel.updateTaskItem(task, label = newText)
                 },
                 textStyle = MaterialTheme.typography.bodyLarge.copy(
@@ -90,9 +88,9 @@ fun TaskRowItem(
                     .padding(start = 4.dp)
             ) {
                 // Placeholder if you want one
-                if (text.isEmpty()) {
+                if (task.label.isEmpty()) {
                     Text(
-                        text = "",
+                        text = "new Task",
                         fontSize = 16.sp,
                         color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.4f)
                     )
