@@ -56,14 +56,18 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.uxuiapplication.ChangeButton
+import com.giphy.sdk.analytics.GiphyPingbacks.context
 import com.group10.uxuiapp.data.data_class.TodoList
 import com.group10.uxuiapp.ui.navigation.AppNavigator
 import com.group10.uxuiapp.data.GiphyActivity
+import com.group10.uxuiapp.data.data_class.TodoListWithTaskItem
 import com.group10.uxuiapp.ui.todolist.view.components.ListNameInputDialog
 import com.group10.uxuiapp.ui.todolist.view.components.SettingsButton
 import com.group10.uxuiapp.ui.todolist.viewmodel.TodoListViewModel
 import kotlinx.coroutines.flow.map
+import kotlin.collections.find
 
 
 // Main ListOverviewPage with Scaffold and LazyColumn
@@ -82,20 +86,19 @@ fun TodoListScreen(viewModel: TodoListViewModel, appNavigator: AppNavigator) {
     //val taskListsWithItems2 = remember(query.value) {
     // viewModel.filterLists(query.value)
     //}
-    val taskListsWithItems by viewModel.lists
-        .map { lists -> lists.sortedBy { it.todoList.listIndex } }
-        .collectAsState(emptyList())
+    val taskListsWithItems by viewModel.lists.collectAsState(emptyList())
 
 
-    // Use LaunchedEffect to reset selectedIndex if list size changes
     // Use LaunchedEffect to reset selectedIndex if list size changes
     LaunchedEffect(taskListsWithItems) {
         if (selectedIndex.value != null &&
             taskListsWithItems.none { it.todoList.id == selectedIndex.value }
         ) {
-            selectedIndex.value = taskListsWithItems.firstOrNull()?.todoList?.id
+            selectedIndex.value = null
         }
     }
+
+
 
 
     val filteredLists = taskListsWithItems.filter {
@@ -127,17 +130,17 @@ fun TodoListScreen(viewModel: TodoListViewModel, appNavigator: AppNavigator) {
                 val listsToShow = if (query.value.isNotEmpty()) filteredLists else taskListsWithItems
 
 
-                itemsIndexed(taskListsWithItems){index,  taskListWithItems->
+                items(taskListsWithItems, key = { it.todoList.id }) { taskListWithItems ->
                     ListItem(
                         todoList = taskListWithItems.todoList,
-                        index = index,
                         selectedIndex = selectedIndex,
                         viewModel = viewModel,
                         appNavigator = appNavigator,
                         onPositionChange = { offset, todoList ->
                             changeButtonAnchor.value = offset
                             currentTaskList.value = todoList
-                        }
+                        },
+                        taskListsWithItems = taskListsWithItems
                     )
                 }
             }
@@ -164,15 +167,8 @@ fun TodoListScreen(viewModel: TodoListViewModel, appNavigator: AppNavigator) {
                                 viewModel.removeTodoList(taskList)
                             }
                         }
-
-                        // Update selectedIndex to the next valid list
-                        val nextValidId = taskListsWithItems
-                            .filter { it.todoList.id != selectedIndex.value }
-                            .firstOrNull()?.todoList?.id
-
-                        selectedIndex.value = nextValidId
-                    }
-                    ,
+                        selectedIndex.value = null
+                    },
                     onOpdate = { showDialog.value = true },
                     onGifSelect = {
                         val intent = Intent(context, GiphyActivity::class.java).apply {
@@ -280,11 +276,11 @@ private fun TopAppBarWithMenu(query: MutableState<String>) {
 @Composable
 private fun ListItem(
     todoList: TodoList,
-    index: Int,
     selectedIndex: MutableState<Int?>,
     viewModel: TodoListViewModel,
     appNavigator: AppNavigator,
-    onPositionChange: (Offset, TodoList) -> Unit
+    onPositionChange: (Offset, TodoList) -> Unit,
+    taskListsWithItems: List<TodoListWithTaskItem>
 ) {
     val context = LocalContext.current
     val listNameState = remember { mutableStateOf(todoList.title) }
@@ -329,27 +325,25 @@ private fun ListItem(
                 .pointerInput(Unit) {
                     detectTapGestures(
                         onTap = {
-                            val refreshedTaskList = viewModel.lists.value.find { it.todoList.id == todoList.id }
+                            val refreshedTaskList = taskListsWithItems.find { it.todoList.id == todoList.id }
+                            Log.d("ListItem", "Tapped Item Index: Task ID: ${todoList.id}, Refreshed Task: ${refreshedTaskList?.todoList?.id}")
+                            Log.d("ListItem", "Selected Index: ${selectedIndex.value}, TaskLists: $taskListsWithItems")
+
                             if (refreshedTaskList != null) {
                                 appNavigator.navigateToTask(refreshedTaskList.todoList.id)
                             } else {
-                                // Fallback to first valid list or show an error
-                                val firstValidId = viewModel.lists.value.firstOrNull()?.todoList?.id
-                                if (firstValidId != null) {
-                                    appNavigator.navigateToTask(firstValidId)
-                                } else {
-                                    Log.e("ListItem", "No valid list to navigate to.")
-                                }
+                                Log.e("ListItem", "No valid list to navigate to.")
                             }
                         },
                         onLongPress = {
-                            // Calculate dynamic yOffset based on the item's index and scroll state
-                            val yOffset = with(density) { itemPosition.y * (index+1) + 4.dp.toPx() }
+                            val yOffset = with(density) { itemPosition.y * ( + 1) + 4.dp.toPx() }
                             onPositionChange(Offset(98f, yOffset), todoList)
                             selectedIndex.value = todoList.id
+                            Log.d("ListItem", "Long Pressed Item: Index: , ID: ${todoList.id}, Updated SelectedIndex: ${selectedIndex.value}")
                         }
                     )
                 }
+
         ) {
             Row(
                 modifier = Modifier

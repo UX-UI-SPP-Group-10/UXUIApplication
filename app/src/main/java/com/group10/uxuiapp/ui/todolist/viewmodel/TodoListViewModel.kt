@@ -64,27 +64,25 @@ class TodoListViewModel(private val taskDataSource: TaskDataSource) : ViewModel(
     fun removeTodoList(todoList: TodoList) {
         viewModelScope.launch {
             try {
-                // Remove the selected TodoList
                 taskDataSource.deleteTodoList(todoList)
                 Log.d(TAG, "Removed TodoList with id: ${todoList.id}")
 
-                // Recalculate listIndex for remaining lists
                 val updatedLists = _lists.value
-                    .filter { it.todoList.id != todoList.id } // Exclude the removed list
-                    .sortedBy { it.todoList.listIndex } // Sort by current listIndex
+                    .filter { it.todoList.id != todoList.id }
+                    .sortedBy { it.todoList.listIndex }
                     .mapIndexed { index, todoListWithTaskItem ->
                         val updatedTodoList = todoListWithTaskItem.todoList.copy(listIndex = index)
-                        taskDataSource.updateListIndex(updatedTodoList.id, index) // Update database
+                        taskDataSource.updateListIndex(updatedTodoList.id, index)
                         todoListWithTaskItem.copy(todoList = updatedTodoList)
                     }
 
-                // Update the ViewModel's state
                 _lists.value = updatedLists
             } catch (e: Exception) {
                 Log.e(TAG, "Error removing TodoList: ${e.message}", e)
             }
         }
     }
+
 
 
     fun updateListOrder(updatedOrder: List<TodoList>) {
