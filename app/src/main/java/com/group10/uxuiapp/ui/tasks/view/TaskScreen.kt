@@ -39,15 +39,16 @@ import okhttp3.internal.concurrent.Task
 fun TaskScreen(todoListId: Int, appNavigator: AppNavigator, viewModel: TaskViewModel) {
     val context = LocalContext.current
 
-    // Load tasks for the selected TodoList
+    // Set the selected TodoList ID
     LaunchedEffect(todoListId) {
         viewModel.selectTodoList(todoListId)
     }
 
+    // Observe the current TodoList and its tasks
     val taskListWithItems by viewModel.currentTodoList.collectAsState()
 
     if (taskListWithItems == null) {
-        // Show loading indicator while the data is being fetched
+        // Loading state
         Box(
             modifier = Modifier.fillMaxSize(),
             contentAlignment = Alignment.Center
@@ -81,24 +82,32 @@ fun TaskScreen(todoListId: Int, appNavigator: AppNavigator, viewModel: TaskViewM
         },
         bottomBar = {
             AddTaskButton(onClick = {
+                // Add a new task to the TodoList
                 val newTask = TaskItem(label = "New Task", todoListId = todoListId)
                 viewModel.addTaskToList(newTask)
             })
         }
     ) { innerPadding ->
-        if (taskListWithItems!!.taskItems.isEmpty()) {
-            // Show a message if no tasks are present
-            Box(
-                modifier = Modifier.fillMaxSize(),
-                contentAlignment = Alignment.Center
-            ) {
-                Text("No tasks yet. Add some!")
-            }
-        } else {
-            // Display the list of tasks
-            LazyColumn(contentPadding = innerPadding) {
-                itemsIndexed(taskListWithItems!!.taskItems) { _, task ->
-                    TaskRowItem(task = task, viewModel = viewModel)
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(innerPadding),
+            contentAlignment = Alignment.TopCenter
+        ) {
+            if (taskListWithItems!!.taskItems.isEmpty()) {
+                // Empty state
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text("No tasks yet. Add some!")
+                }
+            } else {
+                // Display task list
+                LazyColumn {
+                    itemsIndexed(taskListWithItems!!.taskItems) { _, task ->
+                        TaskRowItem(task = task, viewModel = viewModel)
+                    }
                 }
             }
         }

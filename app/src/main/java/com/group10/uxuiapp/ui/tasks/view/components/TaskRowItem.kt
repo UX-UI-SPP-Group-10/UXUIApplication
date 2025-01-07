@@ -31,9 +31,8 @@ fun TaskRowItem(
 ) {
     var isChecked by remember { mutableStateOf(task.isComplete) }
     var text by remember { mutableStateOf(task.label) }
-    var showPopup by remember { mutableStateOf(false) } // Track popup visibility
+    var showPopup by remember { mutableStateOf(false) }
 
-    // Main container
     Box(
         modifier = Modifier
             .padding(vertical = 6.dp, horizontal = 12.dp)
@@ -41,12 +40,10 @@ fun TaskRowItem(
             .fillMaxWidth()
             .background(
                 color = MaterialTheme.colorScheme.surfaceVariant,
-                shape = MaterialTheme.shapes.small // Subtle corner rounding
+                shape = MaterialTheme.shapes.small
             )
             .pointerInput(Unit) {
-                detectTapGestures(
-                    onLongPress = { showPopup = true } // Show popup on long press
-                )
+                detectTapGestures(onLongPress = { showPopup = true })
             }
     ) {
         Row(
@@ -56,12 +53,12 @@ fun TaskRowItem(
                 .fillMaxWidth()
                 .padding(horizontal = 12.dp)
         ) {
-            // Checkbox
+            // Checkbox for task completion
             Checkbox(
                 checked = isChecked,
                 onCheckedChange = { newChecked ->
                     isChecked = newChecked
-                    viewModel.updateTaskItem(taskItem = task, isComplete = newChecked)
+                    viewModel.updateTaskItem(task, isComplete = newChecked)
                 },
                 colors = CheckboxDefaults.colors(
                     checkedColor = MaterialTheme.colorScheme.primary,
@@ -71,12 +68,12 @@ fun TaskRowItem(
                 modifier = Modifier.size(28.dp)
             )
 
-            // Editable text
+            // Editable text for task label
             BasicTextField(
                 value = text,
                 onValueChange = { newText ->
                     text = newText
-                    viewModel.updateTaskItem(taskItem = task, label = newText)
+                    viewModel.updateTaskItem(task, label = newText)
                 },
                 textStyle = MaterialTheme.typography.bodyLarge.copy(
                     textDecoration = if (isChecked) TextDecoration.LineThrough else null,
@@ -102,20 +99,15 @@ fun TaskRowItem(
         }
     }
 
-    // Show popup if `showPopup` is true
     if (showPopup) {
         EditTaskPopup(
             taskName = text,
             onEditTask = { newName ->
                 text = newName
-                viewModel.updateTaskItem(taskItem = task, label = newName)
+                viewModel.updateTaskItem(task, label = newName)
             },
-            onDeleteTask = {
-                // viewModel.deleteTaskItem(task)
-            },
-            onDismiss = {
-                showPopup = false
-            }
+            onDeleteTask = { viewModel.deleteTask(task) },
+            onDismiss = { showPopup = false }
         )
     }
 }

@@ -20,7 +20,7 @@ class OldViewModel(private val taskDataSource: TaskDataSource) : ViewModel() {
     init {
         // Observe all task lists with their items
         viewModelScope.launch {
-            taskDataSource.getTodoListWithTask()
+            taskDataSource.getTodoListsWithTasks()
                 .collect { todoListWithTaskItem ->
                     _lists.value = todoListWithTaskItem
                     // Update the current list if it is being viewed
