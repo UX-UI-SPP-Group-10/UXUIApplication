@@ -23,6 +23,9 @@ class TodoListViewModel(private val taskDataSource: TaskDataSource) : ViewModel(
     private val _selectedTodoList = MutableStateFlow<TodoList?>(null)
     val selectedTodoList = _selectedTodoList.asStateFlow()
 
+    private val _todoListState = MutableStateFlow<TodoListState>(TodoListState.None)
+    val todoListState = _todoListState.asStateFlow()
+
 
     init {
         viewModelScope.launch {
@@ -35,6 +38,26 @@ class TodoListViewModel(private val taskDataSource: TaskDataSource) : ViewModel(
                 Log.e(TAG, "Error fetching TodoLists: ${e.message}", e)
             }
         }
+    }
+
+    fun setNewlistState() {
+        Log.d(TAG, "Setting NewList state")
+        _todoListState.value = TodoListState.NewList
+    }
+
+    fun setRenameState(todoList: TodoList) {
+        Log.d(TAG, "Setting Rename state for TodoList with id: ${todoList.id}")
+        _todoListState.value = TodoListState.Rename(todoList)
+    }
+
+    fun setSelectGifState(todoList: TodoList) {
+        Log.d(TAG, "Setting SelectGif state for TodoList with id: ${todoList.id}")
+        _todoListState.value = TodoListState.SelectGif(todoList)
+    }
+
+    fun setNoneState() {
+        Log.d(TAG, "Setting None state")
+        _todoListState.value = TodoListState.None
     }
 
 

@@ -1,40 +1,25 @@
 package com.group10.uxuiapp.ui.todolist.view
 
-import GiphyDialog
-import android.util.Log
-import android.widget.Toast
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.calculateEndPadding
 import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.offset
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Favorite
-import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.*
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
@@ -43,48 +28,30 @@ import androidx.compose.runtime.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLayoutDirection
-import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import androidx.compose.ui.zIndex
-import coil.compose.rememberAsyncImagePainter
-import coil.decode.GifDecoder
-import coil.request.ImageRequest
-import com.example.uxuiapplication.ChangeButton
-import com.group10.uxuiapp.data.data_class.TodoList
 import com.group10.uxuiapp.ui.navigation.AppNavigator
-import com.group10.uxuiapp.data.GiphyActivity
-import com.group10.uxuiapp.data.data_class.TodoListWithTaskItem
-import com.group10.uxuiapp.ui.todolist.view.components.ListNameInputDialog
-import com.group10.uxuiapp.ui.todolist.view.components.SettingsButton
+import com.group10.uxuiapp.ui.todolist.view.components.*
+import com.group10.uxuiapp.ui.todolist.view.components.buttons.AddNewTodoListButton
+import com.group10.uxuiapp.ui.todolist.view.components.buttons.SettingsButton
 import com.group10.uxuiapp.ui.todolist.viewmodel.TodoListViewModel
-import kotlin.collections.find
 
 // Main TodoListScreen with Scaffold and LazyColumn
 @Composable
 fun TodoListScreen(viewModel: TodoListViewModel, appNavigator: AppNavigator) {
-    val showDialog = remember { mutableStateOf(false) }
-    val showGiphyDialog = remember { mutableStateOf(false) } // Add this state
-    val listNameState = remember { mutableStateOf("") }
-    val context = LocalContext.current
     val query = remember { mutableStateOf("") }
-    val changeButtonAnchor = remember { mutableStateOf<Offset?>(null) }
-    val selectedIndex = remember { mutableStateOf<Int?>(null) }
+    val popupOffset = remember { mutableStateOf(IntOffset.Zero) }
 
     // Collect the lists from the ViewModel's Flow
     val todoListsWithItems by viewModel.lists.collectAsState(emptyList())
     val selectedTodoList by viewModel.selectedTodoList.collectAsState()
+    val popupState by viewModel.todoListState.collectAsState()
+    val listPositionState = rememberLazyListState()
+
 
     // Use LaunchedEffect to reset selectedIndex if list size changes
     LaunchedEffect(todoListsWithItems) {
@@ -109,127 +76,99 @@ fun TodoListScreen(viewModel: TodoListViewModel, appNavigator: AppNavigator) {
         Scaffold(
             topBar = { TopAppBarWithMenu(query) },
             floatingActionButton = {
-                AddNewListButton {
-                    showDialog.value = true
+                AddNewTodoListButton {
+                    viewModel.setNewlistState()
                 }
             }
         ) { innerPadding  ->
 
             LazyColumn (
+                state = listPositionState,
+                verticalArrangement = Arrangement.spacedBy(16.dp),
                 contentPadding = PaddingValues(
-                start = innerPadding.calculateStartPadding(LocalLayoutDirection.current),
-                top = innerPadding.calculateTopPadding(),
-                end = innerPadding.calculateEndPadding(LocalLayoutDirection.current),
-                bottom = innerPadding.calculateBottomPadding()
-            )){
+                    start = innerPadding.calculateStartPadding(LocalLayoutDirection.current) + 12.dp, // Extra left padding
+                    top = innerPadding.calculateTopPadding(),
+                    end = innerPadding.calculateEndPadding(LocalLayoutDirection.current) + 12.dp, // Extra right padding
+                    bottom = innerPadding.calculateBottomPadding() + 100.dp // Existing extra bottom padding
+                )
+            ){
                 items(
                     items = listsToShow,
                     key = { it.todoList.id }
                 ) { taskListWithItems ->
-                    val isSelected = (selectedTodoList?.id == taskListWithItems.todoList.id)
+                    val todoList = taskListWithItems.todoList
 
-                    ListItem(
-                        todoList = taskListWithItems.todoList,
-                        isSelected = isSelected,
-                        onPositionChange = { offset, todoList ->
-                            changeButtonAnchor.value = offset
-                            viewModel.selectTodoList(todoList)
+                    TodoListCard(
+                        todoList = todoList,
+                        onPositionChange = { offset, list ->
+                            popupOffset.value = offset
+                            viewModel.selectTodoList(list)
                         },
                         viewModel = viewModel,
                         appNavigator = appNavigator,
                         taskListsWithItems = todoListsWithItems
                     )
+                    if (todoList == selectedTodoList) {
+                        Spacer(modifier = Modifier.height(15.dp)) // Adjust height as needed
+                    }
                 }
             }
         }
 
-        // Render ChangeButton
-        if (selectedTodoList != null && changeButtonAnchor.value != null) {
-            Box(
-                modifier = Modifier
-                    .offset(
-                        x = changeButtonAnchor.value!!.x.dp,
-                        y = 24.dp + changeButtonAnchor.value!!.y.dp
-                    )
-                    .zIndex(1f) // Ensure ChangeButton is on top
-            ) {
-                ChangeButton(
-                    onClose = {
-                        viewModel.selectTodoList(null)
-                    },
-                    onDelete = {
-                        selectedTodoList?.let { todoList ->
-                            viewModel.removeTodoList(todoList)
-                        }
-                        viewModel.selectTodoList(null)
-                    },
-                    onOpdate = { showDialog.value = true },
-                    onGifSelect = {
-                        showGiphyDialog.value = true
-                    }
-                )
+        OptionsPopup(
+            expanded = selectedTodoList != null,
+            onDismissRequest = { viewModel.selectTodoList(null) },
+            onClose = {
+                viewModel.selectTodoList(null)
+            },
+            onDelete = {
+                viewModel.removeTodoList(selectedTodoList!!)
+                viewModel.selectTodoList(null)
+            },
+            onUpdate = {
+                viewModel.setRenameState(selectedTodoList!!)
+            },
+            onGifSelect = {
+                viewModel.setSelectGifState(selectedTodoList!!)
+            },
+            offset = popupOffset.value
+        )
+
+//        // Show GiphyDialog when needed
+//        if (showGiphyDialog.value) {
+//            GiphyDialog(
+//                context = context,
+//                onGifSelected = { gifUrl ->
+//                    // Update the GIF URL in ViewModel
+//                    selectedTodoList?.let { todoList ->
+//                        viewModel.updateGifUrl(todoList.id, gifUrl)
+//                    }
+//                    showGiphyDialog.value = false
+//                },
+//                onDismissed = {
+//                    showGiphyDialog.value = false
+//                }
+//            )
+//        }
+
+        PopupManager(
+            popupState = popupState,
+            onNewListConfirm = { name ->
+                viewModel.addTodoList(name)
+                viewModel.setNoneState()
+            },
+            onRenameConfirm = { todoList, newName ->
+                viewModel.updateTodoList(todoList, newName)
+                viewModel.setNoneState()
+            },
+            onGifSelected = { todoList, gifUrl ->
+                viewModel.updateGifUrl(todoList.id, gifUrl)
+                viewModel.setNoneState()
+            },
+            onDismiss = {
+                viewModel.setNoneState()
             }
-        }
-
-        // Full-screen overlay to detect taps
-        if (selectedTodoList != null) {
-            Box(
-                Modifier
-                    .fillMaxSize()
-                    .background(Color.Black.copy(alpha = 0.3f))
-                    .pointerInput(Unit) {
-                        detectTapGestures(onTap = { viewModel.selectTodoList(null) })
-                    }
-            )
-        }
-
-        if(showDialog.value && selectedTodoList != null) {
-            Log.d("TodoListScreen", "showDialog.value && currentTaskList.value != null")
-            ListNameInputDialog(
-                onDismiss = { showDialog.value = false },
-                onConfirm = { newName ->
-                    selectedTodoList?.let { taskList ->
-                        viewModel.updateTodoList(taskList, newName)
-                    }
-                    showDialog.value = false
-                    Toast.makeText(context, "List '$newName' created", Toast.LENGTH_SHORT).show()
-                    viewModel.selectTodoList(null)
-                }
-            )
-        }
-        else if (showDialog.value){
-            Log.d("TodoListScreen", "showDialog.value")
-            ListNameInputDialog(
-                onDismiss = { showDialog.value = false },
-                onConfirm = { name ->
-                    if (true) {  // Can add a check for valid name here
-                        viewModel.addTodoList(name)
-                        listNameState.value = name
-                        showDialog.value = false
-                        Toast.makeText(context, "List '$name' created", Toast.LENGTH_SHORT).show()
-                    } else {
-                        Toast.makeText(context, "Please enter a valid name", Toast.LENGTH_SHORT)
-                            .show()
-                    }
-                }
-            )
-        }
-        // Show GiphyDialog when needed
-        if (showGiphyDialog.value) {
-            GiphyDialog(
-                context = context,
-                onGifSelected = { gifUrl ->
-                    // Update the GIF URL in ViewModel
-                    selectedTodoList?.let { todoList ->
-                        viewModel.updateGifUrl(todoList.id, gifUrl)
-                    }
-                    showGiphyDialog.value = false
-                },
-                onDismissed = {
-                    showGiphyDialog.value = false
-                }
-            )
-        }
+        )
     }
 }
 
