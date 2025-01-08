@@ -56,11 +56,26 @@ fun ColorPicker(onColorSelect: (String) -> Unit) {
     }) {
         Text("Choose a color")
     }
+
     DropdownMenu(
         expanded = expanded.value,
         onDismissRequest = { expanded.value = false },
         offset = DpOffset(x = (0).dp, y = 0.dp)
     ) {
+        DropdownMenuItem(
+            text = { Text("Black", color = Color.Black) },
+            onClick = {
+                onColorSelect("#000000")
+                expanded.value = false },
+            modifier = Modifier.fillMaxWidth()
+        )
+        DropdownMenuItem(
+            text = { Text("White", color = Color.White) },
+            onClick = {
+                onColorSelect("#ffffff")
+                expanded.value = false },
+            modifier = Modifier.fillMaxWidth()
+        )
         DropdownMenuItem(
             text = { Text("Red", color = Color.Red) },
             onClick = {
@@ -82,5 +97,13 @@ fun ColorPicker(onColorSelect: (String) -> Unit) {
                 expanded.value = false },
             modifier = Modifier.fillMaxWidth()
         )
+        DropdownMenuItem(
+            text = { Text("Yellow", color = Color.Yellow) },
+            onClick = {
+                onColorSelect("#ffff00")
+                expanded.value = false },
+            modifier = Modifier.fillMaxWidth()
+        )
+
     }
 }

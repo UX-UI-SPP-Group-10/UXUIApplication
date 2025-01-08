@@ -117,6 +117,7 @@ fun ChangeButton(onClose: () -> Unit,
                     tint = MaterialTheme.colorScheme.onPrimary
                 )
             }
+            Spacer(modifier = Modifier.width(8.dp))
 
             // Delete button: Delete a list
             Button(
