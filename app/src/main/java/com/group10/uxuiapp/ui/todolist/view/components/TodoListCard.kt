@@ -6,6 +6,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -156,11 +157,14 @@ fun TodoListCard(
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.Top
         ) {
-            Text(
-                text = todoList.title,
-                color = MaterialTheme.colorScheme.background,
-                modifier = Modifier.width(320.dp)
-            )
+            Column{
+                Text(
+                    text = todoList.title,
+                    color = MaterialTheme.colorScheme.background,
+                    modifier = Modifier.width(320.dp)
+                )
+                DueByDate(todoList)
+            }
             IsLikedButton(todoList, onClick = {
                 viewModel.updateTodoList(todoList, isLiked = !todoList.isLiked)
             })
