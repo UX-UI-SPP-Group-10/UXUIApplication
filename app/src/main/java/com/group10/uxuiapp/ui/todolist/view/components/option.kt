@@ -25,7 +25,8 @@ import com.group10.uxuiapp.R
 fun ChangeButton(onClose: () -> Unit,
                  onDelete: () -> Unit,
                  onOpdate: () -> Unit,
-                 onGifSelect: ()-> Unit)
+                 onGifSelect: ()-> Unit,
+                 onColorChange: () -> Unit)
 {
 
     Box(
@@ -97,6 +98,25 @@ fun ChangeButton(onClose: () -> Unit,
                 )
             }
 
+            Spacer(modifier = Modifier.width(8.dp))
+
+            Button(
+                onClick = onColorChange,
+                modifier = Modifier
+                    .width(45.dp)
+                    .height(38.dp),
+                contentPadding = PaddingValues(0.dp),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = MaterialTheme.colorScheme.onTertiary
+                )
+            ) {
+                Icon(
+                    painter = painterResource(id = R.drawable.palette),
+                    contentDescription = "Change Color",
+                    modifier = Modifier.size(30.dp),
+                    tint = MaterialTheme.colorScheme.onPrimary
+                )
+            }
             Spacer(modifier = Modifier.width(8.dp))
 
             // Delete button: Delete a list

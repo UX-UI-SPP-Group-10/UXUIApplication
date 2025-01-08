@@ -34,7 +34,8 @@ interface TaskDao {
         title = :title,
         isLiked = :isLiked,
         gifUrl = :gifUrl,
-        dueDate = :dueDate
+        dueDate = :dueDate,
+        textColor = :textColor
     WHERE id = :id
 """)
     suspend fun updateTodoList(
@@ -42,6 +43,7 @@ interface TaskDao {
         title: String,
         isLiked: Boolean,
         gifUrl: String,
+        textColor: String,
         dueDate: Long?
     )
 

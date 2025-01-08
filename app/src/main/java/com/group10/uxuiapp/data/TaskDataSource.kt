@@ -24,15 +24,16 @@ class TaskDataSource(private val taskDao: TaskDao) {
     fun getTodoListWithTaskById(todoListId: Int): Flow<TodoListWithTaskItem> = taskDao.getTodoListWithTaskById(todoListId)
 
     // Update Operations
-    suspend fun updateTodoList(todoList: TodoList, title: String? = null, isLiked: Boolean? = null, gifUrl: String? = null, dueDate: Long? = null) {
+    suspend fun updateTodoList(todoList: TodoList, title: String? = null, isLiked: Boolean? = null, gifUrl: String? = null, textColor: String? = null, dueDate: Long? = null) {
         val updatedTitle = title ?: todoList.title
         val updatedIsLiked = isLiked ?: todoList.isLiked
         val updatedGifUrl = gifUrl ?: todoList.gifUrl ?: ""
+        val updatedTextColor = textColor ?: todoList.textColor
         val updatedDueDate = dueDate ?: todoList.dueDate
 
         Log.d(
             "TaskDataSource",
-            "Updating TodoList: id=${todoList.id}, title=$updatedTitle, isLiked=$updatedIsLiked, gifUrl=$updatedGifUrl, dueDate=$updatedDueDate"
+            "Updating TodoList: id=${todoList.id}, title=$updatedTitle, isLiked=$updatedIsLiked, gifUrl=$updatedGifUrl, textColor=$updatedTextColor, dueDate=$updatedDueDate"
         )
 
         // Pass non-nullable values to the DAO
@@ -41,6 +42,7 @@ class TaskDataSource(private val taskDao: TaskDao) {
             title = updatedTitle,
             isLiked = updatedIsLiked,
             gifUrl = updatedGifUrl,
+            textColor = updatedTextColor,
             dueDate = updatedDueDate
         )
     }

@@ -30,6 +30,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.unit.IntOffset
@@ -38,6 +39,10 @@ import com.group10.uxuiapp.ui.navigation.AppNavigator
 import com.group10.uxuiapp.ui.todolist.view.components.*
 import com.group10.uxuiapp.ui.todolist.view.components.buttons.AddNewTodoListButton
 import com.group10.uxuiapp.ui.todolist.view.components.buttons.SettingsButton
+import com.group10.uxuiapp.data.GiphyActivity
+import com.group10.uxuiapp.data.data_class.TodoListWithTaskItem
+import com.group10.uxuiapp.ui.todolist.view.components.ColorPickerDialog
+import com.group10.uxuiapp.ui.todolist.view.components.ListNameInputDialog
 import com.group10.uxuiapp.ui.todolist.viewmodel.TodoListViewModel
 
 // Main TodoListScreen with Scaffold and LazyColumn
@@ -45,6 +50,10 @@ import com.group10.uxuiapp.ui.todolist.viewmodel.TodoListViewModel
 fun TodoListScreen(viewModel: TodoListViewModel, appNavigator: AppNavigator) {
     val query = remember { mutableStateOf("") }
     val popupOffset = remember { mutableStateOf(IntOffset.Zero) }
+
+    // Colorpicker relevance
+    val showColorPickerDialog = remember { mutableStateOf(false) }
+    val selectedColor = remember { mutableStateOf("#FFFFFF") }
 
     // Collect the lists from the ViewModel's Flow
     val todoListsWithItems by viewModel.lists.collectAsState(emptyList())
@@ -131,7 +140,10 @@ fun TodoListScreen(viewModel: TodoListViewModel, appNavigator: AppNavigator) {
             onGifSelect = {
                 viewModel.setSelectGifState(selectedTodoList!!)
             },
-            offset = popupOffset.value
+            offset = popupOffset.value,
+            onColorChange = {
+                viewModel.setColorPickState(selectedTodoList!!)
+            }
         )
 
 //        // Show GiphyDialog when needed
@@ -163,6 +175,10 @@ fun TodoListScreen(viewModel: TodoListViewModel, appNavigator: AppNavigator) {
             },
             onGifSelected = { todoList, gifUrl ->
                 viewModel.updateGifUrl(todoList.id, gifUrl)
+                viewModel.setNoneState()
+            },
+            onColorSelected = { todoList, color ->
+                viewModel.updateTextColor(todoList.id, color)
                 viewModel.setNoneState()
             },
             onDismiss = {
@@ -214,4 +230,3 @@ private fun TopAppBarWithMenu(query: MutableState<String>) {
         scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
     )
 }
-
