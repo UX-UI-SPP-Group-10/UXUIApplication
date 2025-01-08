@@ -7,17 +7,17 @@ import androidx.room.PrimaryKey
 @Entity(
     foreignKeys = [
         ForeignKey(
-            entity = TodoList::class,
+            entity = TaskItem::class,
             parentColumns = ["id"],
-            childColumns = ["todoListId"],
+            childColumns = ["TaskItemId"],
             onDelete = ForeignKey.CASCADE
         )
     ]
 )
-data class TaskItem(
+
+data class SupTask(
     @PrimaryKey(autoGenerate = true) val id: Int = 0,
     val label: String,
     val isComplete: Boolean = false,
-    val isfoldet: Boolean = false,
-    val todoListId: Int // Foreign key to TodoList
+    val taskItemId: Int // Foreign key to TaskItemId
 )

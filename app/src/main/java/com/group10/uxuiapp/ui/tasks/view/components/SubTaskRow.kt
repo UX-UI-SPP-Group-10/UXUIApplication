@@ -21,16 +21,16 @@ import com.group10.uxuiapp.ui.todolist.viewmodel.TodoListViewModel
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.runtime.remember
 import androidx.compose.ui.input.pointer.pointerInput
+import com.group10.uxuiapp.data.data_class.SubTask
 import com.group10.uxuiapp.ui.tasks.viewmodel.TaskViewModel
 
 
 @Composable
-fun TaskRowItem(
-    task: TaskItem,
+fun SubTaskRow(
+    task: SubTask,
     viewModel: TaskViewModel
 ) {
     var isChecked = task.isComplete
-    var isFoldet = task.isfoldet
 
     Box(
         modifier = Modifier
@@ -48,7 +48,7 @@ fun TaskRowItem(
                 .height(56.dp)
                 .pointerInput(Unit) {
                     // detectTapGestures only for the "empty space"
-                    detectTapGestures(onLongPress = { viewModel.selectTask(task) })
+                    detectTapGestures(onLongPress = { viewModel.selectSubtask(task) })
                 },
             verticalAlignment = Alignment.CenterVertically
         ) {
@@ -58,7 +58,7 @@ fun TaskRowItem(
                 checked = isChecked,
                 onCheckedChange = { newChecked ->
                     isChecked = newChecked
-                    viewModel.updateTaskItem(task, isComplete = newChecked)
+                    viewModel.updateSupTask(task, isComplete = newChecked)
                 },
                 colors = CheckboxDefaults.colors(
                     checkedColor = MaterialTheme.colorScheme.primary,
@@ -72,7 +72,7 @@ fun TaskRowItem(
             BasicTextField(
                 value = task.label,
                 onValueChange = { newText ->
-                    viewModel.updateTaskItem(task, label = newText)
+                    viewModel.updateSupTask(task, label = newText)
                 },
                 textStyle = MaterialTheme.typography.bodyLarge.copy(
                     textDecoration = if (isChecked) TextDecoration.LineThrough else null,
@@ -98,8 +98,6 @@ fun TaskRowItem(
                 }
                 it()
             }
-
-            TaskFolderButton(onClick = {isFoldet = !isFoldet}, isFoldet)
 
             Spacer(modifier = Modifier.weight(1f))
         }

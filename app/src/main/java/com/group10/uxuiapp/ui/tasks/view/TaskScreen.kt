@@ -35,10 +35,10 @@ import com.group10.uxuiapp.ui.navigation.AppNavigator
 import com.group10.uxuiapp.ui.tasks.view.components.EditTaskPopup
 import com.group10.uxuiapp.ui.tasks.viewmodel.TaskViewModel
 import com.group10.uxuiapp.ui.todolist.viewmodel.TodoListViewModel
-import okhttp3.internal.concurrent.Task
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.foundation.lazy.items
+import com.group10.uxuiapp.ui.tasks.view.components.SubTaskRow
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -54,6 +54,7 @@ fun TaskScreen(todoListId: Int, appNavigator: AppNavigator, viewModel: TaskViewM
     // Observe the current TodoList and its tasks
     val taskListWithItems by viewModel.currentTodoList.collectAsState()
     val selectedTask by viewModel.selectedTaskItem.collectAsState()
+    val taskItemWithSubTask by viewModel.lists.collectAsState(emptyList())
 
     if (taskListWithItems == null) {
         // Loading state
@@ -118,6 +119,13 @@ fun TaskScreen(todoListId: Int, appNavigator: AppNavigator, viewModel: TaskViewM
                         key = { task -> task.id }
                     ) { task ->
                         TaskRowItem(task = task, viewModel = viewModel)
+                        val taskWithSubTasks = taskItemWithSubTask.find { it.taskItem.id == task.id }
+
+                        if (taskWithSubTasks != null && !task.isfoldet) {
+                            taskWithSubTasks.subTasks.forEach { subTask ->
+                                SubTaskRow(subTask, viewModel)
+                            }
+                        }
                     }
                 }
 
