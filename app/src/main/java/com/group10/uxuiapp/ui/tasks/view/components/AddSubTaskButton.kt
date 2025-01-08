@@ -11,16 +11,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.material3.Button
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.KeyboardArrowDown
-import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material.icons.outlined.AddCircle
 import androidx.compose.material3.ButtonDefaults
 
 @Composable
-fun TaskFolderButton(onClick: () -> Unit, isFoldet: Boolean) {
+fun AddSubTaskButton(onClick: () -> Unit) {
     Box(
         modifier = Modifier.fillMaxWidth(),
-        contentAlignment = Alignment.BottomEnd
+        contentAlignment = Alignment.BottomStart
     ) {
         Button(
             onClick = onClick,
@@ -38,9 +36,13 @@ fun TaskFolderButton(onClick: () -> Unit, isFoldet: Boolean) {
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 Icon(
-                    imageVector = if(isFoldet)Icons.Filled.KeyboardArrowDown else Icons.Filled.KeyboardArrowUp,
-                    contentDescription = "fold in or out",
+                    imageVector = Icons.Outlined.AddCircle,
+                    contentDescription = "Add sub Task",
                     modifier = Modifier.size(20.dp)
+                )
+                Text(
+                    text = "Add sub task",
+                    style = MaterialTheme.typography.headlineMedium,
                 )
             }
         }

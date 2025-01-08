@@ -95,7 +95,8 @@ fun TaskRowItem(
                 it()
             }
 
-            TaskFolderButton(onClick = {isFoldet = !isFoldet}, isFoldet)
+            TaskFolderButton(onClick = {isFoldet = !isFoldet
+                viewModel.updateTaskItem(task, isFolded = isFoldet)}, isFoldet)
 
             Spacer(modifier = Modifier.weight(1f))
         }

@@ -32,6 +32,8 @@ import com.group10.uxuiapp.ui.navigation.AppNavigator
 import com.group10.uxuiapp.ui.tasks.view.components.EditTaskPopup
 import com.group10.uxuiapp.ui.tasks.viewmodel.TaskViewModel
 import androidx.compose.foundation.lazy.items
+import com.group10.uxuiapp.data.data_class.SubTask
+import com.group10.uxuiapp.ui.tasks.view.components.AddSubTaskButton
 import com.group10.uxuiapp.ui.tasks.view.components.SubTaskRow
 
 
@@ -84,6 +86,10 @@ fun TaskScreen(todoListId: Int, appNavigator: AppNavigator, viewModel: TaskViewM
             )
         },
         bottomBar = {
+            AddSubTaskButton(onClick = {
+                val newSubTask = selectedTask.let { SubTask(label = "", taskItemId = it!!.id) }
+                viewModel.addSupTask(newSubTask)
+            })
             AddTaskButton(onClick = {
                 // Add a new task to the TodoList
                 val newTask = TaskItem(label = "", todoListId = todoListId)

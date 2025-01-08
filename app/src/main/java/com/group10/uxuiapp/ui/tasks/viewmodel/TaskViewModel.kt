@@ -115,13 +115,13 @@ class TaskViewModel(private val taskDataSource: TaskDataSource) : ViewModel() {
         TODO()
     }
 
-    /*
-    fun addSupTask(supTask: SupTask) {
+
+    fun addSupTask(subTask: SubTask) {
         viewModelScope.launch {
-            Log.d(TAG, "Adding TaskItem: $supTask")
+            Log.d(TAG, "Adding TaskItem: $subTask")
             try {
-                taskDataSource.insertSubTsk(supTask)
-                Log.d(TAG, "TaskItem added successfully: $supTask")
+                taskDataSource.insertSubTsk(subTask)
+                Log.d(TAG, "TaskItem added successfully: $subTask")
             } catch (e: Exception) {
                 Log.e(TAG, "Error adding TaskItem: ${e.message}", e)
             }
@@ -132,12 +132,12 @@ class TaskViewModel(private val taskDataSource: TaskDataSource) : ViewModel() {
         viewModelScope.launch {
             Log.d(TAG, "Deleting TaskItem: $subTask")
             try {
-                taskDataSource.delateSupTask(subTask)
+                taskDataSource.deleteSubTask(subTask)
                 Log.d(TAG, "TaskItem deleted successfully: $subTask")
             } catch (e: Exception) {
                 Log.e(TAG, "Error deleting TaskItem: ${e.message}", e)
             }
         }
-    }*/
+    }
 
 }
