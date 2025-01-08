@@ -43,6 +43,8 @@ import com.group10.uxuiapp.data.data_class.TodoListWithTaskItem
 import com.group10.uxuiapp.ui.navigation.AppNavigator
 import com.group10.uxuiapp.ui.todolist.view.components.buttons.IsLikedButton
 import com.group10.uxuiapp.ui.todolist.viewmodel.TodoListViewModel
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.unit.dp
 
 
 @Composable
@@ -55,6 +57,14 @@ fun TodoListCard(
 ) {
     var cardGlobalOffset by remember { mutableStateOf(Offset.Zero) }
     var cardHeight by remember { mutableStateOf(0) }
+
+    val density = LocalDensity.current
+
+    val optionsPopupOffset = 50.dp
+    val extraYOffsetPx = with(density) { optionsPopupOffset.toPx().toInt() }
+
+
+
 
     // Remember the background based on gifUrl
     if (!todoList.gifUrl.isNullOrEmpty()) {
@@ -100,7 +110,7 @@ fun TodoListCard(
                         // Calculate the position where the popup should appear (below the card)
                         val finalOffset = IntOffset(
                             x = cardGlobalOffset.x.toInt(),
-                            y = (cardGlobalOffset.y + cardHeight).toInt()
+                            y = (cardGlobalOffset.y + cardHeight).toInt() - extraYOffsetPx  // adjust y offset
                         )
                         onPositionChange(finalOffset, todoList)
                     }

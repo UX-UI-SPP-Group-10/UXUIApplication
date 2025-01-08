@@ -1,9 +1,5 @@
 package com.group10.uxuiapp.ui.todolist.view
 
-import GiphyDialog
-import android.widget.Toast
-import androidx.compose.foundation.background
-import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
@@ -13,7 +9,6 @@ import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -34,20 +29,14 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.zIndex
-import com.example.uxuiapplication.ChangeButton
 import com.group10.uxuiapp.ui.navigation.AppNavigator
 import com.group10.uxuiapp.ui.todolist.view.components.*
 import com.group10.uxuiapp.ui.todolist.view.components.buttons.AddNewTodoListButton
 import com.group10.uxuiapp.ui.todolist.view.components.buttons.SettingsButton
-import com.group10.uxuiapp.ui.todolist.viewmodel.TodoListState
 import com.group10.uxuiapp.ui.todolist.viewmodel.TodoListViewModel
 
 // Main TodoListScreen with Scaffold and LazyColumn
@@ -59,7 +48,7 @@ fun TodoListScreen(viewModel: TodoListViewModel, appNavigator: AppNavigator) {
     // Collect the lists from the ViewModel's Flow
     val todoListsWithItems by viewModel.lists.collectAsState(emptyList())
     val selectedTodoList by viewModel.selectedTodoList.collectAsState()
-    val todoListState by viewModel.todoListState.collectAsState()
+    val popupState by viewModel.todoListState.collectAsState()
     val listPositionState = rememberLazyListState()
 
 
@@ -118,6 +107,9 @@ fun TodoListScreen(viewModel: TodoListViewModel, appNavigator: AppNavigator) {
                         appNavigator = appNavigator,
                         taskListsWithItems = todoListsWithItems
                     )
+                    if (todoList == selectedTodoList) {
+                        Spacer(modifier = Modifier.height(15.dp)) // Adjust height as needed
+                    }
                 }
             }
         }
@@ -160,7 +152,7 @@ fun TodoListScreen(viewModel: TodoListViewModel, appNavigator: AppNavigator) {
 //        }
 
         PopupManager(
-            todoListState = todoListState,
+            popupState = popupState,
             onNewListConfirm = { name ->
                 viewModel.addTodoList(name)
             },

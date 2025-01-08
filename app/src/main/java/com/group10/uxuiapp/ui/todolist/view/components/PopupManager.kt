@@ -8,14 +8,14 @@ import com.group10.uxuiapp.ui.todolist.viewmodel.TodoListState
 
 @Composable
 fun PopupManager(
-    todoListState: TodoListState,
+    popupState: TodoListState,
     // Provide any callbacks your dialogs need
     onNewListConfirm: (String) -> Unit,
     onRenameConfirm: (TodoList, String) -> Unit,
     onGifSelected: (TodoList, String) -> Unit,
     onDismiss: () -> Unit
 ) {
-    when (todoListState) {
+    when (popupState) {
         is TodoListState.None -> {
             // No dialog to show
         }
@@ -35,7 +35,7 @@ fun PopupManager(
             ListNameInputDialog(
                 onDismiss = onDismiss,
                 onConfirm = { newName ->
-                    onRenameConfirm(todoListState.todoList, newName)
+                    onRenameConfirm(popupState.todoList, newName)
                 }
             )
         }
@@ -45,7 +45,7 @@ fun PopupManager(
             GiphyDialog(
                 context = LocalContext.current,
                 onGifSelected = { gifUrl ->
-                    onGifSelected(todoListState.todoList, gifUrl)
+                    onGifSelected(popupState.todoList, gifUrl)
                 },
                 onDismissed = {
                     onDismiss()
