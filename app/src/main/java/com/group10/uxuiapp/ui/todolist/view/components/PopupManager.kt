@@ -2,6 +2,7 @@ package com.group10.uxuiapp.ui.todolist.view.components
 
 import GiphyDialog
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
 import androidx.compose.ui.platform.LocalContext
 import com.group10.uxuiapp.data.data_class.TodoList
 import com.group10.uxuiapp.ui.todolist.viewmodel.TodoListState
@@ -13,6 +14,7 @@ fun PopupManager(
     onNewListConfirm: (String) -> Unit,
     onRenameConfirm: (TodoList, String) -> Unit,
     onGifSelected: (TodoList, String) -> Unit,
+    onColorSelected: (TodoList, String) -> Unit,
     onDismiss: () -> Unit
 ) {
     when (popupState) {
@@ -49,6 +51,16 @@ fun PopupManager(
                 },
                 onDismissed = {
                     onDismiss()
+                }
+            )
+        }
+
+        is TodoListState.ColorPick -> {
+            // Show color picker dialog
+            ColorPickerDialog(
+                onDismissed = onDismiss,
+                onColorSelected = { color ->
+                    onColorSelected(popupState.todoList, color)
                 }
             )
         }

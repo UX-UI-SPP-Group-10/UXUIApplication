@@ -160,7 +160,7 @@ fun TodoListCard(
             Column{
                 Text(
                     text = todoList.title,
-                    color = MaterialTheme.colorScheme.background,
+                    color = Color(android.graphics.Color.parseColor(todoList.textColor)),
                     modifier = Modifier.width(320.dp)
                 )
                 DueByDate(todoList)

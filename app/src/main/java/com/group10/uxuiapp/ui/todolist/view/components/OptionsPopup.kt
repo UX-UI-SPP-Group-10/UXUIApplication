@@ -33,6 +33,7 @@ fun OptionsPopup(
     onDelete: () -> Unit,
     onUpdate: () -> Unit,
     onGifSelect: () -> Unit,
+    onColorChange: () -> Unit,
     offset: IntOffset
 ) {
     val boxHeight = 60.dp
@@ -91,7 +92,16 @@ fun OptionsPopup(
                     }
                     Spacer(modifier = androidx.compose.ui.Modifier.width(8.dp))
 
-                    // 4) Delete
+                    // 4) Change color
+                    IconButton(onClick = onColorChange) {
+                        Icon(
+                            painter = painterResource(id = R.drawable.palette),
+                            contentDescription = "Color",
+                            tint = MaterialTheme.colorScheme.onTertiaryContainer
+                        )
+                    }
+
+                    // 5) Delete
                     IconButton(onClick = onDelete) {
                         Icon(
                             painter = painterResource(id = R.drawable.delete),

@@ -55,6 +55,11 @@ class TodoListViewModel(private val taskDataSource: TaskDataSource) : ViewModel(
         _todoListState.value = TodoListState.SelectGif(todoList)
     }
 
+    fun setColorPickState(todoList: TodoList) {
+        Log.d(TAG, "Setting ColorPick state for TodoList with id: ${todoList.id}")
+        _todoListState.value = TodoListState.ColorPick(todoList)
+    }
+
     fun setNoneState() {
         Log.d(TAG, "Setting None state")
         _todoListState.value = TodoListState.None

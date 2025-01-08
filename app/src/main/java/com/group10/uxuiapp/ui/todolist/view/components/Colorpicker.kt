@@ -26,25 +26,24 @@ import androidx.compose.ui.state.ToggleableState
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 
+
 @Composable
-fun ColorPickerDialog(isDialogOpen: MutableState<Boolean>, onColorSelected: (String) -> Unit) {
-    if (isDialogOpen.value) {
-        AlertDialog(
-            onDismissRequest = { isDialogOpen.value = false },
-            title = { Text("Pick a Color") },
-            text = {
-                ColorPicker(onColorSelect = { hexColor ->
-                    onColorSelected(hexColor)
-                    isDialogOpen.value = false
+fun ColorPickerDialog(onDismissed: () -> Unit,  onColorSelected: (String) -> Unit) {
+    AlertDialog(
+        onDismissRequest = { onDismissed },
+        title = { Text("Pick a Color") },
+        text = {
+            ColorPicker(
+                onColorSelect = { hexColor ->
+                onColorSelected(hexColor)
                 })
-            },
-            confirmButton = {
-                Button(onClick = { isDialogOpen.value = false }) {
-                    Text("Close")
-                }
+        },
+        confirmButton = {
+            Button(onClick = onDismissed ) {
+                Text("Close")
             }
-        )
-    }
+        }
+    )
 }
 
 @Composable
