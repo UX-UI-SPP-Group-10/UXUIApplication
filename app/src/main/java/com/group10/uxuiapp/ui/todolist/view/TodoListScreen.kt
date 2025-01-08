@@ -419,7 +419,7 @@ private fun LikedButton(todoList: TodoList, onClick: () -> Unit) {
 private fun DueByDate(todoList: TodoList){
     todoList.dueDate?.let { timestamp ->
         val formattedDate =
-            java.text.SimpleDateFormat("MMM d", java.util.Locale.getDefault()).format(timestamp)
+            java.text.SimpleDateFormat("MMM dd", java.util.Locale.getDefault()).format(timestamp)
         Text(
             text = "Due: $formattedDate",
             color = MaterialTheme.colorScheme.background,
