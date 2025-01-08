@@ -67,6 +67,7 @@ import com.group10.uxuiapp.data.data_class.TodoList
 import com.group10.uxuiapp.ui.navigation.AppNavigator
 import com.group10.uxuiapp.data.GiphyActivity
 import com.group10.uxuiapp.data.data_class.TodoListWithTaskItem
+import com.group10.uxuiapp.ui.todolist.view.components.ColorPickerDialog
 import com.group10.uxuiapp.ui.todolist.view.components.ListNameInputDialog
 import com.group10.uxuiapp.ui.todolist.view.components.SettingsButton
 import com.group10.uxuiapp.ui.todolist.viewmodel.TodoListViewModel
@@ -82,6 +83,10 @@ fun TodoListScreen(viewModel: TodoListViewModel, appNavigator: AppNavigator) {
     val query = remember { mutableStateOf("") }
     val changeButtonAnchor = remember { mutableStateOf<Offset?>(null) }
     val selectedIndex = remember { mutableStateOf<Int?>(null) }
+
+    // Colorpicker relevance
+    val showColorPickerDialog = remember { mutableStateOf(false) }
+    val selectedColor = remember { mutableStateOf("#FFFFFF") }
 
     // Collect the lists from the ViewModel's Flow
     val todoListsWithItems by viewModel.lists.collectAsState(emptyList())
@@ -167,7 +172,8 @@ fun TodoListScreen(viewModel: TodoListViewModel, appNavigator: AppNavigator) {
                     onOpdate = { showDialog.value = true },
                     onGifSelect = {
                         showGiphyDialog.value = true
-                    }
+                    },
+                    onColorChange = {showColorPickerDialog.value = true}
                 )
             }
         }
@@ -231,6 +237,20 @@ fun TodoListScreen(viewModel: TodoListViewModel, appNavigator: AppNavigator) {
                 }
             )
         }
+
+        // Show ColorPickerDialog
+        if (showColorPickerDialog.value) {
+            ColorPickerDialog(
+                isDialogOpen = showColorPickerDialog,
+                onColorSelected = { color ->
+                    selectedTodoList?.let { todoList ->
+                        viewModel.updateTextColor(todoList.id, color)
+                        showColorPickerDialog.value = false
+                    }
+                }
+            )
+        }
+
     }
 }
 
@@ -383,7 +403,7 @@ private fun ListItem(
             ) {
                 Text(
                     text = todoList.title,
-                    color = MaterialTheme.colorScheme.background,
+                    color = Color(android.graphics.Color.parseColor(todoList.textColor)),
                     modifier = Modifier.width(320.dp)
                 )
                 LikedButton(todoList, onClick = {

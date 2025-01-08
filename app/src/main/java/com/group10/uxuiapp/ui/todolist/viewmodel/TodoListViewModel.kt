@@ -106,12 +106,13 @@ class TodoListViewModel(private val taskDataSource: TaskDataSource) : ViewModel(
         }
     }
 
-    fun updateTodoList(todoList: TodoList, title: String? = null, isLiked: Boolean? = null, newIndex: Int? = null) {
+    fun updateTodoList(todoList: TodoList, title: String? = null, isLiked: Boolean? = null, textColor: String? = null, newIndex: Int? = null) {
         viewModelScope.launch {
             try {
                 val updatedTodoList = todoList.copy(
                     title = title ?: todoList.title,
-                    isLiked = isLiked ?: todoList.isLiked
+                    isLiked = isLiked ?: todoList.isLiked,
+                    textColor = textColor ?: todoList.textColor
                 )
 
                 // If newIndex is provided, update the listIndex
@@ -170,6 +171,17 @@ class TodoListViewModel(private val taskDataSource: TaskDataSource) : ViewModel(
             } catch (e: Exception) {
                 Log.e(TAG, "Error deleting TaskItem: ${e.message}", e)
             }
+        }
+    }
+
+    fun updateTextColor(todoListId: Int, newColor: String) {
+        viewModelScope.launch {
+            val todoList = _lists.value.find { it.todoList.id == todoListId }?.todoList
+            todoList?.let {
+                it.textColor = newColor
+                taskDataSource.updateTodoList(it)
+                Log.d(TAG, "Updated text color for TodoList id: $todoListId")
+            } ?: Log.e(TAG, "TodoList not found for id: $todoListId")
         }
     }
 }

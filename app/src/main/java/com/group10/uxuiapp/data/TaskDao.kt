@@ -33,14 +33,16 @@ interface TaskDao {
     SET 
         title = :title,
         isLiked = :isLiked,
-        gifUrl = :gifUrl
+        gifUrl = :gifUrl,
+        textColor = :textColor
     WHERE id = :id
 """)
     suspend fun updateTodoList(
         id: Int,
         title: String,
         isLiked: Boolean,
-        gifUrl: String
+        gifUrl: String,
+        textColor: String
     )
 
 

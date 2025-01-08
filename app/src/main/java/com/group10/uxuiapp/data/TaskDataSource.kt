@@ -24,10 +24,11 @@ class TaskDataSource(private val taskDao: TaskDao) {
     fun getTodoListWithTaskById(todoListId: Int): Flow<TodoListWithTaskItem> = taskDao.getTodoListWithTaskById(todoListId)
 
     // Update Operations
-    suspend fun updateTodoList(todoList: TodoList, title: String? = null, isLiked: Boolean? = null, gifUrl: String? = null) {
+    suspend fun updateTodoList(todoList: TodoList, title: String? = null, isLiked: Boolean? = null, gifUrl: String? = null, textColor: String? = null) {
         val updatedTitle = title ?: todoList.title
         val updatedIsLiked = isLiked ?: todoList.isLiked
         val updatedGifUrl = gifUrl ?: todoList.gifUrl ?: ""
+        val updatedTextColor = textColor ?: todoList.textColor
 
         Log.d(
             "TaskDataSource",
@@ -39,7 +40,9 @@ class TaskDataSource(private val taskDao: TaskDao) {
             id = todoList.id,
             title = updatedTitle,
             isLiked = updatedIsLiked,
-            gifUrl = updatedGifUrl
+            gifUrl = updatedGifUrl,
+            textColor = updatedTextColor
+
         )
     }
 

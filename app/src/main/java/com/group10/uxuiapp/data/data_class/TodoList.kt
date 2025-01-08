@@ -9,5 +9,6 @@ data class TodoList(
     var title: String,
     val isLiked: Boolean = false,
     val gifUrl: String? = null, // Add this field to store the GIF URL
-    var listIndex: Int = 0
+    var listIndex: Int = 0,
+    var textColor: String = "#FFFFFF" // Default is white
 )
