@@ -113,26 +113,25 @@ fun TodoListScreen(viewModel: TodoListViewModel, appNavigator: AppNavigator) {
                 }
             }
         }
-        if (selectedTodoList != null) {
-            OptionsPopup(
-                expanded = true,
-                onDismissRequest = { viewModel.selectTodoList(null) },
-                onClose = {
-                    viewModel.selectTodoList(null)
-                },
-                onDelete = {
-                    viewModel.removeTodoList(selectedTodoList!!)
-                    viewModel.selectTodoList(null)
-                },
-                onUpdate = {
-                    viewModel.setRenameState(selectedTodoList!!)
-                },
-                onGifSelect = {
-                    viewModel.setSelectGifState(selectedTodoList!!)
-                },
-                offset = popupOffset.value
-            )
-        }
+
+        OptionsPopup(
+            expanded = selectedTodoList != null,
+            onDismissRequest = { viewModel.selectTodoList(null) },
+            onClose = {
+                viewModel.selectTodoList(null)
+            },
+            onDelete = {
+                viewModel.removeTodoList(selectedTodoList!!)
+                viewModel.selectTodoList(null)
+            },
+            onUpdate = {
+                viewModel.setRenameState(selectedTodoList!!)
+            },
+            onGifSelect = {
+                viewModel.setSelectGifState(selectedTodoList!!)
+            },
+            offset = popupOffset.value
+        )
 
 //        // Show GiphyDialog when needed
 //        if (showGiphyDialog.value) {
