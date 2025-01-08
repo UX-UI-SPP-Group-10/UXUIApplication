@@ -1,41 +1,27 @@
 package com.group10.uxuiapp.ui.todolist.view
 
 import GiphyDialog
-import android.content.Intent
 import android.util.Log
 import android.widget.Toast
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectTapGestures
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.calculateEndPadding
 import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Favorite
-import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.*
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
@@ -44,33 +30,19 @@ import androidx.compose.runtime.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLayoutDirection
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
-import coil.compose.rememberAsyncImagePainter
-import coil.decode.GifDecoder
-import coil.request.ImageRequest
 import com.example.uxuiapplication.ChangeButton
-import com.group10.uxuiapp.data.data_class.TodoList
 import com.group10.uxuiapp.ui.navigation.AppNavigator
-import com.group10.uxuiapp.data.GiphyActivity
-import com.group10.uxuiapp.data.data_class.TodoListWithTaskItem
-import com.group10.uxuiapp.ui.todolist.view.components.ListNameInputDialog
-import com.group10.uxuiapp.ui.todolist.view.components.SettingsButton
+import com.group10.uxuiapp.ui.todolist.view.components.*
 import com.group10.uxuiapp.ui.todolist.viewmodel.TodoListViewModel
-import kotlin.collections.find
 
 // Main TodoListScreen with Scaffold and LazyColumn
 @Composable
@@ -81,7 +53,6 @@ fun TodoListScreen(viewModel: TodoListViewModel, appNavigator: AppNavigator) {
     val context = LocalContext.current
     val query = remember { mutableStateOf("") }
     val changeButtonAnchor = remember { mutableStateOf<Offset?>(null) }
-    val selectedIndex = remember { mutableStateOf<Int?>(null) }
 
     // Collect the lists from the ViewModel's Flow
     val todoListsWithItems by viewModel.lists.collectAsState(emptyList())
@@ -110,7 +81,7 @@ fun TodoListScreen(viewModel: TodoListViewModel, appNavigator: AppNavigator) {
         Scaffold(
             topBar = { TopAppBarWithMenu(query) },
             floatingActionButton = {
-                AddNewListButton {
+                AddNewTodoListButton {
                     showDialog.value = true
                 }
             }
@@ -129,7 +100,7 @@ fun TodoListScreen(viewModel: TodoListViewModel, appNavigator: AppNavigator) {
                 ) { taskListWithItems ->
                     val isSelected = (selectedTodoList?.id == taskListWithItems.todoList.id)
 
-                    ListItem(
+                    TodoListCard(
                         todoList = taskListWithItems.todoList,
                         isSelected = isSelected,
                         onPositionChange = { offset, todoList ->
@@ -275,178 +246,4 @@ private fun TopAppBarWithMenu(query: MutableState<String>) {
         colors = TopAppBarDefaults.topAppBarColors(),
         scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
     )
-}
-
-@Composable
-private fun ListItem(
-    todoList: TodoList,
-    isSelected: Boolean,
-    viewModel: TodoListViewModel,
-    appNavigator: AppNavigator,
-    onPositionChange: (Offset, TodoList) -> Unit,
-    taskListsWithItems: List<TodoListWithTaskItem>
-) {
-    val context = LocalContext.current
-    val listNameState = remember { mutableStateOf(todoList.title) }
-    val showDialog = remember { mutableStateOf(false) }
-    val density = LocalDensity.current
-    var itemPosition by remember { mutableStateOf(Offset.Zero) }
-
-    // Remember the background based on gifUrl
-    if (!todoList.gifUrl.isNullOrEmpty()) {
-
-        Modifier.fillMaxSize()
-            .then(
-                Modifier.background(Color.Transparent)
-            )
-
-    } else {
-        Modifier.background(
-            Brush.linearGradient(
-                colors = listOf(
-                    MaterialTheme.colorScheme.primary,
-                    MaterialTheme.colorScheme.secondary,
-                    Color(0xFFC0DCEF)
-                ),
-                start = Offset(0f, 0f),
-                end = Offset(0f, Float.POSITIVE_INFINITY)
-            )
-        )
-    }
-
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 10.dp)
-    ) {
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(100.dp)
-                .clip(RoundedCornerShape(20.dp))
-                .pointerInput(Unit) {
-                    detectTapGestures(
-                        onTap = {
-                            val refreshedTaskList = taskListsWithItems.find { it.todoList.id == todoList.id }
-                            Log.d("ListItem", "Tapped Item Index: Task ID: ${todoList.id}, Refreshed Task: ${refreshedTaskList?.todoList?.id}")
-                            if (refreshedTaskList != null) {
-                                appNavigator.navigateToTask(refreshedTaskList.todoList.id)
-                            } else {
-                                Log.e("ListItem", "No valid list to navigate to.")
-                            }
-                        },
-                        onLongPress = {
-                            val yOffset = with(density) { itemPosition.y * ( + 1) + 4.dp.toPx() }
-                            onPositionChange(Offset(98f, yOffset), todoList)
-                        }
-                    )
-                }
-        ) {
-            // GIF as background (placed first to be behind everything else)
-            if (!todoList.gifUrl.isNullOrEmpty()) {
-                val gifPainter = rememberAsyncImagePainter(
-                    model = ImageRequest.Builder(LocalContext.current)
-                        .data(todoList.gifUrl)
-                        .decoderFactory(GifDecoder.Factory())
-                        .build()
-                )
-                Image(
-                    painter = gifPainter,
-                    contentDescription = "GIF Background",
-                    modifier = Modifier.fillMaxSize(),
-                    contentScale = ContentScale.Crop // Ensures the GIF fills the box area
-                )
-            } else {
-                // Default gradient background if no GIF is provided
-                Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .background(
-                            Brush.linearGradient(
-                                colors = listOf(
-                                    MaterialTheme.colorScheme.primary,
-                                    MaterialTheme.colorScheme.secondary,
-                                    Color(0xFFC0DCEF)
-                                ),
-                                start = Offset(0f, 0f),
-                                end = Offset(0f, Float.POSITIVE_INFINITY)
-                            )
-                        )
-                )
-            }
-            Row(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(16.dp),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.Top
-            ) {
-                Text(
-                    text = todoList.title,
-                    color = MaterialTheme.colorScheme.background,
-                    modifier = Modifier.width(320.dp)
-                )
-                LikedButton(todoList, onClick = {
-                    viewModel.updateTodoList(todoList, isLiked = !todoList.isLiked)
-                })
-            }
-        }
-    }
-
-    if (isSelected) {
-        Spacer(modifier = Modifier.height(24.dp))
-    }
-}
-
-@Composable
-private fun LikedButton(todoList: TodoList, onClick: () -> Unit) {
-    val isLiked = todoList.isLiked
-
-    Icon(
-        imageVector = if (isLiked) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
-        contentDescription = if (isLiked) "Liked" else "Add Favorite",
-        modifier = Modifier
-            .size(25.dp)
-            .clickable { onClick() }, // Use the passed lambda here
-        tint = if (isLiked) Color.Red else Color.White
-    )
-}
-
-
-
-
-// Floating Action Button composable for adding a new list item
-@Composable
-private fun AddNewListButton(onClick: () -> Unit) {
-    FloatingActionButton(
-        onClick = onClick,
-        containerColor = Color(0xFF4658FF),
-        contentColor = Color.White,
-        shape = RoundedCornerShape(32.dp),
-        modifier = Modifier
-            .padding(16.dp)
-            .width(135.dp)
-            .height(60.dp)
-            .offset(x = 15.dp, y = (-10).dp)
-    ) {
-        // Row to position icon and text horizontally
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.padding(horizontal = 8.dp)
-        ) {
-            Icon(
-                imageVector = Icons.Default.Add,
-                contentDescription = "Add Item",
-                modifier = Modifier.size(30.dp)
-            )
-            Spacer(modifier = Modifier.width(8.dp))
-            Text(
-                text = "NEW LIST",
-                style = MaterialTheme.typography.bodyMedium.copy(
-                    fontSize = 14.sp,
-                    fontWeight = FontWeight.Bold
-                )
-            )
-        }
-    }
 }
