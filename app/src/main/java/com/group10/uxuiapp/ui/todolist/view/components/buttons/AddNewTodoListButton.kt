@@ -1,4 +1,4 @@
-package com.group10.uxuiapp.ui.todolist.view.components
+package com.group10.uxuiapp.ui.todolist.view.components.buttons
 
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer

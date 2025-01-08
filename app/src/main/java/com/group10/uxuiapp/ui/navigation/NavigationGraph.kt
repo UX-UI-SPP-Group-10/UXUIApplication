@@ -10,7 +10,6 @@ import androidx.compose.animation.scaleOut
 import androidx.compose.runtime.Composable
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.lifecycle.viewmodel.viewModelFactory
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -18,7 +17,6 @@ import com.group10.uxuiapp.ui.todolist.view.TodoListScreen
 import com.group10.uxuiapp.ui.tasks.view.TaskScreen
 import com.group10.uxuiapp.ui.tasks.viewmodel.TaskViewModel
 import com.group10.uxuiapp.ui.todolist.viewmodel.TodoListViewModel
-import com.group10.uxuiapp.ui.todolist.viewmodel.TodoListViewModelFactory
 
 @OptIn(ExperimentalAnimationApi::class)
 @Composable
@@ -36,10 +34,10 @@ fun NavigationGraph(
 
     NavHost(
         navController = navController,
-        startDestination = Screen.TodoList.route
+        startDestination = Screen.TodoListScreen.route
     ) {
         // TodoListScreen
-        composable(route = Screen.TodoList.route) {
+        composable(route = Screen.TodoListScreen.route) {
             TodoListScreen(
                 viewModel = todoListViewModel,
                 appNavigator = appNavigator
@@ -48,7 +46,7 @@ fun NavigationGraph(
 
         // TaskScreen
         composable(
-            route = Screen.Tasks.route,
+            route = Screen.TasksScreen.route,
             enterTransition = {
                 scaleIn(
                     initialScale = 0.8f,
