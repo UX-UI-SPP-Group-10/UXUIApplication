@@ -1,7 +1,6 @@
 package com.group10.uxuiapp.ui.todolist.view
 
 import GiphyDialog
-import android.content.Intent
 import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.Image
@@ -10,6 +9,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -24,7 +24,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
@@ -381,14 +380,18 @@ private fun ListItem(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.Top
             ) {
-                Text(
-                    text = todoList.title,
-                    color = MaterialTheme.colorScheme.background,
-                    modifier = Modifier.width(320.dp)
-                )
+                Column{
+                    Text(
+                        text = todoList.title,
+                        color = MaterialTheme.colorScheme.background,
+                        modifier = Modifier.width(320.dp)
+                    )
+                    DueByDate(todoList)
+                }
                 LikedButton(todoList, onClick = {
                     viewModel.updateTodoList(todoList, isLiked = !todoList.isLiked)
-                })
+                }
+                )
             }
         }
     }
@@ -412,8 +415,19 @@ private fun LikedButton(todoList: TodoList, onClick: () -> Unit) {
     )
 }
 
-
-
+@Composable
+private fun DueByDate(todoList: TodoList){
+    todoList.dueDate?.let { timestamp ->
+        val formattedDate =
+            java.text.SimpleDateFormat("MMM d", java.util.Locale.getDefault()).format(timestamp)
+        Text(
+            text = "Due: $formattedDate",
+            color = MaterialTheme.colorScheme.background,
+            fontSize = 12.sp,
+            modifier = Modifier.padding(start = 4.dp)
+        )
+    }
+}
 
 // Floating Action Button composable for adding a new list item
 @Composable

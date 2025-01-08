@@ -1,7 +1,9 @@
 package com.group10.uxuiapp.ui.todolist.viewmodel
 
 import android.util.Log
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewModelScope
 import com.group10.uxuiapp.data.data_class.TodoList
 import com.group10.uxuiapp.data.data_class.TodoListWithTaskItem
@@ -171,5 +173,11 @@ class TodoListViewModel(private val taskDataSource: TaskDataSource) : ViewModel(
                 Log.e(TAG, "Error deleting TaskItem: ${e.message}", e)
             }
         }
+    }
+
+    val taskWithDueDates: LiveData<List<TodoList>> = taskDataSource.getTodoListsWithDueDates().asLiveData()
+
+    fun getTaskDueBefore(timestamp: Long): LiveData<List<TodoList>> {
+        return taskDataSource.getTodoListsDueBefore(timestamp).asLiveData()
     }
 }

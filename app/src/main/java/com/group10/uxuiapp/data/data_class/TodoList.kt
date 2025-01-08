@@ -9,5 +9,6 @@ data class TodoList(
     var title: String,
     val isLiked: Boolean = false,
     val gifUrl: String? = null, // Add this field to store the GIF URL
+    val dueDate: Long? = null,
     var listIndex: Int = 0
 )
