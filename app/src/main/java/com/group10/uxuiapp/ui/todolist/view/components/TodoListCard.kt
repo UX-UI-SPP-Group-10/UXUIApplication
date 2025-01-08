@@ -32,6 +32,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import coil.compose.rememberAsyncImagePainter
 import coil.decode.GifDecoder
@@ -49,10 +50,11 @@ fun TodoListCard(
     todoList: TodoList,
     viewModel: TodoListViewModel,
     appNavigator: AppNavigator,
-    onPositionChange: (Offset, TodoList) -> Unit,
+    onPositionChange: (IntOffset, TodoList) -> Unit,
     taskListsWithItems: List<TodoListWithTaskItem>
 ) {
     var cardGlobalOffset by remember { mutableStateOf(Offset.Zero) }
+    var cardHeight by remember { mutableStateOf(0) }
 
     // Remember the background based on gifUrl
     if (!todoList.gifUrl.isNullOrEmpty()) {
@@ -83,25 +85,23 @@ fun TodoListCard(
             .clip(RoundedCornerShape(20.dp))
             .onGloballyPositioned { layoutCoordinates ->
                 cardGlobalOffset = layoutCoordinates.localToRoot(Offset.Zero)
+                cardHeight = layoutCoordinates.size.height
             }
             .pointerInput(Unit) {
                 detectTapGestures(
                     onTap = {
-                        // normal tap
+                        // Normal tap
                         val refreshedTaskList = taskListsWithItems.find { it.todoList.id == todoList.id }
                         if (refreshedTaskList != null) {
                             appNavigator.navigateToTask(refreshedTaskList.todoList.id)
                         }
                     },
-                    onLongPress = { localPressOffset ->
-                        val absolutePressX = cardGlobalOffset.x + localPressOffset.x
-                        val absolutePressY = cardGlobalOffset.y + localPressOffset.y
-
-                        val finalOffset = Offset(
-                            absolutePressX,
-                            absolutePressY
+                    onLongPress = {
+                        // Calculate the position where the popup should appear (below the card)
+                        val finalOffset = IntOffset(
+                            x = cardGlobalOffset.x.toInt(),
+                            y = (cardGlobalOffset.y + cardHeight).toInt()
                         )
-
                         onPositionChange(finalOffset, todoList)
                     }
                 )

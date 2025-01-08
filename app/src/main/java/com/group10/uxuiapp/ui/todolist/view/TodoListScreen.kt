@@ -111,11 +111,7 @@ fun TodoListScreen(viewModel: TodoListViewModel, appNavigator: AppNavigator) {
                     TodoListCard(
                         todoList = todoList,
                         onPositionChange = { offset, list ->
-                            val adjustedOffset = IntOffset(
-                                x = offset.x.toInt(),
-                                y = (offset.y - listPositionState.firstVisibleItemScrollOffset).toInt()
-                            )
-                            popupOffset.value = adjustedOffset
+                            popupOffset.value = offset
                             viewModel.selectTodoList(list)
                         },
                         viewModel = viewModel,
