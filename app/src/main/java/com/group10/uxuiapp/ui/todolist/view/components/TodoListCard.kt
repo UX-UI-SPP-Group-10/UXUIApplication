@@ -110,7 +110,7 @@ fun TodoListCard(
                     onLongPress = {
                         // Calculate the position where the popup should appear (below the card)
                         val finalOffset = IntOffset(
-                            x = cardGlobalOffset.x.toInt(),
+                            x = 0,
                             y = (cardGlobalOffset.y + cardHeight).toInt() - extraYOffsetPx  // adjust y offset
                         )
                         onPositionChange(finalOffset, todoList)
