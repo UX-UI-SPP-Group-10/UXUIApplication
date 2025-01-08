@@ -34,6 +34,7 @@ interface TaskDao {
         title = :title,
         isLiked = :isLiked,
         gifUrl = :gifUrl,
+        dueDate = :dueDate,
         textColor = :textColor
     WHERE id = :id
 """)
@@ -42,9 +43,9 @@ interface TaskDao {
         title: String,
         isLiked: Boolean,
         gifUrl: String,
-        textColor: String
+        textColor: String,
+        dueDate: Long?
     )
-
 
     @Query("""
     UPDATE TodoList
@@ -55,7 +56,6 @@ interface TaskDao {
         todoListId: Int,
         listIndex: Int
     )
-
 
     @Query("""
         UPDATE TaskItem
@@ -83,10 +83,15 @@ interface TaskDao {
     @Query("SELECT * FROM TaskItem WHERE isComplete = :isComplete")
     fun getTasksByCompletionStatus(isComplete: Boolean): Flow<List<TaskItem>>
 
-
     @Delete
     suspend fun deleteTodoList(todoList: TodoList)
 
     @Delete
     suspend fun deleteTaskItem(taskItem: TaskItem)
+
+    @Query("SELECT * FROM TodoList WHERE dueDate IS NOT NULL ORDER BY dueDate ASC")
+    fun getTodoListsWithDueDates(): Flow<List<TodoList>>
+
+    @Query("SELECT * FROM TodoList WHERE dueDate <= :timestamp ORDER BY dueDate ASC")
+    fun getTodoListsDueBefore(timestamp: Long): Flow<List<TodoList>>
 }
