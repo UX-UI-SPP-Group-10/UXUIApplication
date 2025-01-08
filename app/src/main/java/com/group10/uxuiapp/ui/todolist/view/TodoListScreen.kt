@@ -155,12 +155,15 @@ fun TodoListScreen(viewModel: TodoListViewModel, appNavigator: AppNavigator) {
             popupState = popupState,
             onNewListConfirm = { name ->
                 viewModel.addTodoList(name)
+                viewModel.setNoneState()
             },
             onRenameConfirm = { todoList, newName ->
                 viewModel.updateTodoList(todoList, newName)
+                viewModel.setNoneState()
             },
             onGifSelected = { todoList, gifUrl ->
                 viewModel.updateGifUrl(todoList.id, gifUrl)
+                viewModel.setNoneState()
             },
             onDismiss = {
                 viewModel.setNoneState()

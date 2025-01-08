@@ -4,6 +4,8 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -14,6 +16,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
@@ -32,6 +35,9 @@ fun OptionsPopup(
     onGifSelect: () -> Unit,
     offset: IntOffset
 ) {
+    val boxHeight = 60.dp
+    val boxWidth = 225.dp
+
     if (expanded) {
         // Wrap your card in a Popup
         Popup(
@@ -44,9 +50,12 @@ fun OptionsPopup(
         ) {
             // The content that was previously in Box(...)
             Box(
-                modifier = androidx.compose.ui.Modifier
-                    .clip(RoundedCornerShape(12.dp))
+                modifier = Modifier
+                    .clip(RoundedCornerShape(16.dp))
                     .background(MaterialTheme.colorScheme.tertiary)
+                    .height(boxHeight)
+                    .width(boxWidth),
+                contentAlignment = Alignment.Center
             ) {
                 Row(
                     modifier = androidx.compose.ui.Modifier
