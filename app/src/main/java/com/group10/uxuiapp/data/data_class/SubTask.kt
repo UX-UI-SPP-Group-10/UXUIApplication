@@ -9,13 +9,13 @@ import androidx.room.PrimaryKey
         ForeignKey(
             entity = TaskItem::class,
             parentColumns = ["id"],
-            childColumns = ["TaskItemId"],
+            childColumns = ["taskItemId"],
             onDelete = ForeignKey.CASCADE
         )
     ]
 )
 
-data class SupTask(
+data class SubTask(
     @PrimaryKey(autoGenerate = true) val id: Int = 0,
     val label: String,
     val isComplete: Boolean = false,

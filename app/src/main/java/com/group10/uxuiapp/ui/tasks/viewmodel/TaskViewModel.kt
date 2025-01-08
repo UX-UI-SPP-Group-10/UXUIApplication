@@ -5,15 +5,13 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.group10.uxuiapp.data.data_class.TaskItem
 import com.group10.uxuiapp.data.TaskDataSource
-import com.group10.uxuiapp.data.data_class.SupTask
-import com.group10.uxuiapp.data.data_class.TaskItemWhithSupTask
-import com.group10.uxuiapp.data.data_class.TodoList
+import com.group10.uxuiapp.data.data_class.SubTask
+import com.group10.uxuiapp.data.data_class.TaskItemWithSubTask
 import com.group10.uxuiapp.data.data_class.TodoListWithTaskItem
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.stateIn
@@ -27,8 +25,8 @@ class TaskViewModel(private val taskDataSource: TaskDataSource) : ViewModel() {
     private val _selectedTask = MutableStateFlow<TaskItem?>(null)
     val selectedTaskItem: StateFlow<TaskItem?> = _selectedTask
 
-    private val _lists = MutableStateFlow<List<TaskItemWhithSupTask>>(emptyList())
-    val lists: StateFlow<List<TaskItemWhithSupTask>> = _lists
+    private val _lists = MutableStateFlow<List<TaskItemWithSubTask>>(emptyList())
+    val lists: StateFlow<List<TaskItemWithSubTask>> = _lists
 
     @OptIn(ExperimentalCoroutinesApi::class)
     val currentTodoList: StateFlow<TodoListWithTaskItem?> = _currentTodoListId.flatMapLatest { todoListId ->
@@ -58,18 +56,18 @@ class TaskViewModel(private val taskDataSource: TaskDataSource) : ViewModel() {
         }
     }
 
-    fun updateTaskItem(taskItem: TaskItem, label: String? = null, isComplete: Boolean? = null, isFoldet: Boolean? = null) {
+    fun updateTaskItem(taskItem: TaskItem, label: String? = null, isComplete: Boolean? = null, isFolded: Boolean? = null) {
         viewModelScope.launch {
             val updatedTask = taskItem.copy(
                 label = label ?: taskItem.label,
                 isComplete = isComplete ?: taskItem.isComplete,
-                isfoldet = isFoldet ?: taskItem.isfoldet
+                isFolded = isFolded ?: taskItem.isFolded
             )
 
             Log.d(TAG, "Updating TaskItem with id: ${updatedTask.id}, label: ${updatedTask.label}, isComplete: ${updatedTask.isComplete}")
 
             try {
-                taskDataSource.updateTaskItem(updatedTask, label = updatedTask.label, isComplete = updatedTask.isComplete, isFoldet = updatedTask.isfoldet)
+                taskDataSource.updateTaskItem(updatedTask, label = updatedTask.label, isComplete = updatedTask.isComplete, isFolded = updatedTask.isFolded)
                 Log.d(TAG, "TaskItem updated successfully: $updatedTask")
             } catch (e: Exception) {
                 Log.e(TAG, "Error updating TaskItem: ${e.message}", e)
@@ -77,7 +75,7 @@ class TaskViewModel(private val taskDataSource: TaskDataSource) : ViewModel() {
         }
     }
 
-    fun updateSupTask(subTask: SupTask, label: String? = null, isComplete: Boolean? = null, isFoldet: Boolean? = null) {
+    fun updateSubTask(subTask: SubTask, label: String? = null, isComplete: Boolean? = null) {
         viewModelScope.launch {
             val updatedTask = subTask.copy(
                 label = label ?: subTask.label,
@@ -87,7 +85,7 @@ class TaskViewModel(private val taskDataSource: TaskDataSource) : ViewModel() {
             Log.d(TAG, "Updating TaskItem with id: ${updatedTask.id}, label: ${updatedTask.label}, isComplete: ${updatedTask.isComplete}")
 
             try {
-                taskDataSource.updateSuptask(updatedTask, label = updatedTask.label, isComplete = updatedTask.isComplete)
+                taskDataSource.updateSubtask(updatedTask, label = updatedTask.label, isComplete = updatedTask.isComplete)
                 Log.d(TAG, "SupTask updated successfully: $updatedTask")
             } catch (e: Exception) {
                 Log.e(TAG, "Error updating SupTask: ${e.message}", e)
@@ -112,7 +110,7 @@ class TaskViewModel(private val taskDataSource: TaskDataSource) : ViewModel() {
         _selectedTask.value = taskItem
     }
 
-    fun selectSubtask(subTask: SupTask?) {
+    fun selectSubtask(subTask: SubTask?) {
         Log.d(TAG, "Selecting TaskItem: ${subTask?.id.toString()}")
         TODO()
     }

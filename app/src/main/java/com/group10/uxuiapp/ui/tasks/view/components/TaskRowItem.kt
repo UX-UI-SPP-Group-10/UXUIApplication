@@ -3,8 +3,6 @@ package com.group10.uxuiapp.ui.tasks.view.components
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.BasicTextField
-import androidx.compose.foundation.text.KeyboardActions
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CheckboxDefaults
 import androidx.compose.material3.MaterialTheme
@@ -17,9 +15,7 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.group10.uxuiapp.data.data_class.TaskItem
-import com.group10.uxuiapp.ui.todolist.viewmodel.TodoListViewModel
 import androidx.compose.foundation.gestures.detectTapGestures
-import androidx.compose.runtime.remember
 import androidx.compose.ui.input.pointer.pointerInput
 import com.group10.uxuiapp.ui.tasks.viewmodel.TaskViewModel
 
@@ -30,7 +26,7 @@ fun TaskRowItem(
     viewModel: TaskViewModel
 ) {
     var isChecked = task.isComplete
-    var isFoldet = task.isfoldet
+    var isFoldet = task.isFolded
 
     Box(
         modifier = Modifier

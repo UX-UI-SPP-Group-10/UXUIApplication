@@ -3,8 +3,6 @@ package com.group10.uxuiapp.ui.tasks.view.components
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.BasicTextField
-import androidx.compose.foundation.text.KeyboardActions
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CheckboxDefaults
 import androidx.compose.material3.MaterialTheme
@@ -16,10 +14,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.group10.uxuiapp.data.data_class.TaskItem
-import com.group10.uxuiapp.ui.todolist.viewmodel.TodoListViewModel
 import androidx.compose.foundation.gestures.detectTapGestures
-import androidx.compose.runtime.remember
 import androidx.compose.ui.input.pointer.pointerInput
 import com.group10.uxuiapp.data.data_class.SubTask
 import com.group10.uxuiapp.ui.tasks.viewmodel.TaskViewModel
@@ -58,7 +53,7 @@ fun SubTaskRow(
                 checked = isChecked,
                 onCheckedChange = { newChecked ->
                     isChecked = newChecked
-                    viewModel.updateSupTask(task, isComplete = newChecked)
+                    viewModel.updateSubTask(task, isComplete = newChecked)
                 },
                 colors = CheckboxDefaults.colors(
                     checkedColor = MaterialTheme.colorScheme.primary,
@@ -72,7 +67,7 @@ fun SubTaskRow(
             BasicTextField(
                 value = task.label,
                 onValueChange = { newText ->
-                    viewModel.updateSupTask(task, label = newText)
+                    viewModel.updateSubTask(task, label = newText)
                 },
                 textStyle = MaterialTheme.typography.bodyLarge.copy(
                     textDecoration = if (isChecked) TextDecoration.LineThrough else null,

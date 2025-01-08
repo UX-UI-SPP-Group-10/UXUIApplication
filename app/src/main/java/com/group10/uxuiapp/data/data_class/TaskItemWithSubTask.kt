@@ -3,11 +3,11 @@ package com.group10.uxuiapp.data.data_class
 import androidx.room.Embedded
 import androidx.room.Relation
 
-data class TaskItemWhithSupTask(
+data class TaskItemWithSubTask(
     @Embedded val taskItem: TaskItem,
     @Relation(
         parentColumn = "id",
-        entityColumn = "TaskItemId"
+        entityColumn = "taskItemId"
     )
-    val subTasks: List<SupTask>
+    val subTasks: List<SubTask>
 )

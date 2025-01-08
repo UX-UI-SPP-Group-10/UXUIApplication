@@ -1,9 +1,9 @@
 package com.group10.uxuiapp.data
 
 import androidx.room.*
-import com.group10.uxuiapp.data.data_class.SupTask
+import com.group10.uxuiapp.data.data_class.SubTask
 import com.group10.uxuiapp.data.data_class.TaskItem
-import com.group10.uxuiapp.data.data_class.TaskItemWhithSupTask
+import com.group10.uxuiapp.data.data_class.TaskItemWithSubTask
 import com.group10.uxuiapp.data.data_class.TodoList
 import com.group10.uxuiapp.data.data_class.TodoListWithTaskItem
 import kotlinx.coroutines.flow.Flow
@@ -17,7 +17,7 @@ interface TaskDao {
     suspend fun insertTaskItem(taskItem: TaskItem): Long
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertSubTask(subTask: SupTask): Long
+    suspend fun insertSubTask(subTask: SubTask): Long
 
     @Query("SELECT * FROM TodoList WHERE id = :id")
     fun getTodoListById(id: Int): Flow<TodoList>
@@ -25,8 +25,8 @@ interface TaskDao {
     @Query("SELECT * FROM TaskItem WHERE todoListId = :todoListId")
     fun getTaskItemsByListId(todoListId: Int): Flow<List<TaskItem>>
 
-    @Query("SELECT * FROM SupTask WHERE taskItemId = :taskItemId")
-    fun getSubTaskByTaskId(taskItemId: Int): Flow<List<SupTask>>
+    @Query("SELECT * FROM SubTask WHERE taskItemId = :taskItemId")
+    fun getSubTaskByTaskId(taskItemId: Int): Flow<List<SubTask>>
 
     @Transaction
     @Query("SELECT * FROM TodoList")
@@ -34,7 +34,7 @@ interface TaskDao {
 
     @Transaction
     @Query("SELECT * FROM TaskItem")
-    fun getTaskItemWithSubTask(): Flow<List<TaskItemWhithSupTask>>
+    fun getTaskItemWithSubTask(): Flow<List<TaskItemWithSubTask>>
 
     @Transaction
     @Query("SELECT * FROM TodoList WHERE id = :todoListId")
@@ -42,7 +42,7 @@ interface TaskDao {
 
     @Transaction
     @Query("SELECT * FROM TaskItem WHERE id = :taskItemId")
-    fun getTaskItemWithSubTaskById(taskItemId: Int): Flow<TaskItemWhithSupTask>
+    fun getTaskItemWithSubTaskById(taskItemId: Int): Flow<TaskItemWithSubTask>
 
     @Query("""
     UPDATE TodoList
@@ -71,29 +71,31 @@ interface TaskDao {
     )
 
 
-    @Query("""
+    @Query(
+        """
         UPDATE TaskItem
         SET 
             label = COALESCE(:label, label),
             isComplete = COALESCE(:isComplete, isComplete),
-            isFoldet = COALESCE(:isFoldet, isfoldet)
+            isFolded = COALESCE(:isFolded, isFolded)
         WHERE id = :id
-    """)
+    """
+    )
     suspend fun updateTaskItem(
         id: Int,
         label: String? = null,
         isComplete: Boolean? = null,
-        isFoldet: Boolean? = null
+        isFolded: Boolean? = null
     )
 
     @Query("""
-        UPDATE SupTask
+        UPDATE SubTask
         SET 
             label = COALESCE(:label, label),
             isComplete = COALESCE(:isComplete, isComplete)
         WHERE id = :id
     """)
-    suspend fun updateSupTask(
+    suspend fun updateSubTask(
         id: Int,
         label: String? = null,
         isComplete: Boolean? = null
@@ -110,7 +112,7 @@ interface TaskDao {
     suspend fun deleteTasksByTodoListId(todoListId: Int)
 
     @Query("""
-        DELETE FROM SUPTASK WHERE taskItemId = :taskItemId
+        DELETE FROM SubTask WHERE taskItemId = :taskItemId
     """)
     suspend fun deleteTasksByTaskItemId(taskItemId: Int)
 
@@ -125,5 +127,5 @@ interface TaskDao {
     suspend fun deleteTaskItem(taskItem: TaskItem)
 
     @Delete
-    suspend fun deleteSubTask(subTask: SupTask)
+    suspend fun deleteSubTask(subTask: SubTask)
 }

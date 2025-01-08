@@ -1,9 +1,9 @@
 package com.group10.uxuiapp.data
 
 import android.util.Log
-import com.group10.uxuiapp.data.data_class.SupTask
+import com.group10.uxuiapp.data.data_class.SubTask
 import com.group10.uxuiapp.data.data_class.TaskItem
-import com.group10.uxuiapp.data.data_class.TaskItemWhithSupTask
+import com.group10.uxuiapp.data.data_class.TaskItemWithSubTask
 import com.group10.uxuiapp.data.data_class.TodoList
 import com.group10.uxuiapp.data.data_class.TodoListWithTaskItem
 import kotlinx.coroutines.flow.Flow
@@ -19,14 +19,14 @@ class TaskDataSource(private val taskDao: TaskDao) {
     }
 
     suspend fun insertTaskItem(taskItem: TaskItem) = taskDao.insertTaskItem(taskItem)
-    suspend fun insertSubTsk(subTask: SupTask) = taskDao.insertSubTask(subTask)
+    suspend fun insertSubTsk(subTask: SubTask) = taskDao.insertSubTask(subTask)
 
     // Fetch TodoList and Related Tasks
     fun getTodoListsWithTasks(): Flow<List<TodoListWithTaskItem>> = taskDao.getTodoListsWithItems()
     fun getTodoListById(id: Int): Flow<TodoList> = taskDao.getTodoListById(id)
     fun getTodoListWithTaskById(todoListId: Int): Flow<TodoListWithTaskItem> = taskDao.getTodoListWithTaskById(todoListId)
-    fun getTaskItemWithSubTask(): Flow<List<TaskItemWhithSupTask>> = taskDao.getTaskItemWithSubTask()
-    fun getTaskListWithSubTaskById(taskItemId: Int): Flow<TaskItemWhithSupTask> = taskDao.getTaskItemWithSubTaskById(taskItemId)
+    fun getTaskItemWithSubTask(): Flow<List<TaskItemWithSubTask>> = taskDao.getTaskItemWithSubTask()
+    fun getTaskListWithSubTaskById(taskItemId: Int): Flow<TaskItemWithSubTask> = taskDao.getTaskItemWithSubTaskById(taskItemId)
 
     // Update Operations
     suspend fun updateTodoList(todoList: TodoList, title: String? = null, isLiked: Boolean? = null, gifUrl: String? = null) {
@@ -48,10 +48,10 @@ class TaskDataSource(private val taskDao: TaskDao) {
         )
     }
 
-    suspend fun updateTaskItem(taskItem: TaskItem, label: String? = null, isComplete: Boolean? = null, isFoldet: Boolean? = null) {
+    suspend fun updateTaskItem(taskItem: TaskItem, label: String? = null, isComplete: Boolean? = null, isFolded: Boolean? = null) {
         val updatedLabel = label ?: taskItem.label
         val updatedIsComplete = isComplete ?: taskItem.isComplete
-        val updateIsFoldet = isFoldet ?: taskItem.isfoldet
+        val updateIsFolded = isFolded ?: taskItem.isFolded
 
         Log.d("TaskDataSource", "Updating TaskItem: id=${taskItem.id}, label=$updatedLabel, isComplete=$updatedIsComplete")
 
@@ -59,17 +59,17 @@ class TaskDataSource(private val taskDao: TaskDao) {
             id = taskItem.id,
             label = updatedLabel,
             isComplete = updatedIsComplete,
-            isFoldet = updateIsFoldet
+            isFolded = updateIsFolded
         )
     }
 
-    suspend fun updateSuptask(subTask: SupTask, label: String? = null, isComplete: Boolean? = null) {
+    suspend fun updateSubtask(subTask: SubTask, label: String? = null, isComplete: Boolean? = null) {
         val updatedLabel = label ?: subTask.label
         val updatedIsComplete = isComplete ?: subTask.isComplete
 
         Log.d("TaskDataSource", "Updating TaskItem: id=${subTask.id}, label=$updatedLabel, isComplete=$updatedIsComplete")
 
-        taskDao.updateSupTask(
+        taskDao.updateSubTask(
             id = subTask.id,
             label = updatedLabel,
             isComplete = updatedIsComplete
@@ -98,5 +98,5 @@ class TaskDataSource(private val taskDao: TaskDao) {
 
     suspend fun deleteTaskById(taskId: Int) = taskDao.deleteTaskItemById(taskId)
 
-    suspend fun deleteSupTask(subTask: SupTask) = taskDao.deleteSubTask(subTask)
+    suspend fun deleteSubTask(subTask: SubTask) = taskDao.deleteSubTask(subTask)
 }
