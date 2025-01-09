@@ -11,5 +11,6 @@ data class TodoList(
     val gifUrl: String? = null, // Add this field to store the GIF URL
     val dueDate: Long? = null,
     var listIndex: Int = 0,
-    var textColor: String = "#FFFFFF" // Default is white
+    var textColor: String = "#FFFFFF", // Default is white
+    var tags: String = "" //
 )
