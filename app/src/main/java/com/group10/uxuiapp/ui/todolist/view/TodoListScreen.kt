@@ -41,7 +41,6 @@ import com.group10.uxuiapp.ui.todolist.view.components.buttons.AddNewTodoListBut
 import com.group10.uxuiapp.ui.todolist.view.components.buttons.SettingsButton
 import com.group10.uxuiapp.data.GiphyActivity
 import com.group10.uxuiapp.data.data_class.TodoListWithTaskItem
-import com.group10.uxuiapp.ui.todolist.view.components.ColorPickerDialog
 import com.group10.uxuiapp.ui.todolist.view.components.ListNameInputDialog
 import com.group10.uxuiapp.ui.todolist.viewmodel.TodoListViewModel
 
@@ -121,6 +120,7 @@ fun TodoListScreen(viewModel: TodoListViewModel, appNavigator: AppNavigator) {
                         Spacer(modifier = Modifier.height(15.dp)) // Adjust height as needed
                     }
                 }
+
             }
         }
 
@@ -140,10 +140,10 @@ fun TodoListScreen(viewModel: TodoListViewModel, appNavigator: AppNavigator) {
             onGifSelect = {
                 viewModel.setSelectGifState(selectedTodoList!!)
             },
-            offset = popupOffset.value,
-            onColorChange = {
-                viewModel.setColorPickState(selectedTodoList!!)
-            }
+            offset = popupOffset.value
+////            onColorChange = {
+////                viewModel.setColorPickState(selectedTodoList!!)
+////            }
         )
 
 //        // Show GiphyDialog when needed
@@ -169,8 +169,13 @@ fun TodoListScreen(viewModel: TodoListViewModel, appNavigator: AppNavigator) {
                 viewModel.addTodoList(name)
                 viewModel.setNoneState()
             },
-            onRenameConfirm = { todoList, newName ->
-                viewModel.updateTodoList(todoList, newName)
+            onRenameConfirm = { todoList, newName, selectedColor, selectedDate ->
+                viewModel.updateTodoList(
+                    todoList = todoList,
+                    title = newName,
+                    textColor = selectedColor
+                    // Handle selectedDate if applicable
+                )
                 viewModel.setNoneState()
             },
             onGifSelected = { todoList, gifUrl ->

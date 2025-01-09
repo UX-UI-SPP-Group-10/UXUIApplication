@@ -12,7 +12,7 @@ fun PopupManager(
     popupState: TodoListState,
     // Provide any callbacks your dialogs need
     onNewListConfirm: (String) -> Unit,
-    onRenameConfirm: (TodoList, String) -> Unit,
+    onRenameConfirm: (TodoList, String, String, String) -> Unit,
     onGifSelected: (TodoList, String) -> Unit,
     onColorSelected: (TodoList, String) -> Unit,
     onDismiss: () -> Unit
@@ -33,13 +33,26 @@ fun PopupManager(
         }
 
         is TodoListState.Rename -> {
-            // Show dialog for rename
-            ListNameInputDialog(
+
+            EditTodolistDialog(
                 onDismiss = onDismiss,
-                onConfirm = { newName ->
-                    onRenameConfirm(popupState.todoList, newName)
+                onConfirm = { newName, selectedColor, selectedDate ->
+                    onRenameConfirm(
+                        popupState.todoList,
+                        newName,
+                        selectedColor,
+                        selectedDate
+                    )
                 }
             )
+            // Show dialog for rename
+//            ListNameInputDialog(
+//                onDismiss = onDismiss,
+//                onConfirm = { newName ->
+//                    onRenameConfirm(popupState.todoList, newName)
+//                }
+//            )
+
         }
 
         is TodoListState.SelectGif -> {
@@ -55,14 +68,14 @@ fun PopupManager(
             )
         }
 
-        is TodoListState.ColorPick -> {
-            // Show color picker dialog
-            ColorPickerDialog(
-                onDismissed = onDismiss,
-                onColorSelected = { color ->
-                    onColorSelected(popupState.todoList, color)
-                }
-            )
-        }
+//        is TodoListState.ColorPick -> {
+//            // Show color picker dialog
+//            ColorPickerDialog(
+//                onDismissed = onDismiss,
+//                onColorSelected = { color ->
+//                    onColorSelected(popupState.todoList, color)
+//                }
+//            )
+//        }
     }
 }

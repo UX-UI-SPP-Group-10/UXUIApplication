@@ -18,6 +18,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import com.group10.uxuiapp.R
+import com.group10.uxuiapp.ui.todolist.view.components.ColorPicker
 
 sealed class EditListPage {
     object NameInput : EditListPage()
@@ -30,7 +31,7 @@ sealed class EditListPage {
 fun EditTodolistDialog(onDismiss: () -> Unit, onConfirm: (String, String, String) -> Unit) {
     var currentPage by remember { mutableStateOf<EditListPage>(EditListPage.NameInput) }
     var listName by remember { mutableStateOf("") }
-    var selectedColor by remember { mutableStateOf("") }
+    var selectedColor by remember { mutableStateOf("#FFFFFF") }
     var selectedDate by remember { mutableStateOf("") }
 
     AlertDialog(
@@ -77,7 +78,7 @@ fun EditTodolistDialog(onDismiss: () -> Unit, onConfirm: (String, String, String
                     }
                 }
                 is EditListPage.ColorPicker -> {
-                    // Color Picker Content
+                    ColorPicker { selectedColor = it }
                 }
                 is EditListPage.DueDatePicker -> {
                     // Due Date Picker Content

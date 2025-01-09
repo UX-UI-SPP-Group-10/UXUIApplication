@@ -47,6 +47,7 @@ class TodoListViewModel(private val taskDataSource: TaskDataSource) : ViewModel(
 
     fun setRenameState(todoList: TodoList) {
         Log.d(TAG, "Setting Rename state for TodoList with id: ${todoList.id}")
+        _selectedTodoList.value = todoList
         _todoListState.value = TodoListState.Rename(todoList)
     }
 
@@ -55,10 +56,10 @@ class TodoListViewModel(private val taskDataSource: TaskDataSource) : ViewModel(
         _todoListState.value = TodoListState.SelectGif(todoList)
     }
 
-    fun setColorPickState(todoList: TodoList) {
-        Log.d(TAG, "Setting ColorPick state for TodoList with id: ${todoList.id}")
-        _todoListState.value = TodoListState.ColorPick(todoList)
-    }
+//    fun setColorPickState(todoList: TodoList) {
+//        Log.d(TAG, "Setting ColorPick state for TodoList with id: ${todoList.id}")
+//        _todoListState.value = TodoListState.ColorPick(todoList)
+//    }
 
     fun setNoneState() {
         Log.d(TAG, "Setting None state")
