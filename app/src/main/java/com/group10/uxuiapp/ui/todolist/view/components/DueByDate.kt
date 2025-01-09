@@ -5,6 +5,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.group10.uxuiapp.data.data_class.TodoList
@@ -16,7 +17,7 @@ fun DueByDate(todoList: TodoList){
             java.text.SimpleDateFormat("MMM dd", java.util.Locale.getDefault()).format(timestamp)
         Text(
             text = "Due: $formattedDate",
-            color = MaterialTheme.colorScheme.background,
+            color = Color(android.graphics.Color.parseColor(todoList.textColor)),
             fontSize = 12.sp,
             modifier = Modifier.padding(start = 4.dp)
         )
