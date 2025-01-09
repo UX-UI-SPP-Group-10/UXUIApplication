@@ -25,6 +25,7 @@ fun TaskRowItem(
     task: TaskItem,
     viewModel: TaskViewModel
 ) {
+    val taskItemWithSubTask by viewModel.lists.collectAsState()
     var isChecked = task.isComplete
     var isFoldet = task.isFolded
 
@@ -55,6 +56,13 @@ fun TaskRowItem(
                 onCheckedChange = { newChecked ->
                     isChecked = newChecked
                     viewModel.updateTaskItem(task, isComplete = newChecked)
+                    val taskWithSubTasks = taskItemWithSubTask.find { it.taskItem.id == task.id }
+
+                    if (taskWithSubTasks != null && !task.isFolded) {
+                        taskWithSubTasks.subTasks.forEach { subTask ->
+                            viewModel.updateSubTask(subTask, isComplete = newChecked)
+                        }
+                    }
                 },
                 colors = CheckboxDefaults.colors(
                     checkedColor = MaterialTheme.colorScheme.primary,
