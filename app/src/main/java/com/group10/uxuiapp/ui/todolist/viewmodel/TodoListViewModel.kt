@@ -230,16 +230,19 @@ class TodoListViewModel(private val taskDataSource: TaskDataSource) : ViewModel(
         viewModelScope.launch {
             val todoList = _lists.value.find { it.todoList.id == todoListId }?.todoList
             if (todoList != null) {
-                // Split the tags by commas, trim whitespace, and filter out any empty tags
-                val updatedTags = newTags.split(",").map { it.trim() }.filter { it.isNotEmpty() }
-                val updatedTodoList = todoList.copy(tags = updatedTags.joinToString(","))
+                val updatedTodoList = todoList.copy(tags = newTags)
                 taskDataSource.updateTodoList(updatedTodoList)
+                // Force an update to _lists to ensure the UI gets the new data
+                _lists.value = _lists.value.map {
+                    if (it.todoList.id == todoListId) it.copy(todoList = updatedTodoList) else it
+                }
                 Log.d(TAG, "Updated tags for TodoList id: $todoListId")
             } else {
                 Log.e(TAG, "TodoList not found for id: $todoListId")
             }
         }
     }
+
 
 
 
