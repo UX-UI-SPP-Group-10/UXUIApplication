@@ -3,8 +3,6 @@ package com.group10.uxuiapp.ui.tasks.view.components
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.BasicTextField
-import androidx.compose.foundation.text.KeyboardActions
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CheckboxDefaults
 import androidx.compose.material3.MaterialTheme
@@ -17,9 +15,7 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.group10.uxuiapp.data.data_class.TaskItem
-import com.group10.uxuiapp.ui.todolist.viewmodel.TodoListViewModel
 import androidx.compose.foundation.gestures.detectTapGestures
-import androidx.compose.runtime.remember
 import androidx.compose.ui.input.pointer.pointerInput
 import com.group10.uxuiapp.ui.tasks.viewmodel.TaskViewModel
 
@@ -29,7 +25,9 @@ fun TaskRowItem(
     task: TaskItem,
     viewModel: TaskViewModel
 ) {
+    val taskItemWithSubTask by viewModel.lists.collectAsState()
     var isChecked = task.isComplete
+    var isFoldet = task.isFolded
 
     Box(
         modifier = Modifier
@@ -47,7 +45,8 @@ fun TaskRowItem(
                 .height(56.dp)
                 .pointerInput(Unit) {
                     // detectTapGestures only for the "empty space"
-                    detectTapGestures(onLongPress = { viewModel.selectTask(task) })
+                    detectTapGestures(onPress = { viewModel.selectTask(task) },
+                        onLongPress = {viewModel.selectTaskForChange(taskItem = task)})
                 },
             verticalAlignment = Alignment.CenterVertically
         ) {
@@ -58,6 +57,13 @@ fun TaskRowItem(
                 onCheckedChange = { newChecked ->
                     isChecked = newChecked
                     viewModel.updateTaskItem(task, isComplete = newChecked)
+                    val taskWithSubTasks = taskItemWithSubTask.find { it.taskItem.id == task.id }
+
+                    if (taskWithSubTasks != null && !task.isFolded) {
+                        taskWithSubTasks.subTasks.forEach { subTask ->
+                            viewModel.updateSubTask(subTask, isComplete = newChecked)
+                        }
+                    }
                 },
                 colors = CheckboxDefaults.colors(
                     checkedColor = MaterialTheme.colorScheme.primary,
@@ -97,6 +103,10 @@ fun TaskRowItem(
                 }
                 it()
             }
+
+            TaskFolderButton(onClick = {isFoldet = !isFoldet
+                viewModel.updateTaskItem(task, isFolded = isFoldet)}, isFoldet)
+
             Spacer(modifier = Modifier.weight(1f))
         }
     }

@@ -193,6 +193,7 @@ fun TodoListCard(
                     modifier = Modifier.fillMaxWidth()
                 )
                 DueByDate(todoList)
+                TagsDisplay(tags = todoList.tags, color = Color(android.graphics.Color.parseColor(todoList.textColor)))
             }
 
             // Spacing between content and buttons

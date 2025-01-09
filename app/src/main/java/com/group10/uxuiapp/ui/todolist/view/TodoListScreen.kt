@@ -187,6 +187,9 @@ fun TodoListScreen(viewModel: TodoListViewModel, appNavigator: AppNavigator) {
             offset = popupOffset.value,
             onColorChange = {
                 viewModel.setColorPickState(selectedTodoList!!)
+            },
+            onTagsEdit = {
+                viewModel.setTagEditState(selectedTodoList!!)
             }
         )
 
@@ -223,6 +226,10 @@ fun TodoListScreen(viewModel: TodoListViewModel, appNavigator: AppNavigator) {
             },
             onColorSelected = { todoList, color ->
                 viewModel.updateTextColor(todoList.id, color)
+                viewModel.setNoneState()
+            },
+            onTagsEdited = { todoList, tags ->
+                viewModel.updateTags(todoList.id, tags)
                 viewModel.setNoneState()
             },
             onDismiss = {

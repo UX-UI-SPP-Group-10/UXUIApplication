@@ -60,6 +60,11 @@ class TodoListViewModel(private val taskDataSource: TaskDataSource) : ViewModel(
         _todoListState.value = TodoListState.ColorPick(todoList)
     }
 
+    fun setTagEditState(todoList: TodoList) {
+        Log.d(TAG, "Setting TagEdit state for TodoList with id: ${todoList.id}")
+        _todoListState.value = TodoListState.TagsEdit(todoList)
+    }
+
     fun setNoneState() {
         Log.d(TAG, "Setting None state")
         _todoListState.value = TodoListState.None
@@ -245,4 +250,25 @@ class TodoListViewModel(private val taskDataSource: TaskDataSource) : ViewModel(
     fun getTaskDueBefore(timestamp: Long): LiveData<List<TodoList>> {
         return taskDataSource.getTodoListsDueBefore(timestamp).asLiveData()
     }
+
+    fun updateTags(todoListId: Int, newTags: String) {
+        viewModelScope.launch {
+            val todoList = _lists.value.find { it.todoList.id == todoListId }?.todoList
+            if (todoList != null) {
+                val updatedTodoList = todoList.copy(tags = newTags)
+                taskDataSource.updateTodoList(updatedTodoList)
+                // Force an update to _lists to ensure the UI gets the new data
+                _lists.value = _lists.value.map {
+                    if (it.todoList.id == todoListId) it.copy(todoList = updatedTodoList) else it
+                }
+                Log.d(TAG, "Updated tags for TodoList id: $todoListId")
+            } else {
+                Log.e(TAG, "TodoList not found for id: $todoListId")
+            }
+        }
+    }
+
+
+
+
 }

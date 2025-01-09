@@ -4,8 +4,9 @@ import androidx.room.Database
 import androidx.room.RoomDatabase
 import com.group10.uxuiapp.data.data_class.TaskItem
 import com.group10.uxuiapp.data.data_class.TodoList
+import com.group10.uxuiapp.data.data_class.SubTask
 //Increment the version number when you make changes to the database
-@Database(entities = [TodoList::class, TaskItem::class], version = 7, exportSchema = false)
+@Database(entities = [TodoList::class, TaskItem::class, SubTask::class], version = 10, exportSchema = false)
 abstract class TaskDatabase : RoomDatabase() {
     abstract fun taskDao(): TaskDao
 }

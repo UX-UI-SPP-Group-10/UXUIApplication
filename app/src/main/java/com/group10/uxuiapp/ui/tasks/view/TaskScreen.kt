@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -32,6 +33,9 @@ import com.group10.uxuiapp.ui.tasks.view.components.EditTaskPopup
 import com.group10.uxuiapp.ui.tasks.viewmodel.TaskViewModel
 import androidx.compose.foundation.lazy.items
 import com.group10.uxuiapp.ui.tasks.view.components.buttons.SettingsButton
+import com.group10.uxuiapp.data.data_class.SubTask
+import com.group10.uxuiapp.ui.tasks.view.components.AddSubTaskButton
+import com.group10.uxuiapp.ui.tasks.view.components.SubTaskRow
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -47,6 +51,9 @@ fun TaskScreen(todoListId: Int, appNavigator: AppNavigator, viewModel: TaskViewM
     // Observe the current TodoList and its tasks
     val taskListWithItems by viewModel.currentTodoList.collectAsState()
     val selectedTask by viewModel.selectedTaskItem.collectAsState()
+    val selectedSubTask by viewModel.selectedSubTask.collectAsState()
+    val taskItemWithSubTask by viewModel.lists.collectAsState()
+    val lastSelectedTask by viewModel.lastSelectedTaskItem.collectAsState()
 
     if (taskListWithItems == null) {
         // Loading state
@@ -87,6 +94,12 @@ fun TaskScreen(todoListId: Int, appNavigator: AppNavigator, viewModel: TaskViewM
             )
         },
         bottomBar = {
+            AddSubTaskButton(onClick = {
+                if(lastSelectedTask != null){
+                    val newSubTask = lastSelectedTask.let { SubTask(label = "", taskItemId = lastSelectedTask!!.id) }
+                    viewModel.addSupTask(newSubTask)
+                }
+            })
             AddTaskButton(onClick = {
                 // Add a new task to the TodoList
                 val newTask = TaskItem(label = "", todoListId = todoListId)
@@ -116,6 +129,13 @@ fun TaskScreen(todoListId: Int, appNavigator: AppNavigator, viewModel: TaskViewM
                         key = { task -> task.id }
                     ) { task ->
                         TaskRowItem(task = task, viewModel = viewModel)
+                        val taskWithSubTasks = taskItemWithSubTask.find { it.taskItem.id == task.id }
+
+                        if (taskWithSubTasks != null && !task.isFolded) {
+                            taskWithSubTasks.subTasks.forEach { subTask ->
+                                SubTaskRow(subTask, viewModel)
+                            }
+                        }
                     }
                 }
 
@@ -123,19 +143,34 @@ fun TaskScreen(todoListId: Int, appNavigator: AppNavigator, viewModel: TaskViewM
         }
     }
 
-    if (selectedTask != null) {
+    if (selectedTask != null || selectedSubTask != null) {
         EditTaskPopup(
-            taskName = selectedTask!!.label,
+            taskName = when {
+                selectedTask != null -> selectedTask!!.label
+                selectedSubTask != null -> selectedSubTask!!.label
+                else -> "" // Fallback, should not reach here
+            },
             onSaveTask = { newName ->
-                viewModel.updateTaskItem(taskItem = selectedTask!!, label = newName)
-                viewModel.selectTask(null)
+                if(selectedTask != null){
+                    viewModel.updateTaskItem(taskItem = selectedTask!!, label = newName)
+                }
+                if(selectedSubTask != null){
+                    viewModel.updateSubTask(subTask = selectedSubTask!!, label = newName)
+                }
+                viewModel.selectTaskForChange(null, null)
             },
             onDeleteTask = {
-                viewModel.deleteTask(selectedTask!!)
-                viewModel.selectTask(null)
+                if(selectedTask != null){
+                    viewModel.deleteTask(selectedTask!!)
+                }
+                if(selectedSubTask != null){
+                    viewModel.deleteSupTask(selectedSubTask!!)
+                }
+
+                viewModel.selectTaskForChange(null, null)
             },
             onDismiss = {
-                viewModel.selectTask(null)
+                viewModel.selectTaskForChange(null, null)
             }
         )
     }
