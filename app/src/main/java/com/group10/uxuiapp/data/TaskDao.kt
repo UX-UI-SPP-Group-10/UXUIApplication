@@ -49,16 +49,19 @@ interface TaskDao {
     SET 
         title = :title,
         isLiked = :isLiked,
-        gifUrl = :gifUrl
+        gifUrl = :gifUrl,
+        dueDate = :dueDate,
+        textColor = :textColor
     WHERE id = :id
 """)
     suspend fun updateTodoList(
         id: Int,
         title: String,
         isLiked: Boolean,
-        gifUrl: String
+        gifUrl: String,
+        textColor: String,
+        dueDate: Long?
     )
-
 
     @Query("""
     UPDATE TodoList
@@ -71,8 +74,7 @@ interface TaskDao {
     )
 
 
-    @Query(
-        """
+    @Query("""
         UPDATE TaskItem
         SET 
             label = COALESCE(:label, label),
@@ -119,12 +121,17 @@ interface TaskDao {
     @Query("SELECT * FROM TaskItem WHERE isComplete = :isComplete")
     fun getTasksByCompletionStatus(isComplete: Boolean): Flow<List<TaskItem>>
 
-
     @Delete
     suspend fun deleteTodoList(todoList: TodoList)
 
     @Delete
     suspend fun deleteTaskItem(taskItem: TaskItem)
+
+    @Query("SELECT * FROM TodoList WHERE dueDate IS NOT NULL ORDER BY dueDate ASC")
+    fun getTodoListsWithDueDates(): Flow<List<TodoList>>
+
+    @Query("SELECT * FROM TodoList WHERE dueDate <= :timestamp ORDER BY dueDate ASC")
+    fun getTodoListsDueBefore(timestamp: Long): Flow<List<TodoList>>
 
     @Delete
     suspend fun deleteSubTask(subTask: SubTask)

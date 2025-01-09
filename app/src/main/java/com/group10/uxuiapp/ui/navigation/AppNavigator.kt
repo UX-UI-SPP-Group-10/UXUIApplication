@@ -4,11 +4,11 @@ import androidx.navigation.NavController
 class AppNavigator(private val navController: NavController) {
 
     fun navigateToListOverview() {
-        navController.navigate(Screen.TodoList.route)
+        navController.navigate(Screen.TodoListScreen.route)
     }
 
     fun navigateToTask(todoID: Int) {
-        navController.navigate(Screen.Tasks.createRoute(todoID))
+        navController.navigate(Screen.TasksScreen.createRoute(todoID))
     }
 
     fun popBackStack() {

@@ -1,7 +1,9 @@
 package com.group10.uxuiapp.ui.todolist.viewmodel
 
 import android.util.Log
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewModelScope
 import com.group10.uxuiapp.data.data_class.TodoList
 import com.group10.uxuiapp.data.data_class.TodoListWithTaskItem
@@ -21,6 +23,9 @@ class TodoListViewModel(private val taskDataSource: TaskDataSource) : ViewModel(
     private val _selectedTodoList = MutableStateFlow<TodoList?>(null)
     val selectedTodoList = _selectedTodoList.asStateFlow()
 
+    private val _todoListState = MutableStateFlow<TodoListState>(TodoListState.None)
+    val todoListState = _todoListState.asStateFlow()
+
 
     init {
         viewModelScope.launch {
@@ -33,6 +38,31 @@ class TodoListViewModel(private val taskDataSource: TaskDataSource) : ViewModel(
                 Log.e(TAG, "Error fetching TodoLists: ${e.message}", e)
             }
         }
+    }
+
+    fun setNewlistState() {
+        Log.d(TAG, "Setting NewList state")
+        _todoListState.value = TodoListState.NewList
+    }
+
+    fun setRenameState(todoList: TodoList) {
+        Log.d(TAG, "Setting Rename state for TodoList with id: ${todoList.id}")
+        _todoListState.value = TodoListState.Rename(todoList)
+    }
+
+    fun setSelectGifState(todoList: TodoList) {
+        Log.d(TAG, "Setting SelectGif state for TodoList with id: ${todoList.id}")
+        _todoListState.value = TodoListState.SelectGif(todoList)
+    }
+
+    fun setColorPickState(todoList: TodoList) {
+        Log.d(TAG, "Setting ColorPick state for TodoList with id: ${todoList.id}")
+        _todoListState.value = TodoListState.ColorPick(todoList)
+    }
+
+    fun setNoneState() {
+        Log.d(TAG, "Setting None state")
+        _todoListState.value = TodoListState.None
     }
 
 
@@ -106,12 +136,13 @@ class TodoListViewModel(private val taskDataSource: TaskDataSource) : ViewModel(
         }
     }
 
-    fun updateTodoList(todoList: TodoList, title: String? = null, isLiked: Boolean? = null, newIndex: Int? = null) {
+    fun updateTodoList(todoList: TodoList, title: String? = null, isLiked: Boolean? = null, textColor: String? = null, newIndex: Int? = null) {
         viewModelScope.launch {
             try {
                 val updatedTodoList = todoList.copy(
                     title = title ?: todoList.title,
-                    isLiked = isLiked ?: todoList.isLiked
+                    isLiked = isLiked ?: todoList.isLiked,
+                    textColor = textColor ?: todoList.textColor
                 )
 
                 // If newIndex is provided, update the listIndex
@@ -171,5 +202,22 @@ class TodoListViewModel(private val taskDataSource: TaskDataSource) : ViewModel(
                 Log.e(TAG, "Error deleting TaskItem: ${e.message}", e)
             }
         }
+    }
+
+    fun updateTextColor(todoListId: Int, newColor: String) {
+        viewModelScope.launch {
+            val todoList = _lists.value.find { it.todoList.id == todoListId }?.todoList
+            todoList?.let {
+                it.textColor = newColor
+                taskDataSource.updateTodoList(it)
+                Log.d(TAG, "Updated text color for TodoList id: $todoListId")
+            } ?: Log.e(TAG, "TodoList not found for id: $todoListId")
+        }
+    }
+
+    val taskWithDueDates: LiveData<List<TodoList>> = taskDataSource.getTodoListsWithDueDates().asLiveData()
+
+    fun getTaskDueBefore(timestamp: Long): LiveData<List<TodoList>> {
+        return taskDataSource.getTodoListsDueBefore(timestamp).asLiveData()
     }
 }

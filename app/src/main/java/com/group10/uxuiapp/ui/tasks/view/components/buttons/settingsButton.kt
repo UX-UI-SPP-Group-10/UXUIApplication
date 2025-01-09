@@ -1,4 +1,4 @@
-package com.group10.uxuiapp.ui.todolist.view.components
+package com.group10.uxuiapp.ui.tasks.view.components.buttons
 
 import android.content.Context
 import android.widget.Toast
@@ -23,7 +23,12 @@ import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 
 @Composable
-fun SettingsButton(context: Context) {
+fun SettingsButton(
+    context: Context,
+    onSetting1Click: () -> Unit,
+    onSetting2Click: () -> Unit,
+    onSetting3Click: () -> Unit,
+) {
     val expanded = remember { mutableStateOf(false) }
     val rotationAngle by animateFloatAsState(
         targetValue = if (expanded.value) 90f else 0f,
@@ -50,6 +55,7 @@ fun SettingsButton(context: Context) {
         DropdownMenuItem(
             text = { Text("Option 1") },
             onClick = {
+                onSetting1Click()
                 expanded.value = false
                 Toast.makeText(context, "Option 1 clicked", Toast.LENGTH_SHORT).show()
             },
@@ -58,6 +64,7 @@ fun SettingsButton(context: Context) {
         DropdownMenuItem(
             text = { Text("Option 2") },
             onClick = {
+                onSetting2Click()
                 expanded.value = false
                 Toast.makeText(context, "Option 2 clicked", Toast.LENGTH_SHORT).show()
             },
@@ -66,6 +73,7 @@ fun SettingsButton(context: Context) {
         DropdownMenuItem(
             text = { Text("Option 3") },
             onClick = {
+                onSetting3Click()
                 expanded.value = false
                 Toast.makeText(context, "Option 3 clicked", Toast.LENGTH_SHORT).show()
             },
