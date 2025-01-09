@@ -1,4 +1,4 @@
-package com.group10.uxuiapp.ui.tasks.view.components
+package com.group10.uxuiapp.ui.tasks.view.components.buttons
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape

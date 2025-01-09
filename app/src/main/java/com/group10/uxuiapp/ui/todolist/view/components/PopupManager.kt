@@ -21,6 +21,7 @@ fun PopupManager(
     onRenameConfirm: (TodoList, String, String, Long?) -> Unit,
     onGifSelected: (TodoList, String) -> Unit,
     onColorSelected: (TodoList, String) -> Unit,
+    onTagsEdited: (TodoList, String) -> Unit,
     onDismiss: () -> Unit
 ) {
     when (popupState) {
@@ -91,6 +92,14 @@ fun PopupManager(
             )
         }
 
+        is TodoListState.TagsEdit -> {
+            // Show Tag Dialog
+            TagEditDialog(
+                todoList = popupState.todoList,
+                onTagsUpdated = { tags -> onTagsEdited(popupState.todoList, tags) },
+                onDismiss = onDismiss
+            )
+        }
 //        is TodoListState.ColorPick -> {
 //            // Show color picker dialog
 //            ColorPickerDialog(

@@ -33,11 +33,12 @@ fun OptionsPopup(
     onDelete: () -> Unit,
     onUpdate: () -> Unit,
     onGifSelect: () -> Unit,
+    onTagsEdit: () -> Unit,
     //onColorChange: () -> Unit,
     offset: IntOffset
 ) {
     val boxHeight = 60.dp
-    val boxWidth = 225.dp
+    val boxWidth = 360.dp
 
     if (expanded) {
         // Wrap your card in a Popup
@@ -92,7 +93,14 @@ fun OptionsPopup(
                     }
                     Spacer(modifier = androidx.compose.ui.Modifier.width(8.dp))
 
-                    // 4) Change color
+                    } //5) Add tag
+                    IconButton(onClick = onTagsEdit) {
+                        Icon(
+                            painter = painterResource(id = R.drawable.tag),
+                            contentDescription = "Tags",
+                            tint = MaterialTheme.colorScheme.onTertiaryContainer
+                        )
+                    }
 //                    IconButton(onClick = onColorChange) {
 //                        Icon(
 //                            painter = painterResource(id = R.drawable.palette),
@@ -101,7 +109,7 @@ fun OptionsPopup(
 //                        )
 //                    }
 
-                    // 5) Delete
+                    // 6) Delete
                     IconButton(onClick = onDelete) {
                         Icon(
                             painter = painterResource(id = R.drawable.delete),
@@ -113,4 +121,3 @@ fun OptionsPopup(
             }
         }
     }
-}

@@ -1,5 +1,5 @@
 [versions]
-agp = "8.7.2"
+agp = "8.7.3"
 kotlin = "2.0.0"
 coreKtx = "1.15.0"
 junit = "4.13.2"
@@ -17,6 +17,7 @@ lifecycleViewmodelCompose = "2.8.7"
 animation = "1.7.5"
 navigationTesting = "2.8.4"
 accompanistNavigationAnimation = "0.33.0"
+
 
 
 

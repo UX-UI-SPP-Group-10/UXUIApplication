@@ -61,6 +61,11 @@ class TodoListViewModel(private val taskDataSource: TaskDataSource) : ViewModel(
 //        _todoListState.value = TodoListState.ColorPick(todoList)
 //    }
 
+    fun setTagEditState(todoList: TodoList) {
+        Log.d(TAG, "Setting TagEdit state for TodoList with id: ${todoList.id}")
+        _todoListState.value = TodoListState.TagsEdit(todoList)
+    }
+
     fun setNoneState() {
         Log.d(TAG, "Setting None state")
         _todoListState.value = TodoListState.None
@@ -113,18 +118,43 @@ class TodoListViewModel(private val taskDataSource: TaskDataSource) : ViewModel(
 
 
 
-    fun updateListOrder(updatedOrder: List<TodoList>) {
+    fun updateListOrder(updatedOrder: List<TodoListWithTaskItem>) {
         viewModelScope.launch {
             try {
-                updatedOrder.forEachIndexed { index, todoList ->
-                    taskDataSource.updateListIndex(todoList.id, index)
+                // Update each TodoList's listIndex based on its position in the updatedOrder list
+                updatedOrder.forEachIndexed { index, todoListWithTaskItem ->
+                    val updatedTodoList = todoListWithTaskItem.todoList.copy(listIndex = index)
+                    taskDataSource.updateTodoList(updatedTodoList)
                 }
+                // Update the _lists StateFlow with the new order
+                _lists.value = updatedOrder
                 Log.d(TAG, "Updated list order successfully")
             } catch (e: Exception) {
                 Log.e(TAG, "Error updating list order: ${e.message}", e)
             }
         }
     }
+
+    fun updateAllListIndexes(updatedOrder: List<TodoListWithTaskItem>) {
+        viewModelScope.launch {
+            try {
+                // Prepare the list of (id, newIndex) pairs
+                val updatedIndexes = updatedOrder.mapIndexed { index, todoListWithTaskItem ->
+                    todoListWithTaskItem.todoList.id to index
+                }
+
+                // Perform bulk update of list indexes
+                taskDataSource.updateAllIndexes(updatedIndexes)
+
+                // Update the _lists StateFlow with the new order
+                _lists.value = updatedOrder
+                Log.d(TAG, "Updated all list indexes successfully")
+            } catch (e: Exception) {
+                Log.e(TAG, "Error updating all list indexes: ${e.message}", e)
+            }
+        }
+    }
+
 
     fun addTaskToList(taskItem: TaskItem) {
         viewModelScope.launch {
@@ -231,4 +261,25 @@ class TodoListViewModel(private val taskDataSource: TaskDataSource) : ViewModel(
     fun getTaskDueBefore(timestamp: Long): LiveData<List<TodoList>> {
         return taskDataSource.getTodoListsDueBefore(timestamp).asLiveData()
     }
+
+    fun updateTags(todoListId: Int, newTags: String) {
+        viewModelScope.launch {
+            val todoList = _lists.value.find { it.todoList.id == todoListId }?.todoList
+            if (todoList != null) {
+                val updatedTodoList = todoList.copy(tags = newTags)
+                taskDataSource.updateTodoList(updatedTodoList)
+                // Force an update to _lists to ensure the UI gets the new data
+                _lists.value = _lists.value.map {
+                    if (it.todoList.id == todoListId) it.copy(todoList = updatedTodoList) else it
+                }
+                Log.d(TAG, "Updated tags for TodoList id: $todoListId")
+            } else {
+                Log.e(TAG, "TodoList not found for id: $todoListId")
+            }
+        }
+    }
+
+
+
+
 }

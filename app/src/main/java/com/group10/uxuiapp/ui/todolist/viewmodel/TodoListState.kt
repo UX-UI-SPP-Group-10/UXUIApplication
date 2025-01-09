@@ -8,4 +8,5 @@ sealed class TodoListState {
     data class Rename(val todoList: TodoList) : TodoListState()
     data class SelectGif(val todoList: TodoList) : TodoListState()
     //data class ColorPick(val todoList: TodoList) : TodoListState()
+    data class TagsEdit(val todoList: TodoList) : TodoListState()
 }
