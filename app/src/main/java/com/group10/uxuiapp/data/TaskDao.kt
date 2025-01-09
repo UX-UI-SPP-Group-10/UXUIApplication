@@ -69,6 +69,8 @@ interface TaskDao {
         label: String? = null,
         isComplete: Boolean? = null
     )
+    @Query("UPDATE TodoList SET dueDate = :dueDate WHERE id = :todoListId")
+    suspend fun updateDueDate(todoListId: Int, dueDate: Long?)
 
     @Query("""
         DELETE FROM TaskItem WHERE id = :taskId

@@ -137,13 +137,14 @@ class TodoListViewModel(private val taskDataSource: TaskDataSource) : ViewModel(
         }
     }
 
-    fun updateTodoList(todoList: TodoList, title: String? = null, isLiked: Boolean? = null, textColor: String? = null, newIndex: Int? = null) {
+    fun updateTodoList(todoList: TodoList, title: String? = null, isLiked: Boolean? = null, textColor: String? = null, dueDate: Long? = null, newIndex: Int? = null) {
         viewModelScope.launch {
             try {
                 val updatedTodoList = todoList.copy(
                     title = title ?: todoList.title,
                     isLiked = isLiked ?: todoList.isLiked,
-                    textColor = textColor ?: todoList.textColor
+                    textColor = textColor ?: todoList.textColor,
+                    dueDate = dueDate ?: todoList.dueDate
                 )
 
                 // If newIndex is provided, update the listIndex
@@ -213,6 +214,11 @@ class TodoListViewModel(private val taskDataSource: TaskDataSource) : ViewModel(
                 taskDataSource.updateTodoList(it)
                 Log.d(TAG, "Updated text color for TodoList id: $todoListId")
             } ?: Log.e(TAG, "TodoList not found for id: $todoListId")
+        }
+    }
+    fun updateTodoListDueDate(todoListId: Int, dueDate: Long?) {
+        viewModelScope.launch {
+            taskDataSource.updateDueDate(todoListId, dueDate)
         }
     }
 

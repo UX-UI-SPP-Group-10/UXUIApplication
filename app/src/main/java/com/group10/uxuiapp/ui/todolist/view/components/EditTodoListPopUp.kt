@@ -16,9 +16,12 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import com.group10.uxuiapp.R
 import com.group10.uxuiapp.ui.todolist.view.components.ColorPicker
+import java.text.SimpleDateFormat
+import java.util.Locale
 
 sealed class EditListPage {
     object NameInput : EditListPage()
@@ -81,7 +84,15 @@ fun EditTodolistDialog(onDismiss: () -> Unit, onConfirm: (String, String, String
                     ColorPicker { selectedColor = it }
                 }
                 is EditListPage.DueDatePicker -> {
-                    // Due Date Picker Content
+                    DatePickerComponent(
+                        context = LocalContext.current,
+                        onDateSelected = { date ->
+                            val formatter = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
+                            val parsedDate = formatter.parse(date)
+                            selectedDate = date
+                            currentPage = EditListPage.NameInput // Navigate back to NameInput after selecting the date
+                        }
+                    )
                 }
             }
        },

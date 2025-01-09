@@ -165,6 +165,7 @@ fun TodoListScreen(viewModel: TodoListViewModel, appNavigator: AppNavigator) {
 
         PopupManager(
             popupState = popupState,
+            viewModel = viewModel,
             onNewListConfirm = { name ->
                 viewModel.addTodoList(name)
                 viewModel.setNoneState()
@@ -173,7 +174,8 @@ fun TodoListScreen(viewModel: TodoListViewModel, appNavigator: AppNavigator) {
                 viewModel.updateTodoList(
                     todoList = todoList,
                     title = newName,
-                    textColor = selectedColor
+                    textColor = selectedColor,
+                    dueDate = selectedDate
                     // Handle selectedDate if applicable
                 )
                 viewModel.setNoneState()
