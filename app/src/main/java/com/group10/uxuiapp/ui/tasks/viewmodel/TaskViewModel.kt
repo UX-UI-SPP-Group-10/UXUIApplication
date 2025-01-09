@@ -1,6 +1,7 @@
 package com.group10.uxuiapp.ui.tasks.viewmodel
 
 import android.util.Log
+import androidx.compose.runtime.remember
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.group10.uxuiapp.data.data_class.TaskItem
@@ -25,8 +26,24 @@ class TaskViewModel(private val taskDataSource: TaskDataSource) : ViewModel() {
     private val _selectedTask = MutableStateFlow<TaskItem?>(null)
     val selectedTaskItem: StateFlow<TaskItem?> = _selectedTask
 
+    private val _lastSelectedTaskItem = MutableStateFlow<TaskItem?>(null)
+    val lastSelectedTaskItem: StateFlow<TaskItem?> = _lastSelectedTaskItem
+
     private val _lists = MutableStateFlow<List<TaskItemWithSubTask>>(emptyList())
     val lists: StateFlow<List<TaskItemWithSubTask>> = _lists
+
+    init {
+        viewModelScope.launch {
+            try {
+                taskDataSource.getTaskItemWithSubTask()
+                    .collect { taskItemWithSubTask ->
+                        _lists.value = taskItemWithSubTask.sortedBy { it.taskItem.id }
+                    }
+            } catch (e: Exception) {
+                Log.e(TAG, "Error fetching TodoLists: ${e.message}", e)
+            }
+        }
+    }
 
     @OptIn(ExperimentalCoroutinesApi::class)
     val currentTodoList: StateFlow<TodoListWithTaskItem?> = _currentTodoListId.flatMapLatest { todoListId ->
@@ -108,6 +125,9 @@ class TaskViewModel(private val taskDataSource: TaskDataSource) : ViewModel() {
     fun selectTask(taskItem: TaskItem?) {
         Log.d(TAG, "Selecting TaskItem: ${taskItem?.id.toString()}")
         _selectedTask.value = taskItem
+        if(taskItem != null){
+            _lastSelectedTaskItem.value = taskItem
+        }
     }
 
     fun selectSubtask(subTask: SubTask?) {

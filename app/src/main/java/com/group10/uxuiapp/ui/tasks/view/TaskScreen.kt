@@ -50,7 +50,8 @@ fun TaskScreen(todoListId: Int, appNavigator: AppNavigator, viewModel: TaskViewM
     // Observe the current TodoList and its tasks
     val taskListWithItems by viewModel.currentTodoList.collectAsState()
     val selectedTask by viewModel.selectedTaskItem.collectAsState()
-    val taskItemWithSubTask by viewModel.lists.collectAsState(emptyList())
+    val taskItemWithSubTask by viewModel.lists.collectAsState()
+    val lastSelectedTask by viewModel.lastSelectedTaskItem.collectAsState()
 
     if (taskListWithItems == null) {
         // Loading state
@@ -87,8 +88,10 @@ fun TaskScreen(todoListId: Int, appNavigator: AppNavigator, viewModel: TaskViewM
         },
         bottomBar = {
             AddSubTaskButton(onClick = {
-                val newSubTask = selectedTask.let { SubTask(label = "", taskItemId = it!!.id) }
-                viewModel.addSupTask(newSubTask)
+                if(lastSelectedTask != null){
+                    val newSubTask = lastSelectedTask.let { SubTask(label = "", taskItemId = lastSelectedTask!!.id) }
+                    viewModel.addSupTask(newSubTask)
+                }
             })
             AddTaskButton(onClick = {
                 // Add a new task to the TodoList
@@ -133,6 +136,7 @@ fun TaskScreen(todoListId: Int, appNavigator: AppNavigator, viewModel: TaskViewM
         }
     }
 
+    /*
     if (selectedTask != null) {
         EditTaskPopup(
             taskName = selectedTask!!.label,
@@ -148,6 +152,6 @@ fun TaskScreen(todoListId: Int, appNavigator: AppNavigator, viewModel: TaskViewM
                 viewModel.selectTask(null)
             }
         )
-    }
+    }*/
 
 }
