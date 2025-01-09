@@ -31,6 +31,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.modifier.modifierLocalOf
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.IntOffset
@@ -50,6 +51,7 @@ import androidx.compose.ui.unit.dp
 
 @Composable
 fun TodoListCard(
+    modifier: Modifier,
     todoList: TodoList,
     viewModel: TodoListViewModel,
     appNavigator: AppNavigator,
@@ -90,7 +92,7 @@ fun TodoListCard(
     }
 
     Box(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
             .height(100.dp)
             .clip(RoundedCornerShape(20.dp))
@@ -98,25 +100,25 @@ fun TodoListCard(
                 cardGlobalOffset = layoutCoordinates.localToRoot(Offset.Zero)
                 cardHeight = layoutCoordinates.size.height
             }
-            .pointerInput(Unit) {
-                detectTapGestures(
-                    onTap = {
-                        // Normal tap
-                        val refreshedTaskList = taskListsWithItems.find { it.todoList.id == todoList.id }
-                        if (refreshedTaskList != null) {
-                            appNavigator.navigateToTask(refreshedTaskList.todoList.id)
-                        }
-                    },
-                    onLongPress = {
-                        // Calculate the position where the popup should appear (below the card)
-                        val finalOffset = IntOffset(
-                            x = 0,
-                            y = (cardGlobalOffset.y + cardHeight).toInt() - extraYOffsetPx  // adjust y offset
-                        )
-                        onPositionChange(finalOffset, todoList)
-                    }
-                )
-            }
+//            .pointerInput(Unit) {
+//                detectTapGestures(
+//                    onTap = {
+//                        // Normal tap
+//                        val refreshedTaskList = taskListsWithItems.find { it.todoList.id == todoList.id }
+//                        if (refreshedTaskList != null) {
+//                            appNavigator.navigateToTask(refreshedTaskList.todoList.id)
+//                        }
+//                    },
+//                    onLongPress = {
+//                        // Calculate the position where the popup should appear (below the card)
+//                        val finalOffset = IntOffset(
+//                            x = 0,
+//                            y = (cardGlobalOffset.y + cardHeight).toInt() - extraYOffsetPx  // adjust y offset
+//                        )
+//                        onPositionChange(finalOffset, todoList)
+//                    }
+//                )
+//            }
     ) {
         // GIF as background (placed first to be behind everything else)
         if (!todoList.gifUrl.isNullOrEmpty()) {

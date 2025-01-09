@@ -1,5 +1,12 @@
 package com.group10.uxuiapp.ui.todolist.view
 
+import android.content.ClipData
+import android.view.DragEvent
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.background
+import androidx.compose.foundation.draganddrop.dragAndDropSource
+import androidx.compose.foundation.draganddrop.dragAndDropTarget
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
@@ -28,7 +35,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draganddrop.DragAndDropEvent
+import androidx.compose.ui.draganddrop.DragAndDropTarget
+import androidx.compose.ui.draganddrop.DragAndDropTransferData
+import androidx.compose.ui.draganddrop.mimeTypes
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.unit.IntOffset
@@ -40,6 +53,7 @@ import com.group10.uxuiapp.ui.todolist.view.components.buttons.SettingsButton
 import com.group10.uxuiapp.ui.todolist.viewmodel.TodoListViewModel
 
 // Main TodoListScreen with Scaffold and LazyColumn
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun TodoListScreen(viewModel: TodoListViewModel, appNavigator: AppNavigator) {
     val query = remember { mutableStateOf("") }
@@ -74,6 +88,7 @@ fun TodoListScreen(viewModel: TodoListViewModel, appNavigator: AppNavigator) {
 
     // Decide which list to show: full or filtered
     val listsToShow = if (query.value.isBlank()) todoListsWithItems else filteredLists
+    var isDragging = remember { mutableStateOf(false) }
 
     Box(modifier = Modifier.fillMaxSize()) {
         Scaffold(
@@ -93,6 +108,26 @@ fun TodoListScreen(viewModel: TodoListViewModel, appNavigator: AppNavigator) {
                     top = innerPadding.calculateTopPadding(),
                     end = innerPadding.calculateEndPadding(LocalLayoutDirection.current) + 12.dp, // Extra right padding
                     bottom = innerPadding.calculateBottomPadding() + 100.dp // Existing extra bottom padding
+                ),
+                modifier = Modifier.dragAndDropTarget(
+                    shouldStartDragAndDrop = { event ->
+                    event
+                        .mimeTypes()
+                        .contains("text/plain")
+                },
+                    target = remember {
+                        object : DragAndDropTarget {
+                            override fun onDrop(event: DragAndDropEvent): Boolean {
+                                //val targetItemId = listsToShow[event.targetIndex].todoList.id
+
+                                // Update the state or ViewModel to reflect reordering
+                                //viewModel.moveItem(droppedData.itemId, targetItemId)
+
+                                return true // Indicate that the drop was handled
+                            }
+                        }
+                    }
+
                 )
             ){
                 items(
@@ -102,6 +137,19 @@ fun TodoListScreen(viewModel: TodoListViewModel, appNavigator: AppNavigator) {
                     val todoList = taskListWithItems.todoList
 
                     TodoListCard(
+                        modifier = Modifier.background(if (isDragging.value) Color.Gray else Color.Transparent)
+                            .dragAndDropSource {
+                                detectTapGestures(
+                                    onLongPress = {
+                                        isDragging.value = true
+                                        startTransfer(
+                                            transferData = DragAndDropTransferData(
+                                                clipData = ClipData.newPlainText("text", "text"),
+                                            )
+                                        )
+                                    }
+                                )
+                            },
                         todoList = todoList,
                         onPositionChange = { offset, list ->
                             popupOffset.value = offset
