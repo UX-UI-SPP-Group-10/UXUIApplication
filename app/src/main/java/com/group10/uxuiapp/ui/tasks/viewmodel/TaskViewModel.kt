@@ -125,10 +125,14 @@ class TaskViewModel(private val taskDataSource: TaskDataSource) : ViewModel() {
 
     fun selectTask(taskItem: TaskItem?) {
         Log.d(TAG, "Selecting TaskItem: ${taskItem?.id.toString()}")
-        _selectedTask.value = taskItem
         if(taskItem != null){
             _lastSelectedTaskItem.value = taskItem
         }
+    }
+
+    fun selectTaskForChange(taskItem: TaskItem?) {
+        Log.d(TAG, "Selecting TaskItem: ${taskItem?.id.toString()}")
+        _selectedTask.value = taskItem
     }
 
     fun selectSubtask(subTask: SubTask?) {

@@ -142,7 +142,6 @@ fun TaskScreen(todoListId: Int, appNavigator: AppNavigator, viewModel: TaskViewM
         }
     }
 
-    /*
     if (selectedTask != null) {
         EditTaskPopup(
             taskName = selectedTask!!.label,
@@ -158,6 +157,6 @@ fun TaskScreen(todoListId: Int, appNavigator: AppNavigator, viewModel: TaskViewM
                 viewModel.selectTask(null)
             }
         )
-    }*/
+    }
 
 }
