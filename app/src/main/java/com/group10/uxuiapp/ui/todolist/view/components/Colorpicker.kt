@@ -40,27 +40,7 @@ import androidx.compose.ui.state.ToggleableState
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 
-
 @Composable
-//fun ColorPickerDialog(onDismissed: () -> Unit,  onColorSelected: (String) -> Unit) {
-//    AlertDialog(
-//        onDismissRequest = { onDismissed },
-//        title = { Text("Pick a Color") },
-//        text = {
-//            ColorPicker(
-//                onColorSelect = { hexColor ->
-//                onColorSelected(hexColor)
-//                })
-//        },
-//        confirmButton = {
-//            Button(onClick = onDismissed ) {
-//                Text("Close")
-//            }
-//        }
-//    )
-//}
-
-
 fun ColorPicker(onColorSelect: (String) -> Unit) {
     val colors = listOf(
         "#000000", "#FFFFFF", "#FF5733", "#0000FF", "#00FF00", "#FFFF00", "#FF00FF", "#00FFFF"
@@ -87,9 +67,29 @@ fun ColorPicker(onColorSelect: (String) -> Unit) {
                         .clickable{ onColorSelect(colorHex)}
                 )
 
+            }
         }
-
     }
+}
+
+//fun ColorPickerDialog(onDismissed: () -> Unit,  onColorSelected: (String) -> Unit) {
+//    AlertDialog(
+//        onDismissRequest = { onDismissed },
+//        title = { Text("Pick a Color") },
+//        text = {
+//            ColorPicker(
+//                onColorSelect = { hexColor ->
+//                onColorSelected(hexColor)
+//                })
+//        },
+//        confirmButton = {
+//            Button(onClick = onDismissed ) {
+//                Text("Close")
+//            }
+//        }
+//    )
+//}
+
 
 //    val expanded = remember { mutableStateOf(false) }
 //
@@ -147,5 +147,6 @@ fun ColorPicker(onColorSelect: (String) -> Unit) {
 //            modifier = Modifier.fillMaxWidth()
 //        )
 
-    }
-}
+
+
+
