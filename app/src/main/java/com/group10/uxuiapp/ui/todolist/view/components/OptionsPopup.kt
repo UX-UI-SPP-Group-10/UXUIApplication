@@ -34,10 +34,11 @@ fun OptionsPopup(
     onUpdate: () -> Unit,
     onGifSelect: () -> Unit,
     onColorChange: () -> Unit,
+    onTagsEdit: () -> Unit,
     offset: IntOffset
 ) {
     val boxHeight = 60.dp
-    val boxWidth = 225.dp
+    val boxWidth = 360.dp
 
     if (expanded) {
         // Wrap your card in a Popup
@@ -99,9 +100,16 @@ fun OptionsPopup(
                             contentDescription = "Color",
                             tint = MaterialTheme.colorScheme.onTertiaryContainer
                         )
+                    } //5) Add tag
+                    IconButton(onClick = onTagsEdit) {
+                        Icon(
+                            painter = painterResource(id = R.drawable.tag),
+                            contentDescription = "Tags",
+                            tint = MaterialTheme.colorScheme.onTertiaryContainer
+                        )
                     }
 
-                    // 5) Delete
+                    // 6) Delete
                     IconButton(onClick = onDelete) {
                         Icon(
                             painter = painterResource(id = R.drawable.delete),

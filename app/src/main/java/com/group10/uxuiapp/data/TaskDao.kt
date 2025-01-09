@@ -2,6 +2,7 @@ package com.group10.uxuiapp.data
 
 import androidx.room.*
 import com.group10.uxuiapp.data.data_class.SubTask
+import coil.request.Tags
 import com.group10.uxuiapp.data.data_class.TaskItem
 import com.group10.uxuiapp.data.data_class.TaskItemWithSubTask
 import com.group10.uxuiapp.data.data_class.TodoList
@@ -51,7 +52,8 @@ interface TaskDao {
         isLiked = :isLiked,
         gifUrl = :gifUrl,
         dueDate = :dueDate,
-        textColor = :textColor
+        textColor = :textColor,
+        tags = :tags
     WHERE id = :id
 """)
     suspend fun updateTodoList(
@@ -60,7 +62,8 @@ interface TaskDao {
         isLiked: Boolean,
         gifUrl: String,
         textColor: String,
-        dueDate: Long?
+        dueDate: Long?,
+        tags: String?
     )
 
     @Query("""
@@ -72,7 +75,6 @@ interface TaskDao {
         todoListId: Int,
         listIndex: Int
     )
-
 
     @Query("""
         UPDATE TaskItem
