@@ -51,6 +51,7 @@ fun TaskScreen(todoListId: Int, appNavigator: AppNavigator, viewModel: TaskViewM
     // Observe the current TodoList and its tasks
     val taskListWithItems by viewModel.currentTodoList.collectAsState()
     val selectedTask by viewModel.selectedTaskItem.collectAsState()
+    val selectedSubTask by viewModel.selectedSubTask.collectAsState()
     val taskItemWithSubTask by viewModel.lists.collectAsState()
     val lastSelectedTask by viewModel.lastSelectedTaskItem.collectAsState()
 
@@ -142,19 +143,34 @@ fun TaskScreen(todoListId: Int, appNavigator: AppNavigator, viewModel: TaskViewM
         }
     }
 
-    if (selectedTask != null) {
+    if (selectedTask != null || selectedSubTask != null) {
         EditTaskPopup(
-            taskName = selectedTask!!.label,
+            taskName = when {
+                selectedTask != null -> selectedTask!!.label
+                selectedSubTask != null -> selectedSubTask!!.label
+                else -> "" // Fallback, should not reach here
+            },
             onSaveTask = { newName ->
-                viewModel.updateTaskItem(taskItem = selectedTask!!, label = newName)
-                viewModel.selectTask(null)
+                if(selectedTask != null){
+                    viewModel.updateTaskItem(taskItem = selectedTask!!, label = newName)
+                }
+                if(selectedSubTask != null){
+                    viewModel.updateSubTask(subTask = selectedSubTask!!, label = newName)
+                }
+                viewModel.selectTaskForChange(null, null)
             },
             onDeleteTask = {
-                viewModel.deleteTask(selectedTask!!)
-                viewModel.selectTask(null)
+                if(selectedTask != null){
+                    viewModel.deleteTask(selectedTask!!)
+                }
+                if(selectedSubTask != null){
+                    viewModel.deleteSupTask(selectedSubTask!!)
+                }
+
+                viewModel.selectTaskForChange(null, null)
             },
             onDismiss = {
-                viewModel.selectTask(null)
+                viewModel.selectTaskForChange(null, null)
             }
         )
     }

@@ -33,6 +33,9 @@ class TaskViewModel(private val taskDataSource: TaskDataSource) : ViewModel() {
     private val _lists = MutableStateFlow<List<TaskItemWithSubTask>>(emptyList())
     val lists: StateFlow<List<TaskItemWithSubTask>> = _lists
 
+    private val _selectedSubTask = MutableStateFlow<SubTask?>(null)
+    val selectedSubTask: StateFlow<SubTask?> = _selectedSubTask
+
     init {
         viewModelScope.launch {
             try {
@@ -130,9 +133,10 @@ class TaskViewModel(private val taskDataSource: TaskDataSource) : ViewModel() {
         }
     }
 
-    fun selectTaskForChange(taskItem: TaskItem?) {
+    fun selectTaskForChange(taskItem: TaskItem? = null, subTask: SubTask? = null) {
         Log.d(TAG, "Selecting TaskItem: ${taskItem?.id.toString()}")
         _selectedTask.value = taskItem
+        _selectedSubTask.value = subTask
     }
 
     fun selectSubtask(subTask: SubTask?) {

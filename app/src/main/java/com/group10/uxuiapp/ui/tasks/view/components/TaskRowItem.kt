@@ -46,7 +46,7 @@ fun TaskRowItem(
                 .pointerInput(Unit) {
                     // detectTapGestures only for the "empty space"
                     detectTapGestures(onPress = { viewModel.selectTask(task) },
-                        onLongPress = {viewModel.selectTaskForChange(task)})
+                        onLongPress = {viewModel.selectTaskForChange(taskItem = task)})
                 },
             verticalAlignment = Alignment.CenterVertically
         ) {
