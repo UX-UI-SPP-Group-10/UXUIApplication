@@ -137,7 +137,14 @@ class TodoListViewModel(private val taskDataSource: TaskDataSource) : ViewModel(
         }
     }
 
-    fun updateTodoList(todoList: TodoList, title: String? = null, isLiked: Boolean? = null, textColor: String? = null, dueDate: Long? = null, newIndex: Int? = null) {
+    fun updateTodoList(
+        todoList: TodoList,
+        title: String? = null,
+        isLiked: Boolean? = null,
+        textColor: String? = null,
+        dueDate: Long? = null,
+        newIndex: Int? = null
+    ) {
         viewModelScope.launch {
             try {
                 val updatedTodoList = todoList.copy(
@@ -181,13 +188,10 @@ class TodoListViewModel(private val taskDataSource: TaskDataSource) : ViewModel(
     fun updateGifUrl(todoListId: Int, gifUrl: String) {
         viewModelScope.launch {
             try {
-                val todoList = _lists.value.find { it.todoList.id == todoListId }?.todoList
-                if (todoList != null) {
-                    Log.d(TAG, "Updating gifUrl for TodoList with id: $todoListId, gifUrl: $gifUrl")
-                    taskDataSource.updateTodoList(todoList.copy(gifUrl = gifUrl))
-                    Log.d(TAG, "GifUrl updated successfully")
-                } else {
-                    Log.w(TAG, "TodoList with id $todoListId not found for gifUrl update")
+                taskDataSource.getTodoListById(todoListId).collect { todoList ->
+                    val updatedTodoList = todoList.copy(gifUrl = gifUrl)
+                    taskDataSource.updateTodoList(updatedTodoList)
+                    Log.d(TAG, "Updated gifUrl for TodoList with id: $todoListId")
                 }
             } catch (e: Exception) {
                 Log.e(TAG, "Error updating gifUrl: ${e.message}", e)

@@ -61,7 +61,7 @@ fun PopupManager(
                         todoList = currentTodoList,
                         title = finalName,
                         textColor = finalColor,
-                        dueDate = finalDate // Pass the Long value here
+                        dueDate = finalDate,
                     )
                     onDismiss()
                 }
@@ -81,7 +81,9 @@ fun PopupManager(
             GiphyDialog(
                 context = LocalContext.current,
                 onGifSelected = { gifUrl ->
-                    onGifSelected(popupState.todoList, gifUrl)
+                    viewModel.updateGifUrl(
+                        popupState.todoList.id,
+                        gifUrl = gifUrl)
                 },
                 onDismissed = {
                     onDismiss()
