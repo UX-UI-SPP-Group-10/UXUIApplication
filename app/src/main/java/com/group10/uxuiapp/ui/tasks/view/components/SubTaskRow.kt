@@ -27,74 +27,79 @@ fun SubTaskRow(
 ) {
     var isChecked = task.isComplete
 
-    Box(
-        modifier = Modifier
-            .padding(vertical = 6.dp, horizontal = 12.dp)
-            .height(40.dp)
-            .fillMaxWidth()
-            .background(
-                color = MaterialTheme.colorScheme.surfaceVariant,
-                shape = MaterialTheme.shapes.small
-            )
-    ) {
-        Row(
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.End
+    ){
+        Box(
             modifier = Modifier
-                .fillMaxWidth()
-                .height(56.dp)
-                .pointerInput(Unit) {
-                    // detectTapGestures only for the "empty space"
-                    detectTapGestures(onLongPress = { viewModel.selectSubtask(task) })
-                },
-            verticalAlignment = Alignment.CenterVertically
+                .padding(vertical = 6.dp, horizontal = 12.dp)
+                .height(40.dp)
+                .width(340.dp)
+                .background(
+                    color = MaterialTheme.colorScheme.surfaceVariant,
+                    shape = MaterialTheme.shapes.small
+                )
         ) {
-            Spacer(modifier = Modifier.width(16.dp))
-            // 2) Checkbox
-            Checkbox(
-                checked = isChecked,
-                onCheckedChange = { newChecked ->
-                    isChecked = newChecked
-                    viewModel.updateSubTask(task, isComplete = newChecked)
-                },
-                colors = CheckboxDefaults.colors(
-                    checkedColor = MaterialTheme.colorScheme.primary,
-                    uncheckedColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
-                    checkmarkColor = MaterialTheme.colorScheme.onPrimary
-                ),
-                modifier = Modifier.size(28.dp)
-            )
-
-            // 3) Editable text
-            BasicTextField(
-                value = task.label,
-                onValueChange = { newText ->
-                    viewModel.updateSubTask(task, label = newText)
-                },
-                textStyle = MaterialTheme.typography.bodyLarge.copy(
-                    textDecoration = if (isChecked) TextDecoration.LineThrough else null,
-                    fontWeight = FontWeight.Medium,
-                    color = if (isChecked) {
-                        MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
-                    } else {
-                        MaterialTheme.colorScheme.onSurface
-                    }
-                ),
-                singleLine = true,
+            Row(
                 modifier = Modifier
-                    .widthIn(max = 200.dp)
-                    .padding(start = 4.dp)
+                    .fillMaxWidth()
+                    .height(56.dp)
+                    .pointerInput(Unit) {
+                        // detectTapGestures only for the "empty space"
+                        detectTapGestures(onLongPress = { viewModel.selectSubtask(task) })
+                    },
+                horizontalArrangement = Arrangement.Start,
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                // Placeholder if you want one
-                if (task.label.isEmpty()) {
-                    Text(
-                        text = "new Task",
-                        fontSize = 16.sp,
-                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.4f)
-                    )
-                }
-                it()
-            }
+                Spacer(modifier = Modifier.width(16.dp))
+                // 2) Checkbox
+                Checkbox(
+                    checked = isChecked,
+                    onCheckedChange = { newChecked ->
+                        isChecked = newChecked
+                        viewModel.updateSubTask(task, isComplete = newChecked)
+                    },
+                    colors = CheckboxDefaults.colors(
+                        checkedColor = MaterialTheme.colorScheme.primary,
+                        uncheckedColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
+                        checkmarkColor = MaterialTheme.colorScheme.onPrimary
+                    ),
+                    modifier = Modifier.size(28.dp)
+                )
 
-            Spacer(modifier = Modifier.weight(1f))
+                // 3) Editable text
+                BasicTextField(
+                    value = task.label,
+                    onValueChange = { newText ->
+                        viewModel.updateSubTask(task, label = newText)
+                    },
+                    textStyle = MaterialTheme.typography.bodyLarge.copy(
+                        textDecoration = if (isChecked) TextDecoration.LineThrough else null,
+                        fontWeight = FontWeight.Medium,
+                        color = if (isChecked) {
+                            MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
+                        } else {
+                            MaterialTheme.colorScheme.onSurface
+                        }
+                    ),
+                    singleLine = true,
+                    modifier = Modifier
+                        .widthIn(max = 200.dp)
+                        .padding(start = 4.dp)
+                ) {
+                    // Placeholder if you want one
+                    if (task.label.isEmpty()) {
+                        Text(
+                            text = "new Task",
+                            fontSize = 16.sp,
+                            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.4f)
+                        )
+                    }
+                    it()
+                }
+                Spacer(modifier = Modifier.weight(1f))
+            }
         }
     }
 }
