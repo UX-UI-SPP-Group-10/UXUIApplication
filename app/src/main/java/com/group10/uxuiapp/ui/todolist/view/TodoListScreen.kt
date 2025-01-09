@@ -110,17 +110,10 @@ fun TodoListScreen(viewModel: TodoListViewModel, appNavigator: AppNavigator) {
 
     val lazyListState = rememberLazyListState()
     val reorderableLazyListState = rememberReorderableLazyListState(lazyListState) { from, to ->
-        if(!isDragging) {
             val updatedList = todoListsWithItems.toMutableList().apply {
                 add(to.index, removeAt(from.index))
             }
-
-            // Update listIndex in the database after a small delay to batch updates
-            CoroutineScope(Dispatchers.IO).launch {
-                delay(200) // Allow drag animation to complete
-                viewModel.updateAllListIndexes(updatedList)
-            }
-        }
+            viewModel.updateAllListIndexes(updatedList)
     }
 
 
