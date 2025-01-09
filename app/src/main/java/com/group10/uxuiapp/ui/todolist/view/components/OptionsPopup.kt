@@ -60,7 +60,7 @@ fun OptionsPopup(
                 contentAlignment = Alignment.Center
             ) {
                 Row(
-                    modifier = androidx.compose.ui.Modifier
+                    modifier = Modifier
                         .padding(horizontal = 8.dp, vertical = 8.dp)
                 ) {
                     // 1) Close
@@ -71,7 +71,7 @@ fun OptionsPopup(
                             tint = MaterialTheme.colorScheme.onTertiaryContainer
                         )
                     }
-                    Spacer(modifier = androidx.compose.ui.Modifier.width(8.dp))
+                    Spacer(modifier = Modifier.width(8.dp))
 
                     // 2) Select GIF
                     IconButton(onClick = onGifSelect) {
@@ -81,7 +81,7 @@ fun OptionsPopup(
                             tint = MaterialTheme.colorScheme.onTertiaryContainer
                         )
                     }
-                    Spacer(modifier = androidx.compose.ui.Modifier.width(8.dp))
+                    Spacer(modifier = Modifier.width(8.dp))
 
                     // 3) Rename
                     IconButton(onClick = onUpdate) {
@@ -91,9 +91,9 @@ fun OptionsPopup(
                             tint = MaterialTheme.colorScheme.onTertiaryContainer
                         )
                     }
-                    Spacer(modifier = androidx.compose.ui.Modifier.width(8.dp))
+                    Spacer(modifier = Modifier.width(8.dp))
 
-                    } //5) Add tag
+                    // 4) Edit Tags
                     IconButton(onClick = onTagsEdit) {
                         Icon(
                             painter = painterResource(id = R.drawable.tag),
@@ -101,15 +101,9 @@ fun OptionsPopup(
                             tint = MaterialTheme.colorScheme.onTertiaryContainer
                         )
                     }
-//                    IconButton(onClick = onColorChange) {
-//                        Icon(
-//                            painter = painterResource(id = R.drawable.palette),
-//                            contentDescription = "Color",
-//                            tint = MaterialTheme.colorScheme.onTertiaryContainer
-//                        )
-//                    }
+                    Spacer(modifier = Modifier.width(8.dp))
 
-                    // 6) Delete
+                    // 5) Delete
                     IconButton(onClick = onDelete) {
                         Icon(
                             painter = painterResource(id = R.drawable.delete),
@@ -121,3 +115,4 @@ fun OptionsPopup(
             }
         }
     }
+}
