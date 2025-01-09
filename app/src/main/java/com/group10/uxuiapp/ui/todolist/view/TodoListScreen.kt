@@ -2,7 +2,6 @@ package com.group10.uxuiapp.ui.todolist.view
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.calculateEndPadding
@@ -30,7 +29,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.unit.IntOffset
@@ -39,10 +37,6 @@ import com.group10.uxuiapp.ui.navigation.AppNavigator
 import com.group10.uxuiapp.ui.todolist.view.components.*
 import com.group10.uxuiapp.ui.todolist.view.components.buttons.AddNewTodoListButton
 import com.group10.uxuiapp.ui.todolist.view.components.buttons.SettingsButton
-import com.group10.uxuiapp.data.GiphyActivity
-import com.group10.uxuiapp.data.data_class.TodoListWithTaskItem
-import com.group10.uxuiapp.ui.todolist.view.components.ColorPickerDialog
-import com.group10.uxuiapp.ui.todolist.view.components.ListNameInputDialog
 import com.group10.uxuiapp.ui.todolist.viewmodel.TodoListViewModel
 
 // Main TodoListScreen with Scaffold and LazyColumn
@@ -231,7 +225,11 @@ private fun TopAppBarWithMenu(query: MutableState<String>) {
             }
         },
         actions = {
-            SettingsButton(context = context)
+            SettingsButton(
+                context = context,
+                onSetting1Click = {  }, // TODO add settings 1
+                onSetting2Click = {  } , // TODO add settings 2
+                onSetting3Click = {  }) // TODO add settings 3
         },
         colors = TopAppBarDefaults.topAppBarColors(),
         scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()

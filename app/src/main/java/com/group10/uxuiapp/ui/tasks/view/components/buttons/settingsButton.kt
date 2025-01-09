@@ -1,4 +1,4 @@
-package com.group10.uxuiapp.ui.todolist.view.components.buttons
+package com.group10.uxuiapp.ui.tasks.view.components.buttons
 
 import android.content.Context
 import android.widget.Toast

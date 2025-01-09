@@ -25,13 +25,13 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import com.group10.uxuiapp.data.data_class.TaskItem
-import com.group10.uxuiapp.ui.todolist.view.components.buttons.SettingsButton
 import com.group10.uxuiapp.ui.tasks.view.components.TaskRowItem
-import com.group10.uxuiapp.ui.tasks.view.components.AddTaskButton
+import com.group10.uxuiapp.ui.tasks.view.components.buttons.AddTaskButton
 import com.group10.uxuiapp.ui.navigation.AppNavigator
 import com.group10.uxuiapp.ui.tasks.view.components.EditTaskPopup
 import com.group10.uxuiapp.ui.tasks.viewmodel.TaskViewModel
 import androidx.compose.foundation.lazy.items
+import com.group10.uxuiapp.ui.tasks.view.components.buttons.SettingsButton
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -75,7 +75,12 @@ fun TaskScreen(todoListId: Int, appNavigator: AppNavigator, viewModel: TaskViewM
                     IconButton(onClick = { Log.d("TaskPage", "Search clicked") }) {
                         Icon(Icons.Filled.Search, contentDescription = "Search")
                     }
-                    SettingsButton(context = context)
+                    SettingsButton(
+                        context = context,
+                        onSetting1Click = { Log.d("TaskPage", "Setting 1 clicked") },
+                        onSetting2Click = { Log.d("TaskPage", "Setting 2 clicked") },
+                        onSetting3Click = { Log.d("TaskPage", "Setting 3 clicked") }
+                    )
                 },
                 colors = TopAppBarDefaults.topAppBarColors(),
                 scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
