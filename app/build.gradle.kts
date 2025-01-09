@@ -59,6 +59,7 @@ dependencies {
     debugImplementation(libs.androidx.ui.test.manifest)
 
 
+
     // Jetpack Compose Navigation
     implementation(libs.androidx.navigation.compose)
 
@@ -70,6 +71,8 @@ dependencies {
 
     // Compose Animation
     implementation(libs.androidx.compose.animation)
+
+    implementation("sh.calvin.reorderable:reorderable:2.4.2")
 
     implementation("androidx.datastore:datastore-preferences:1.1.1")
 

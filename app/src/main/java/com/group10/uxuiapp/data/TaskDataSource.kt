@@ -68,6 +68,10 @@ class TaskDataSource(private val taskDao: TaskDao) {
         )
     }
 
+    suspend fun updateAllIndexes(updatedIndexes: List<Pair<Int, Int>>) {
+        taskDao.updateAllListIndexes(updatedIndexes)
+    }
+
     fun getTasksByCompletionStatus(isComplete: Boolean): Flow<List<TaskItem>> {
         return taskDao.getTasksByCompletionStatus(isComplete)
     }

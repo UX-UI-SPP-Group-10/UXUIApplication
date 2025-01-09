@@ -48,14 +48,22 @@ interface TaskDao {
     )
 
     @Query("""
-    UPDATE TodoList
-    SET listIndex = :listIndex
-    WHERE id = :todoListId
-""")
+        UPDATE TodoList
+        SET listIndex = :listIndex
+        WHERE id = :todoListId
+    """)
     suspend fun updateListIndex(
         todoListId: Int,
         listIndex: Int
     )
+
+    @Transaction
+    suspend fun updateAllListIndexes(updatedIndexes: List<Pair<Int, Int>>) {
+        updatedIndexes.forEach { (id, index) ->
+            updateListIndex(id, index)
+        }
+    }
+
 
     @Query("""
         UPDATE TaskItem
