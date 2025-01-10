@@ -2,6 +2,7 @@ package com.group10.uxuiapp.ui.todolist.view
 
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
@@ -15,6 +16,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.*
@@ -29,13 +31,17 @@ import androidx.compose.runtime.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.LocalView
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.group10.uxuiapp.data.data_class.TodoList
 import com.group10.uxuiapp.data.data_class.TodoListWithTaskItem
 import com.group10.uxuiapp.ui.navigation.AppNavigator
@@ -52,6 +58,7 @@ import sh.calvin.reorderable.rememberReorderableLazyListState
 fun TodoListScreen(viewModel: TodoListViewModel, appNavigator: AppNavigator) {
     val query = remember { mutableStateOf("") }
     val popupOffset = remember { mutableStateOf(IntOffset.Zero) }
+    val showLiked = remember { mutableStateOf(false) }
 
     // Colorpicker relevance
     val showColorPickerDialog = remember { mutableStateOf(false) }
@@ -84,7 +91,14 @@ fun TodoListScreen(viewModel: TodoListViewModel, appNavigator: AppNavigator) {
     }
 
     // Decide which list to show: full or filtered
-    val listsToShow = if (query.value.isBlank()) todoListsWithItems else filteredLists
+    //val listsToShow = if (query.value.isBlank()) todoListsWithItems else filteredLists
+    val listsToShow = remember(query.value, showLiked.value, filteredLists) {
+        filteredLists.filter { item ->
+            val matchesQuery = item.todoList.title.contains(query.value, ignoreCase = true)
+            val matchesLiked = !showLiked.value || item.todoList.isLiked
+            matchesQuery && matchesLiked
+        }
+    }
 
     val todoLists = remember { mutableStateOf(emptyList<TodoListWithTaskItem>()) }      // temporary list while dragging. Need optimization
     todoLists.value = listsToShow
@@ -101,7 +115,7 @@ fun TodoListScreen(viewModel: TodoListViewModel, appNavigator: AppNavigator) {
 
     Box(modifier = Modifier.fillMaxSize()) {
         Scaffold(
-            topBar = { TopAppBarWithMenu(query) },
+            topBar = { TopAppBarWithMenu(query, showLiked) },
             floatingActionButton = {
                 AddNewTodoListButton {
                     viewModel.setNewlistState()
@@ -239,7 +253,7 @@ fun TodoListScreen(viewModel: TodoListViewModel, appNavigator: AppNavigator) {
 // Top app bar with search and settings icons and dropdown menu
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun TopAppBarWithMenu(query: MutableState<String>) {
+private fun TopAppBarWithMenu(query: MutableState<String>, showLiked: MutableState<Boolean>) {
     val context = LocalContext.current
     val textFieldVisible = remember { mutableStateOf(false) }
 
@@ -247,17 +261,49 @@ private fun TopAppBarWithMenu(query: MutableState<String>) {
         title = {
 
             if (textFieldVisible.value) {
-                TextField(
+                val textStyle = TextStyle(
+                    fontSize = 16.sp,
+                    color = Color.Black
+                ) // Define a consistent text style
+
+                BasicTextField(
                     value = query.value,
                     onValueChange = { query.value = it }, // Update the query state
-                    placeholder = { Text("Search...") },
                     singleLine = true,
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(45.dp)
-                        .clip(RoundedCornerShape(20.dp)),
-
+                        .clip(RoundedCornerShape(20.dp))
+                        .background(color = MaterialTheme.colorScheme.onTertiary) // Use the made colors after merge
+                        .padding(horizontal = 16.dp, vertical = 10.dp), // Inner padding
+                    textStyle = textStyle,
+                    decorationBox = { innerTextField ->
+                        Box(
+                            modifier = Modifier.fillMaxSize(),
+                            contentAlignment = Alignment.CenterStart
+                        ) {
+                            if (query.value.isEmpty()) {
+                                Text(
+                                    text = "Search...",
+                                    style = textStyle, // Apply the same text style to the placeholder
+                                    color = Color.Gray // Differentiate placeholder color
+                                )
+                            }
+                            innerTextField()
+                        }
+                    }
                 )
+//                TextField(
+//                    value = query.value,
+//                    onValueChange = { query.value = it }, // Update the query state
+//                    placeholder = { Text("Search...") },
+//                    singleLine = true,
+//                    modifier = Modifier
+//                        .fillMaxWidth()
+//                        .height(45.dp)
+//                        .clip(RoundedCornerShape(20.dp)),
+//
+//                    )
             } else {
                 Text(text = "")
             }
@@ -273,9 +319,8 @@ private fun TopAppBarWithMenu(query: MutableState<String>) {
         actions = {
             SettingsButton(
                 context = context,
-                onSetting1Click = {  }, // TODO add settings 1
-                onSetting2Click = {  } , // TODO add settings 2
-                onSetting3Click = {  }) // TODO add settings 3
+                showLiked = showLiked
+            )
         },
         colors = TopAppBarDefaults.topAppBarColors(),
         scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
