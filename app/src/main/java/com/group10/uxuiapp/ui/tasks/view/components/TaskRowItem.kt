@@ -104,10 +104,15 @@ fun TaskRowItem(
                 }
                 it()
             }
-
-            TaskFolderButton(onClick = {isFoldet = !isFoldet
-                viewModel.updateTaskItem(task, isFolded = isFoldet)}, isFoldet)
-
+            Box(modifier = Modifier.padding(end = 8.dp)) {
+                TaskFolderButton(
+                    onClick = {
+                        isFoldet = !isFoldet
+                        viewModel.updateTaskItem(task, isFolded = isFoldet)
+                    },
+                    isFoldet = isFoldet
+                )
+            }
             Spacer(modifier = Modifier.weight(1f))
         }
     }
