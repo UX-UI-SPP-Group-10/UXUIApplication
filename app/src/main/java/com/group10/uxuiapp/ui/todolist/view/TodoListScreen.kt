@@ -142,13 +142,13 @@ fun TodoListScreen(viewModel: TodoListViewModel, appNavigator: AppNavigator) {
                 items(listsToShow, key = { it.todoList.id }) { item ->
                     ReorderableItem(reorderableLazyListState, key = item.todoList.id) { isDragging ->
                         // Render cards based on the current order
-                        val elevation by animateDpAsState(if (isDragging) 4.dp else 0.dp)
+                        val elevation by animateDpAsState(if (isDragging) 8.dp else 0.dp)
                         Surface(
                             shadowElevation = elevation,
                             modifier = Modifier 
                                 .fillMaxWidth()
                                 .padding(vertical = 4.dp)
-                                .animateItemPlacement()
+                                .clip(RoundedCornerShape(20.dp))
                         ) {
                             TodoListCard(
                                 todoList = item.todoList,
