@@ -109,8 +109,6 @@ fun TodoListScreen(viewModel: TodoListViewModel, appNavigator: AppNavigator) {
     // Decide which list to show: full or filtered
     val listsToShow = if (query.value.isBlank()) todoListsWithItems else filteredLists
 
-    var isDragging by remember { mutableStateOf(false) }
-
     val lazyListState = rememberLazyListState()
     val reorderableLazyListState = rememberReorderableLazyListState(lazyListState) { from, to ->
             val updatedList = todoListsWithItems.toMutableList().apply {
@@ -141,13 +139,13 @@ fun TodoListScreen(viewModel: TodoListViewModel, appNavigator: AppNavigator) {
                     bottom = innerPadding.calculateBottomPadding() + 100.dp
                 )
             ) {
-                items(todoListsWithItems, key = { it.todoList.id }) { item ->
+                items(listsToShow, key = { it.todoList.id }) { item ->
                     ReorderableItem(reorderableLazyListState, key = item.todoList.id) { isDragging ->
                         // Render cards based on the current order
                         val elevation by animateDpAsState(if (isDragging) 4.dp else 0.dp)
                         Surface(
                             shadowElevation = elevation,
-                            modifier = Modifier
+                            modifier = Modifier 
                                 .fillMaxWidth()
                                 .padding(vertical = 4.dp)
                                 .animateItemPlacement()
