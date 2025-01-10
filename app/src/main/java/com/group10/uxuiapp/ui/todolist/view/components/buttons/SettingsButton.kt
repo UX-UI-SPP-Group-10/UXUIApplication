@@ -14,6 +14,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -23,12 +24,7 @@ import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 
 @Composable
-fun SettingsButton(
-    context: Context,
-    onSetting1Click: () -> Unit,
-    onSetting2Click: () -> Unit,
-    onSetting3Click: () -> Unit,
-) {
+fun SettingsButton(context: Context, showLiked: MutableState<Boolean>) {
     val expanded = remember { mutableStateOf(false) }
     val rotationAngle by animateFloatAsState(
         targetValue = if (expanded.value) 90f else 0f,
@@ -53,18 +49,17 @@ fun SettingsButton(
         offset = DpOffset(x = (0).dp, y = 0.dp)
     ) {
         DropdownMenuItem(
-            text = { Text("Option 1") },
+            text = { Text(if (showLiked.value) "Show all" else "Show liked")},
             onClick = {
-                onSetting1Click()
                 expanded.value = false
-                Toast.makeText(context, "Option 1 clicked", Toast.LENGTH_SHORT).show()
+                showLiked.value = !showLiked.value
+                //Toast.makeText(context, "Option 1 clicked", Toast.LENGTH_SHORT).show()
             },
             modifier = Modifier.fillMaxWidth()
         )
         DropdownMenuItem(
             text = { Text("Option 2") },
             onClick = {
-                onSetting2Click()
                 expanded.value = false
                 Toast.makeText(context, "Option 2 clicked", Toast.LENGTH_SHORT).show()
             },
@@ -73,7 +68,6 @@ fun SettingsButton(
         DropdownMenuItem(
             text = { Text("Option 3") },
             onClick = {
-                onSetting3Click()
                 expanded.value = false
                 Toast.makeText(context, "Option 3 clicked", Toast.LENGTH_SHORT).show()
             },
