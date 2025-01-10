@@ -11,38 +11,34 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.material3.Button
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.outlined.AddCircle
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.ui.graphics.Color
 
 @Composable
 fun AddSubTaskButton(onClick: () -> Unit) {
     Box(
-        modifier = Modifier.fillMaxWidth(),
-        contentAlignment = Alignment.BottomStart
+        modifier = Modifier.fillMaxHeight(),
+        contentAlignment = Alignment.CenterEnd
     ) {
         Button(
             onClick = onClick,
             shape = RoundedCornerShape(50),
             modifier = Modifier
-                .padding(8.dp)
                 .height(48.dp),
             colors = ButtonDefaults.buttonColors(
-                containerColor = MaterialTheme.colorScheme.tertiary,
+                containerColor = MaterialTheme.colorScheme.secondary,
                 contentColor = MaterialTheme.colorScheme.onPrimary
             )
         ) {
             Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
+                verticalAlignment = Alignment.CenterVertically
             ) {
                 Icon(
-                    imageVector = Icons.Outlined.AddCircle,
+                    imageVector = Icons.Filled.Add,
                     contentDescription = "Add sub Task",
                     modifier = Modifier.size(20.dp)
-                )
-                Text(
-                    text = "Add sub task",
-                    style = MaterialTheme.typography.headlineMedium,
                 )
             }
         }

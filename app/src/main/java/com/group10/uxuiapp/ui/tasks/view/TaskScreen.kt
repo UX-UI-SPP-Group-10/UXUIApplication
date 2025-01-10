@@ -93,13 +93,7 @@ fun TaskScreen(todoListId: Int, appNavigator: AppNavigator, viewModel: TaskViewM
                 scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
             )
         },
-        bottomBar = {
-            AddSubTaskButton(onClick = {
-                if(lastSelectedTask != null){
-                    val newSubTask = lastSelectedTask.let { SubTask(label = "", taskItemId = lastSelectedTask!!.id) }
-                    viewModel.addSupTask(newSubTask)
-                }
-            })
+        floatingActionButton = {
             AddTaskButton(onClick = {
                 // Add a new task to the TodoList
                 val newTask = TaskItem(label = "", todoListId = todoListId)

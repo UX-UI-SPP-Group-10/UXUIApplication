@@ -18,6 +18,8 @@ import com.group10.uxuiapp.data.data_class.TaskItem
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
+import com.group10.uxuiapp.data.data_class.SubTask
+import com.group10.uxuiapp.ui.tasks.view.components.buttons.AddTaskButton
 import com.group10.uxuiapp.ui.tasks.viewmodel.TaskViewModel
 
 
@@ -104,16 +106,27 @@ fun TaskRowItem(
                 }
                 it()
             }
-            Box(modifier = Modifier.padding(end = 8.dp)) {
-                TaskFolderButton(
-                    onClick = {
-                        isFoldet = !isFoldet
-                        viewModel.updateTaskItem(task, isFolded = isFoldet)
-                    },
-                    isFoldet = isFoldet
-                )
+            Box(
+                modifier = Modifier.fillMaxWidth(),
+                contentAlignment = Alignment.CenterEnd
+            ) {
+                Row {
+                    AddSubTaskButton(onClick = {
+                        val newSubTask = SubTask(label = "", taskItemId = task.id)
+                        viewModel.addSupTask(newSubTask)
+                    })
+                    TaskFolderButton(
+                        onClick = {
+                            isFoldet = !isFoldet
+                            viewModel.updateTaskItem(task, isFolded = isFoldet)
+                        },
+                        isFoldet = isFoldet
+                    )
+                }
             }
+
             Spacer(modifier = Modifier.weight(1f))
+
         }
     }
 }

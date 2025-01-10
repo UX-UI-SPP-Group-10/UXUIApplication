@@ -20,7 +20,7 @@ import androidx.compose.material3.ButtonDefaults
 @Composable
 fun TaskFolderButton(onClick: () -> Unit, isFoldet: Boolean) {
     Box(
-        modifier = Modifier.fillMaxSize(),
+        modifier = Modifier.fillMaxHeight(),
         contentAlignment = Alignment.BottomEnd
     ) {
         Button(
@@ -34,8 +34,7 @@ fun TaskFolderButton(onClick: () -> Unit, isFoldet: Boolean) {
             )
         ) {
             Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
+                verticalAlignment = Alignment.CenterVertically
             ) {
                 Icon(
                     imageVector = if(isFoldet)Icons.Filled.KeyboardArrowDown else Icons.Filled.KeyboardArrowUp,

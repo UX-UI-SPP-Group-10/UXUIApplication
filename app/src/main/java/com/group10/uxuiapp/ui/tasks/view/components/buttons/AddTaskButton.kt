@@ -13,11 +13,12 @@ import androidx.compose.material3.Button
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.AddCircle
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.ui.graphics.Color
 
 @Composable
 fun AddTaskButton(onClick: () -> Unit) {
     Box(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier.fillMaxWidth().padding(12.dp),
         contentAlignment = Alignment.BottomEnd
     ) {
         Button(
@@ -32,17 +33,18 @@ fun AddTaskButton(onClick: () -> Unit) {
             )
         ) {
             Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
+                verticalAlignment = Alignment.CenterVertically
             ) {
                 Icon(
                     imageVector = Icons.Outlined.AddCircle,
                     contentDescription = "Add Task",
-                    modifier = Modifier.size(20.dp)
+                    modifier = Modifier.size(20.dp),
+                    tint = Color(0XFF20792F)
                 )
                 Text(
                     text = "Add task",
                     style = MaterialTheme.typography.headlineMedium,
+                    color = Color(0XFF20792F)
                 )
             }
         }
