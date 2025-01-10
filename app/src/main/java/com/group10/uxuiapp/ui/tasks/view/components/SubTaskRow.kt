@@ -15,6 +15,7 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import com.group10.uxuiapp.data.data_class.SubTask
 import com.group10.uxuiapp.ui.tasks.viewmodel.TaskViewModel
@@ -37,7 +38,7 @@ fun SubTaskRow(
                 .height(40.dp)
                 .width(340.dp)
                 .background(
-                    color = MaterialTheme.colorScheme.surfaceVariant,
+                    color = MaterialTheme.colorScheme.onTertiary,
                     shape = MaterialTheme.shapes.small
                 )
         ) {
@@ -61,9 +62,9 @@ fun SubTaskRow(
                         viewModel.updateSubTask(task, isComplete = newChecked)
                     },
                     colors = CheckboxDefaults.colors(
-                        checkedColor = MaterialTheme.colorScheme.primary,
+                        checkedColor = Color(0XFF20792F),
                         uncheckedColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
-                        checkmarkColor = MaterialTheme.colorScheme.onPrimary
+                        checkmarkColor = MaterialTheme.colorScheme.secondary
                     ),
                     modifier = Modifier.size(28.dp)
                 )

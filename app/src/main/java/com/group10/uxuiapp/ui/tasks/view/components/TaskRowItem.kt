@@ -16,6 +16,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.group10.uxuiapp.data.data_class.TaskItem
 import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import com.group10.uxuiapp.ui.tasks.viewmodel.TaskViewModel
 
@@ -35,7 +36,7 @@ fun TaskRowItem(
             .height(40.dp)
             .fillMaxWidth()
             .background(
-                color = MaterialTheme.colorScheme.surfaceVariant,
+                color = MaterialTheme.colorScheme.secondary,
                 shape = MaterialTheme.shapes.small
             )
     ) {
@@ -66,9 +67,9 @@ fun TaskRowItem(
                     }
                 },
                 colors = CheckboxDefaults.colors(
-                    checkedColor = MaterialTheme.colorScheme.primary,
+                    checkedColor = Color(0XFF20792F),
                     uncheckedColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
-                    checkmarkColor = MaterialTheme.colorScheme.onPrimary
+                    checkmarkColor = MaterialTheme.colorScheme.secondary
                 ),
                 modifier = Modifier.size(28.dp)
             )
