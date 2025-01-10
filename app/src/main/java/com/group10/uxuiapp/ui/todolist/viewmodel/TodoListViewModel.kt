@@ -17,12 +17,19 @@ import kotlinx.coroutines.launch
 class TodoListViewModel(private val taskDataSource: TaskDataSource) : ViewModel() {
     private val TAG = "TodoListViewModel" // Debug tag for logs
 
+    // Our Main List from database
     private val _lists = MutableStateFlow<List<TodoListWithTaskItem>>(emptyList())
     val lists: StateFlow<List<TodoListWithTaskItem>> = _lists
 
+    // This list is used while dragging to keep track of the temporary order
+    private val _temporaryList = MutableStateFlow<List<TodoListWithTaskItem>>(emptyList())
+    val temporaryList: StateFlow<List<TodoListWithTaskItem>> = _temporaryList
+
+    // StateFlow to keep track of the selected TodoList
     private val _selectedTodoList = MutableStateFlow<TodoList?>(null)
     val selectedTodoList = _selectedTodoList.asStateFlow()
 
+    // StateFlow to change popup states of the todolist screen
     private val _todoListState = MutableStateFlow<TodoListState>(TodoListState.None)
     val todoListState = _todoListState.asStateFlow()
 

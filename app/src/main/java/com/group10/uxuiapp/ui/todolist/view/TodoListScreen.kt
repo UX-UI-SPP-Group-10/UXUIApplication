@@ -1,16 +1,10 @@
 package com.group10.uxuiapp.ui.todolist.view
 
-import android.util.Log
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.background
-import androidx.compose.foundation.gestures.detectTapGestures
-import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.calculateEndPadding
 import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.foundation.layout.fillMaxSize
@@ -23,10 +17,7 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
-import androidx.compose.material.icons.rounded.Edit
-import androidx.compose.material.icons.rounded.MoreVert
 import androidx.compose.material3.*
-import androidx.compose.material3.BottomSheetDefaults.DragHandle
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -39,34 +30,19 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draganddrop.DragAndDropEvent
-import androidx.compose.ui.draganddrop.DragAndDropTarget
-import androidx.compose.ui.draganddrop.DragAndDropTransferData
-import androidx.compose.ui.draganddrop.mimeTypes
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
-import androidx.core.view.HapticFeedbackConstantsCompat
-import androidx.core.view.ViewCompat
 import com.group10.uxuiapp.data.data_class.TodoList
+import com.group10.uxuiapp.data.data_class.TodoListWithTaskItem
 import com.group10.uxuiapp.ui.navigation.AppNavigator
 import com.group10.uxuiapp.ui.todolist.view.components.*
 import com.group10.uxuiapp.ui.todolist.view.components.buttons.AddNewTodoListButton
 import com.group10.uxuiapp.ui.todolist.view.components.buttons.SettingsButton
-import com.group10.uxuiapp.data.GiphyActivity
-import com.group10.uxuiapp.data.data_class.TodoListWithTaskItem
-import com.group10.uxuiapp.ui.todolist.view.components.ListNameInputDialog
 import com.group10.uxuiapp.ui.todolist.viewmodel.TodoListViewModel
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 import sh.calvin.reorderable.ReorderableItem
 import sh.calvin.reorderable.rememberReorderableLazyListState
 
@@ -84,6 +60,7 @@ fun TodoListScreen(viewModel: TodoListViewModel, appNavigator: AppNavigator) {
     // Collect the lists from the ViewModel's Flow
     val todoListsWithItems by viewModel.lists.collectAsState(emptyList())
     val selectedTodoList by viewModel.selectedTodoList.collectAsState()
+    val temporaryList by viewModel.temporaryList.collectAsState()
     val popupState by viewModel.todoListState.collectAsState()
     val listPositionState = rememberLazyListState()
     val view = LocalView.current
@@ -109,12 +86,15 @@ fun TodoListScreen(viewModel: TodoListViewModel, appNavigator: AppNavigator) {
     // Decide which list to show: full or filtered
     val listsToShow = if (query.value.isBlank()) todoListsWithItems else filteredLists
 
+    val todoLists = remember { mutableStateOf(emptyList<TodoListWithTaskItem>()) }      // temporary list while dragging. Need optimization
+    todoLists.value = listsToShow
+
     val lazyListState = rememberLazyListState()
     val reorderableLazyListState = rememberReorderableLazyListState(lazyListState) { from, to ->
-            val updatedList = todoListsWithItems.toMutableList().apply {
-                add(to.index, removeAt(from.index))
-            }
-            viewModel.updateAllListIndexes(updatedList)
+        val updatedList = todoLists.value.toMutableList().apply {
+            add(to.index, removeAt(from.index))
+        }
+        todoLists.value = updatedList // Update the MutableState
     }
 
 
@@ -139,13 +119,20 @@ fun TodoListScreen(viewModel: TodoListViewModel, appNavigator: AppNavigator) {
                     bottom = innerPadding.calculateBottomPadding() + 100.dp
                 )
             ) {
-                items(listsToShow, key = { it.todoList.id }) { item ->
-                    ReorderableItem(reorderableLazyListState, key = item.todoList.id) { isDragging ->
-                        // Render cards based on the current order
+                items(todoLists.value, key = { it.todoList.id }) { item ->
+                    ReorderableItem(
+                        reorderableLazyListState,
+                        key = item.todoList.id,
+                        animateItemModifier = Modifier.animateItem()
+                    ) { isDragging ->
                         val elevation by animateDpAsState(if (isDragging) 8.dp else 0.dp)
+                        if(!isDragging) {
+                            viewModel.updateAllListIndexes(todoLists.value)
+                        }
+
                         Surface(
                             shadowElevation = elevation,
-                            modifier = Modifier 
+                            modifier = Modifier
                                 .fillMaxWidth()
                                 .padding(vertical = 4.dp)
                                 .clip(RoundedCornerShape(20.dp))
