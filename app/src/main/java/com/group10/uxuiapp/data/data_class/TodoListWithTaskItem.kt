@@ -16,6 +16,7 @@ data class TodoListWithTaskItem(
             todoList.title,
             todoList.tags,
             taskItems.joinToString { it.label }
+                    // taskItems.joinToString { it.subTasks.joinToString { subTask -> subTask.label } }
         )
         return matchCombinations.any { it.contains(query, ignoreCase = true) }
     }
