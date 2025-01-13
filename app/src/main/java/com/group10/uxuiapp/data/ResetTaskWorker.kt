@@ -13,8 +13,12 @@ import timber.log.Timber
 class ResetTaskWorker(
     context: Context,
     workerParams: WorkerParameters,
-    private val taskDataSource: TaskDataSource
 ) : CoroutineWorker(context, workerParams) {
+
+    private val taskDataSource: TaskDataSource by lazy {
+        val database = DatabaseProvider.getDatabase(context)
+        TaskDataSource(database.taskDao())
+    }
 
     override suspend fun doWork(): Result {
         Timber.tag("ResetTaskWorker").d("Worker is running...")

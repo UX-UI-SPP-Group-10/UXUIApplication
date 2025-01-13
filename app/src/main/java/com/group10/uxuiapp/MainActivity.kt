@@ -11,7 +11,6 @@ import androidx.work.WorkManager
 import com.giphy.sdk.ui.Giphy
 import com.group10.uxuiapp.data.DatabaseProvider
 import com.group10.uxuiapp.data.TaskDataSource
-import com.group10.uxuiapp.data.TaskWorkerFactory
 import com.group10.uxuiapp.data.data_class.WorkManagerHelper
 import com.group10.uxuiapp.ui.navigation.MainNavigation
 import com.group10.uxuiapp.ui.tasks.viewmodel.TaskViewModelFactory
@@ -29,7 +28,6 @@ class MainActivity : FragmentActivity() {  //FragmentActivity
         // Create the database and repository
         val database = DatabaseProvider.getDatabase(this)
         val taskDataSource = TaskDataSource(database.taskDao())
-        val workerFactory = TaskWorkerFactory(taskDataSource)
 
         Giphy.configure(this, "TfJpapxeqlrKMdtx82hDrPS9RsSCYgDG")
 
