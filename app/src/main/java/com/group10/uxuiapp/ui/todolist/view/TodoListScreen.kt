@@ -1,11 +1,13 @@
 package com.group10.uxuiapp.ui.todolist.view
 
+import android.util.Log
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.calculateEndPadding
 import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.foundation.layout.fillMaxSize
@@ -155,6 +157,14 @@ fun TodoListScreen(viewModel: TodoListViewModel, appNavigator: AppNavigator) {
                             taskListsWithItems = todoListsWithItems,
                             scope = this
                         )
+                    }
+                    if (selectedTodoList == item.todoList) {
+                        Spacer(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(10.dp) // spacer when active
+                        )
+                        Log.d("LazyColumn", "Adding Spacer below TodoList: ${item.todoList.title}")
                     }
                 }
             }
