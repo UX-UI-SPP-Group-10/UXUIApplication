@@ -79,9 +79,6 @@ fun TaskScreen(todoListId: Int, appNavigator: AppNavigator, viewModel: TaskViewM
                     }
                 },
                 actions = {
-                    IconButton(onClick = { Log.d("TaskPage", "Search clicked") }) {
-                        Icon(Icons.Filled.Search, contentDescription = "Search")
-                    }
                     SettingsButton(
                         context = context,
                         onSetting1Click = { Log.d("TaskPage", "Setting 1 clicked") },

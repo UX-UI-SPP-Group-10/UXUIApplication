@@ -1,5 +1,6 @@
 package com.group10.uxuiapp.ui.tasks.view.components
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
@@ -18,30 +19,11 @@ import androidx.compose.ui.graphics.Color
 
 @Composable
 fun AddSubTaskButton(onClick: () -> Unit) {
-    Box(
-        modifier = Modifier.fillMaxHeight(),
-        contentAlignment = Alignment.CenterEnd
-    ) {
-        Button(
-            onClick = onClick,
-            shape = RoundedCornerShape(50),
-            modifier = Modifier
-                .height(48.dp),
-            colors = ButtonDefaults.buttonColors(
-                containerColor = MaterialTheme.colorScheme.secondary,
-                contentColor = MaterialTheme.colorScheme.onPrimary
-            )
-        ) {
-            Row(
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Icon(
-                    imageVector = Icons.Filled.Add,
-                    contentDescription = "Add sub Task",
-                    modifier = Modifier.size(20.dp)
-                )
-            }
-        }
-    }
-}
 
+    Icon(
+        imageVector = Icons.Filled.Add,
+        contentDescription = "Add sub Task",
+        modifier = Modifier.size(20.dp)
+            .clickable { onClick() }
+    )
+}

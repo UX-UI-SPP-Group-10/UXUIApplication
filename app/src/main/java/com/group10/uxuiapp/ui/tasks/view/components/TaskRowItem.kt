@@ -41,16 +41,15 @@ fun TaskRowItem(
                 color = MaterialTheme.colorScheme.secondary,
                 shape = MaterialTheme.shapes.small
             )
+            .pointerInput(Unit){
+                detectTapGestures(onPress = { viewModel.selectTask(task) },
+                    onLongPress = {viewModel.selectTaskForChange(taskItem = task)})
+            }
     ) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(56.dp)
-                .pointerInput(Unit) {
-                    // detectTapGestures only for the "empty space"
-                    detectTapGestures(onPress = { viewModel.selectTask(task) },
-                        onLongPress = {viewModel.selectTaskForChange(taskItem = task)})
-                },
+                .height(56.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
             Spacer(modifier = Modifier.width(16.dp))
@@ -115,6 +114,9 @@ fun TaskRowItem(
                         val newSubTask = SubTask(label = "", taskItemId = task.id)
                         viewModel.addSupTask(newSubTask)
                     })
+
+                    Spacer(modifier = Modifier.width(6.dp))
+
                     TaskFolderButton(
                         onClick = {
                             isFoldet = !isFoldet
@@ -122,11 +124,10 @@ fun TaskRowItem(
                         },
                         isFoldet = isFoldet
                     )
+
+                    Spacer(modifier = Modifier.width(6.dp))
                 }
             }
-
-            Spacer(modifier = Modifier.weight(1f))
-
         }
     }
 }
