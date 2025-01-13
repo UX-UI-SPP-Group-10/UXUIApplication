@@ -120,14 +120,17 @@ fun TodoListScreen(viewModel: TodoListViewModel, appNavigator: AppNavigator) {
                 }
             }
         ) { innerPadding  ->
+            val extraBottomPadding = 150.dp // Change this for more bottom padding
             LazyColumn(
                 state = lazyListState,
                 verticalArrangement = Arrangement.spacedBy(16.dp),
+                modifier = Modifier
+                    .fillMaxSize(),
                 contentPadding = PaddingValues(
                     start = innerPadding.calculateStartPadding(LocalLayoutDirection.current) + 12.dp,
                     top = innerPadding.calculateTopPadding(),
                     end = innerPadding.calculateEndPadding(LocalLayoutDirection.current) + 12.dp,
-                    bottom = innerPadding.calculateBottomPadding() + 100.dp
+                    bottom = innerPadding.calculateBottomPadding() + extraBottomPadding
                 )
             ) {
                 items(todoLists.value, key = { it.todoList.id }) { item ->
