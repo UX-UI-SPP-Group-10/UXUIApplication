@@ -25,10 +25,19 @@ class MainActivity : FragmentActivity() {  //FragmentActivity
         // Create the database and repository
         val database = DatabaseProvider.getDatabase(this)
         val taskDataSource = TaskDataSource(database.taskDao())
+        val workerFactory = TaskWorkerFactory(taskDataSource)
 
         Giphy.configure(this, "TfJpapxeqlrKMdtx82hDrPS9RsSCYgDG")
 
-        WorkManagerHelper.scheduleResetWorker(this)
+
+        if (!WorkManager.isInitialized()) {
+            WorkManager.initialize(
+                this,
+                Configuration.Builder()
+                    .setWorkerFactory(workerFactory)
+                    .build()
+            )
+        }
 
         setContent {
             UXUIApplicationTheme {
