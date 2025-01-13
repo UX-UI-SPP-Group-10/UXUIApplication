@@ -1,7 +1,11 @@
 package com.group10.uxuiapp.ui.tasks.view
 
 import android.util.Log
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.calculateEndPadding
+import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
@@ -32,6 +36,9 @@ import com.group10.uxuiapp.ui.navigation.AppNavigator
 import com.group10.uxuiapp.ui.tasks.view.components.EditTaskPopup
 import com.group10.uxuiapp.ui.tasks.viewmodel.TaskViewModel
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.unit.dp
 import com.group10.uxuiapp.ui.tasks.view.components.buttons.SettingsButton
 import com.group10.uxuiapp.data.data_class.SubTask
 import com.group10.uxuiapp.ui.tasks.view.components.AddSubTaskButton
@@ -54,6 +61,7 @@ fun TaskScreen(todoListId: Int, appNavigator: AppNavigator, viewModel: TaskViewM
     val selectedSubTask by viewModel.selectedSubTask.collectAsState()
     val taskItemWithSubTask by viewModel.lists.collectAsState()
     val lastSelectedTask by viewModel.lastSelectedTaskItem.collectAsState()
+    val lazyListState = rememberLazyListState()
 
     if (taskListWithItems == null) {
         // Loading state
@@ -98,6 +106,7 @@ fun TaskScreen(todoListId: Int, appNavigator: AppNavigator, viewModel: TaskViewM
             })
         }
     ) { innerPadding ->
+        val extraBottomPadding = 450.dp
         Box(
             modifier = Modifier
                 .fillMaxSize()
@@ -114,7 +123,15 @@ fun TaskScreen(todoListId: Int, appNavigator: AppNavigator, viewModel: TaskViewM
                 }
             } else {
                 // Display task list
-                LazyColumn {
+                LazyColumn(
+                    state = lazyListState,
+                    modifier = Modifier
+                        .fillMaxSize(),
+                    contentPadding = PaddingValues(
+                        end = innerPadding.calculateEndPadding(LocalLayoutDirection.current) + 12.dp,
+                        bottom = innerPadding.calculateBottomPadding() + extraBottomPadding
+                    )
+                ){
                     items(
                         items = taskListWithItems!!.taskItems,
                         key = { task -> task.id }
