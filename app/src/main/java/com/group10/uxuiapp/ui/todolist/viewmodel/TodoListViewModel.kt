@@ -10,8 +10,11 @@ import com.group10.uxuiapp.data.data_class.TodoListWithTaskItem
 import com.group10.uxuiapp.data.TaskDataSource
 import com.group10.uxuiapp.data.data_class.TaskItem
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
 class TodoListViewModel(private val taskDataSource: TaskDataSource) : ViewModel() {
@@ -33,6 +36,31 @@ class TodoListViewModel(private val taskDataSource: TaskDataSource) : ViewModel(
     private val _todoListState = MutableStateFlow<TodoListState>(TodoListState.None)
     val todoListState = _todoListState.asStateFlow()
 
+    private val _isSearching = MutableStateFlow(false)
+    val isSearching = _isSearching.asStateFlow()
+
+    private val _searchQuery = MutableStateFlow("")
+    val searchQuery = _searchQuery.asStateFlow()
+
+    val searchList = searchQuery
+        .combine(_lists) { query, lists ->
+            if(query.isEmpty()) {
+                lists
+            } else {
+                lists.filter {
+                    it.doesMatchSearchQuery(query)
+                }
+            }
+        }
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5000),
+            initialValue = _lists.value
+        )
+
+    fun onSearchQueryChange(query: String) {
+        _searchQuery.value = query
+    }
 
     init {
         viewModelScope.launch {
