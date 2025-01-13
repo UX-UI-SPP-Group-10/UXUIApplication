@@ -18,9 +18,11 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material3.Card
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -60,12 +62,14 @@ import kotlin.math.log
 
 @Composable
 fun TodoListCard(
+    elevation: androidx.compose.ui.unit.Dp,
     todoList: TodoList,
     viewModel: TodoListViewModel,
     appNavigator: AppNavigator,
     onPositionChange: (IntOffset, TodoList) -> Unit,
     taskListsWithItems: List<TodoListWithTaskItem>,
     scope: ReorderableCollectionItemScope,
+    modifier: Modifier = Modifier
     ) {
     var cardGlobalOffset by remember { mutableStateOf(Offset.Zero) }
     var cardHeight by remember { mutableStateOf(0) }
@@ -101,12 +105,11 @@ fun TodoListCard(
         )
     }
 
-    Box(
+    Surface(
         modifier = with(scope) {
-            Modifier
+            modifier
                 .fillMaxWidth()
                 .height(100.dp)
-                .clip(RoundedCornerShape(20.dp))
                 .onGloballyPositioned { layoutCoordinates ->
                     cardGlobalOffset = layoutCoordinates.localToRoot(Offset.Zero)
                     cardHeight = layoutCoordinates.size.height
@@ -139,8 +142,10 @@ fun TodoListCard(
                     }
                 )
             }
-        }
-
+        },
+        shape = RoundedCornerShape(20.dp),
+        shadowElevation = elevation,
+        color = MaterialTheme.colorScheme.surface
 
     ) {
         // GIF as background (placed first to be behind everything else)
