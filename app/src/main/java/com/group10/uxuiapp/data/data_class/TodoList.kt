@@ -12,5 +12,7 @@ data class TodoList(
     val dueDate: Long? = null,
     var listIndex: Int = 0,
     var textColor: String = "#FFFFFF", // Default is white
-    var tags: String = "" //
+    var tags: String = "", //
+    val repeatDay: Int? = null,
+    val isRepeating: Boolean = false
 )

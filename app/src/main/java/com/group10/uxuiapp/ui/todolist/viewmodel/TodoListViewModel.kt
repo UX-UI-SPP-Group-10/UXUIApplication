@@ -208,7 +208,9 @@ class TodoListViewModel(private val taskDataSource: TaskDataSource) : ViewModel(
         isLiked: Boolean? = null,
         textColor: String? = null,
         dueDate: Long? = null,
-        newIndex: Int? = null
+        newIndex: Int? = null,
+        isRepeating: Boolean? = null,
+        repeatDay: Int? = null
     ) {
         viewModelScope.launch {
             try {
@@ -216,7 +218,9 @@ class TodoListViewModel(private val taskDataSource: TaskDataSource) : ViewModel(
                     title = title ?: todoList.title,
                     isLiked = isLiked ?: todoList.isLiked,
                     textColor = textColor ?: todoList.textColor,
-                    dueDate = dueDate ?: todoList.dueDate
+                    dueDate = dueDate ?: todoList.dueDate,
+                    isRepeating = isRepeating ?: todoList.isRepeating,
+                    repeatDay = repeatDay ?: todoList.repeatDay
                 )
 
                 // If newIndex is provided, update the listIndex
