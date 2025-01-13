@@ -10,4 +10,13 @@ data class TodoListWithTaskItem(
         entityColumn = "todoListId"
     )
     val taskItems: List<TaskItem>
-)
+) {
+    fun doesMatchSearchQuery(query: String): Boolean {
+        val matchCombinations = listOf(
+            todoList.title,
+            todoList.tags,
+            taskItems.joinToString { it.label }
+        )
+        return matchCombinations.any { it.contains(query, ignoreCase = true) }
+    }
+}

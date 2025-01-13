@@ -74,6 +74,7 @@ fun TodoListScreen(viewModel: TodoListViewModel, appNavigator: AppNavigator) {
 
 
 
+
     // Use LaunchedEffect to reset selectedIndex if list size changes
     LaunchedEffect(todoListsWithItems) {
         if (selectedTodoList != null &&
@@ -100,8 +101,9 @@ fun TodoListScreen(viewModel: TodoListViewModel, appNavigator: AppNavigator) {
         }
     }
 
+    val searchList by viewModel.searchList.collectAsState()
     val todoLists = remember { mutableStateOf(emptyList<TodoListWithTaskItem>()) }      // temporary list while dragging. Need optimization
-    todoLists.value = listsToShow
+    todoLists.value = searchList
 
     val lazyListState = rememberLazyListState()
     val reorderableLazyListState = rememberReorderableLazyListState(lazyListState) { from, to ->
@@ -115,7 +117,7 @@ fun TodoListScreen(viewModel: TodoListViewModel, appNavigator: AppNavigator) {
 
     Box(modifier = Modifier.fillMaxSize()) {
         Scaffold(
-            topBar = { TopAppBarWithMenu(query, showLiked) },
+            topBar = { TopAppBarWithMenu(query, showLiked, viewModel) },
             floatingActionButton = {
                 AddNewTodoListButton {
                     viewModel.setNewlistState()
@@ -235,9 +237,13 @@ fun TodoListScreen(viewModel: TodoListViewModel, appNavigator: AppNavigator) {
 // Top app bar with search and settings icons and dropdown menu
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun TopAppBarWithMenu(query: MutableState<String>, showLiked: MutableState<Boolean>) {
+private fun TopAppBarWithMenu(query: MutableState<String>, showLiked: MutableState<Boolean>, viewModel: TodoListViewModel) {
     val context = LocalContext.current
     val textFieldVisible = remember { mutableStateOf(false) }
+
+    val searchQuery by viewModel.searchQuery.collectAsState()
+    val isSearching by viewModel.isSearching.collectAsState()
+    val searchList by viewModel.searchList.collectAsState()
 
     TopAppBar(
         title = {
@@ -249,8 +255,8 @@ private fun TopAppBarWithMenu(query: MutableState<String>, showLiked: MutableSta
                 ) // Define a consistent text style
 
                 BasicTextField(
-                    value = query.value,
-                    onValueChange = { query.value = it }, // Update the query state
+                    value = searchQuery,
+                    onValueChange = { viewModel.onSearchQueryChange(it) }, // Update the query state
                     singleLine = true,
                     modifier = Modifier
                         .fillMaxWidth()
@@ -264,7 +270,7 @@ private fun TopAppBarWithMenu(query: MutableState<String>, showLiked: MutableSta
                             modifier = Modifier.fillMaxSize(),
                             contentAlignment = Alignment.CenterStart
                         ) {
-                            if (query.value.isEmpty()) {
+                            if (searchQuery.isEmpty()) {
                                 Text(
                                     text = "Search...",
                                     style = textStyle, // Apply the same text style to the placeholder
