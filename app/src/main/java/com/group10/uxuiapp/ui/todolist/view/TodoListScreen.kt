@@ -69,8 +69,6 @@ fun TodoListScreen(viewModel: TodoListViewModel, appNavigator: AppNavigator) {
     val selectedTodoList by viewModel.selectedTodoList.collectAsState()
     val temporaryList by viewModel.temporaryList.collectAsState()
     val popupState by viewModel.todoListState.collectAsState()
-    val listPositionState = rememberLazyListState()
-    val view = LocalView.current
 
 
 
@@ -122,15 +120,17 @@ fun TodoListScreen(viewModel: TodoListViewModel, appNavigator: AppNavigator) {
                 }
             }
         ) { innerPadding  ->
-
+            val extraBottomPadding = 150.dp // Change this for more bottom padding
             LazyColumn(
                 state = lazyListState,
                 verticalArrangement = Arrangement.spacedBy(16.dp),
+                modifier = Modifier
+                    .fillMaxSize(),
                 contentPadding = PaddingValues(
                     start = innerPadding.calculateStartPadding(LocalLayoutDirection.current) + 12.dp,
                     top = innerPadding.calculateTopPadding(),
                     end = innerPadding.calculateEndPadding(LocalLayoutDirection.current) + 12.dp,
-                    bottom = innerPadding.calculateBottomPadding() + 100.dp
+                    bottom = innerPadding.calculateBottomPadding() + extraBottomPadding
                 )
             ) {
                 items(todoLists.value, key = { it.todoList.id }) { item ->
@@ -139,36 +139,25 @@ fun TodoListScreen(viewModel: TodoListViewModel, appNavigator: AppNavigator) {
                         key = item.todoList.id,
                         animateItemModifier = Modifier.animateItem()
                     ) { isDragging ->
-                        val elevation by animateDpAsState(if (isDragging) 8.dp else 0.dp)
+                        val elevation by animateDpAsState(if (isDragging) 12.dp else 0.dp)
                         if(!isDragging) {
                             viewModel.updateAllListIndexes(todoLists.value)
                         }
-
-                        Surface(
-                            shadowElevation = elevation,
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(vertical = 4.dp)
-                                .clip(RoundedCornerShape(20.dp))
-                        ) {
-                            TodoListCard(
-                                todoList = item.todoList,
-                                onPositionChange = { offset, list ->
-                                    popupOffset.value = offset
-                                    viewModel.selectTodoList(list)
-                                },
-                                viewModel = viewModel,
-                                appNavigator = appNavigator,
-                                taskListsWithItems = todoListsWithItems,
-                                scope = this
-                            )
-                        }
+                        TodoListCard(
+                            elevation = elevation,
+                            todoList = item.todoList,
+                            onPositionChange = { offset, list ->
+                                popupOffset.value = offset
+                                viewModel.selectTodoList(list)
+                            },
+                            viewModel = viewModel,
+                            appNavigator = appNavigator,
+                            taskListsWithItems = todoListsWithItems,
+                            scope = this
+                        )
                     }
                 }
-
             }
-
-
         }
 
         OptionsPopup(
@@ -195,23 +184,6 @@ fun TodoListScreen(viewModel: TodoListViewModel, appNavigator: AppNavigator) {
                 viewModel.setTagEditState(selectedTodoList!!)
             }
         )
-
-//        // Show GiphyDialog when needed
-//        if (showGiphyDialog.value) {
-//            GiphyDialog(
-//                context = context,
-//                onGifSelected = { gifUrl ->
-//                    // Update the GIF URL in ViewModel
-//                    selectedTodoList?.let { todoList ->
-//                        viewModel.updateGifUrl(todoList.id, gifUrl)
-//                    }
-//                    showGiphyDialog.value = false
-//                },
-//                onDismissed = {
-//                    showGiphyDialog.value = false
-//                }
-//            )
-//        }
 
         PopupManager(
             popupState = popupState,
