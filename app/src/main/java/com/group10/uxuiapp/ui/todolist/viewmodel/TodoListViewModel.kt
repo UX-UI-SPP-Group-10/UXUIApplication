@@ -80,7 +80,7 @@ class TodoListViewModel(private val taskDataSource: TaskDataSource) : ViewModel(
 
 
     fun selectTodoList(todoList: TodoList?) {
-        // If null is passed, it means we want to clear the selection
+        Log.d(TAG, "Selecting TodoList with id: ${todoList?.title}")
         _selectedTodoList.value = todoList
     }
 
