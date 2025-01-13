@@ -1,6 +1,7 @@
 package com.group10.uxuiapp.ui.tasks.view.components
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.gestures.detectHorizontalDragGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material3.Checkbox
@@ -41,15 +42,20 @@ fun SubTaskRow(
                     color = MaterialTheme.colorScheme.onTertiary,
                     shape = MaterialTheme.shapes.small
                 )
+                .pointerInput(Unit){
+                    detectHorizontalDragGestures { change, dragAmount ->
+                        change.consume()
+
+                        if(dragAmount < -30){
+                            viewModel.selectTaskForChange(subTask = task)
+                        }
+                    }
+                }
         ) {
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(56.dp)
-                    .pointerInput(Unit) {
-                        // detectTapGestures only for the "empty space"
-                        detectTapGestures(onLongPress = {viewModel.selectTaskForChange(subTask = task)})
-                    },
+                    .height(56.dp),
                 horizontalArrangement = Arrangement.Start,
                 verticalAlignment = Alignment.CenterVertically
             ) {

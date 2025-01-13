@@ -1,6 +1,7 @@
 package com.group10.uxuiapp.ui.tasks.view.components
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.gestures.detectHorizontalDragGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material3.Checkbox
@@ -42,8 +43,13 @@ fun TaskRowItem(
                 shape = MaterialTheme.shapes.small
             )
             .pointerInput(Unit){
-                detectTapGestures(onPress = { viewModel.selectTask(task) },
-                    onLongPress = {viewModel.selectTaskForChange(taskItem = task)})
+               detectHorizontalDragGestures { change, dragAmount ->
+                   change.consume()
+
+                   if(dragAmount < -30){
+                       viewModel.selectTaskForChange(task)
+                   }
+               }
             }
     ) {
         Row(

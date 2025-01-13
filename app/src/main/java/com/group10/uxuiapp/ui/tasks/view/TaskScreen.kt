@@ -60,7 +60,6 @@ fun TaskScreen(todoListId: Int, appNavigator: AppNavigator, viewModel: TaskViewM
     val selectedTask by viewModel.selectedTaskItem.collectAsState()
     val selectedSubTask by viewModel.selectedSubTask.collectAsState()
     val taskItemWithSubTask by viewModel.lists.collectAsState()
-    val lastSelectedTask by viewModel.lastSelectedTaskItem.collectAsState()
     val lazyListState = rememberLazyListState()
 
     if (taskListWithItems == null) {
