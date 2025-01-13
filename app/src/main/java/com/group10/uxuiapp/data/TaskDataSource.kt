@@ -7,6 +7,7 @@ import com.group10.uxuiapp.data.data_class.TaskItemWithSubTask
 import com.group10.uxuiapp.data.data_class.TodoList
 import com.group10.uxuiapp.data.data_class.TodoListWithTaskItem
 import kotlinx.coroutines.flow.Flow
+import java.util.Calendar
 
 class TaskDataSource(private val taskDao: TaskDao) {
 
@@ -29,17 +30,20 @@ class TaskDataSource(private val taskDao: TaskDao) {
     fun getTaskListWithSubTaskById(taskItemId: Int): Flow<TaskItemWithSubTask> = taskDao.getTaskItemWithSubTaskById(taskItemId)
 
     // Update Operations
-    suspend fun updateTodoList(todoList: TodoList, title: String? = null, isLiked: Boolean? = null, gifUrl: String? = null, textColor: String? = null, dueDate: Long? = null, tags: String? = null) {
+    suspend fun updateTodoList(todoList: TodoList, title: String? = null, isLiked: Boolean? = null, gifUrl: String? = null, textColor: String? = null, dueDate: Long? = null, tags: String? = null, repeatDay: Int? = null, isRepeating: Boolean? = null) {
         val updatedTitle = title ?: todoList.title
         val updatedIsLiked = isLiked ?: todoList.isLiked
         val updatedGifUrl = gifUrl ?: todoList.gifUrl ?: ""
         val updatedTextColor = textColor ?: todoList.textColor
         val updatedDueDate = dueDate ?: todoList.dueDate
         val updatedTags = tags ?: todoList.tags
+        val updatedRepeatDay = repeatDay ?: todoList.repeatDay
+        val updatedIsRepeating = isRepeating ?: todoList.isRepeating
+
 
         Log.d(
             "TaskDataSource",
-            "Updating TodoList: id=${todoList.id}, title=$updatedTitle, isLiked=$updatedIsLiked, gifUrl=$updatedGifUrl, textColor=$updatedTextColor, dueDate=$updatedDueDate"
+            "Updating TodoList: id=${todoList.id}, title=$updatedTitle, isLiked=$updatedIsLiked, gifUrl=$updatedGifUrl, textColor=$updatedTextColor, dueDate=$updatedDueDate, tags=$updatedTags, repeatDay=$updatedRepeatDay, isRepeating=$updatedIsRepeating"
         )
 
         // Pass non-nullable values to the DAO
@@ -50,7 +54,9 @@ class TaskDataSource(private val taskDao: TaskDao) {
             gifUrl = updatedGifUrl,
             textColor = updatedTextColor,
             dueDate = updatedDueDate,
-            tags = updatedTags
+            tags = updatedTags,
+            repeatDay = todoList.repeatDay,
+            isRepeating = todoList.isRepeating
         )
     }
 
@@ -114,6 +120,16 @@ class TaskDataSource(private val taskDao: TaskDao) {
 
     suspend fun updateDueDate(todoListId: Int, dueDate: Long?) {
         taskDao.updateDueDate(todoListId, dueDate)
+    }
+
+    suspend fun resetTaskForRepeat(){
+        val currentDayOfTheWeek = Calendar.getInstance().get(Calendar.DAY_OF_WEEK)
+        val repeatingLists = taskDao.getTodoListByRepeatDay(currentDayOfTheWeek)
+
+        repeatingLists.forEach { list ->
+            taskDao.resetTaskByTodoListId(list.id)
+            taskDao.resetSubTasksByTodoListId(list.id)
+        }
     }
 
 

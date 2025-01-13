@@ -90,6 +90,8 @@ dependencies {
     implementation ("androidx.appcompat:appcompat:1.6.1")
     implementation ("androidx.fragment:fragment-ktx:1.5.7")
 
+    implementation ("androidx.work:work-runtime-ktx:2.8.1")
+
 
 
 }

@@ -53,7 +53,9 @@ interface TaskDao {
         gifUrl = :gifUrl,
         dueDate = :dueDate,
         textColor = :textColor,
-        tags = :tags
+        tags = :tags,
+        repeatDay = :repeatDay,
+        isRepeating = :isRepeating
     WHERE id = :id
 """)
     suspend fun updateTodoList(
@@ -63,7 +65,9 @@ interface TaskDao {
         gifUrl: String,
         textColor: String,
         dueDate: Long?,
-        tags: String?
+        tags: String?,
+        repeatDay: Int?,
+        isRepeating: Boolean?
     )
 
     @Query("""
@@ -144,6 +148,19 @@ interface TaskDao {
 
     @Query("SELECT * FROM TodoList WHERE dueDate <= :timestamp ORDER BY dueDate ASC")
     fun getTodoListsDueBefore(timestamp: Long): Flow<List<TodoList>>
+
+    @Query("SELECT * FROM TodoList WHERE repeatDay = :dayOfWeek")
+    fun getTodoListByRepeatDay(dayOfWeek: Int): List<TodoList>
+
+    @Query("UPDATE TaskItem SET isComplete = 0 WHERE todoListId = :todoListId")
+    suspend fun resetTaskByTodoListId(todoListId: Int)
+
+    @Query("""
+    UPDATE SubTask 
+    SET isComplete = 0 
+    WHERE taskItemId IN (SELECT id FROM TaskItem WHERE todoListId = :todoListId)
+""")
+    suspend fun resetSubTasksByTodoListId(todoListId: Int)
 
     @Delete
     suspend fun deleteSubTask(subTask: SubTask)
