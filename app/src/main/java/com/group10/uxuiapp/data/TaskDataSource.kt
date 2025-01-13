@@ -124,9 +124,12 @@ class TaskDataSource(private val taskDao: TaskDao) {
 
     suspend fun resetTaskForRepeat(){
         val currentDayOfTheWeek = Calendar.getInstance().get(Calendar.DAY_OF_WEEK)
+        Log.d("TaskDataSource", "Current day of the week: $currentDayOfTheWeek")
         val repeatingLists = taskDao.getTodoListByRepeatDay(currentDayOfTheWeek)
+        Log.d("TaskDataSource", "Repeating lists count: ${repeatingLists.size}")
 
         repeatingLists.forEach { list ->
+            Log.d("TaskDataSource", "Resetting tasks for list: ${list.title}")
             taskDao.resetTaskByTodoListId(list.id)
             taskDao.resetSubTasksByTodoListId(list.id)
         }

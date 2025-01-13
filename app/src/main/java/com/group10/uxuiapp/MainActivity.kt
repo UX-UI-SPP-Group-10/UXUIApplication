@@ -1,6 +1,7 @@
 package com.group10.uxuiapp
 
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.appcompat.app.AppCompatActivity
@@ -16,8 +17,11 @@ import com.group10.uxuiapp.ui.navigation.MainNavigation
 import com.group10.uxuiapp.ui.tasks.viewmodel.TaskViewModelFactory
 import com.group10.uxuiapp.ui.theme.UXUIApplicationTheme
 import com.group10.uxuiapp.ui.todolist.viewmodel.TodoListViewModelFactory
+import timber.log.Timber
 
 class MainActivity : FragmentActivity() {  //FragmentActivity
+    private lateinit var taskDataSource: TaskDataSource
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -30,14 +34,20 @@ class MainActivity : FragmentActivity() {  //FragmentActivity
         Giphy.configure(this, "TfJpapxeqlrKMdtx82hDrPS9RsSCYgDG")
 
 
-        if (!WorkManager.isInitialized()) {
-            WorkManager.initialize(
-                this,
-                Configuration.Builder()
-                    .setWorkerFactory(workerFactory)
-                    .build()
-            )
-        }
+        // Initialize WorkManager with the custom WorkerFactory
+        Log.d("MainActivity", "Before WorkManager initialization")
+//        WorkManager.initialize(
+//            this,
+//            Configuration.Builder()
+//                .setWorkerFactory(workerFactory)
+//                .build()
+//        )
+        Timber.tag("MainActivity").d("After WorkManager initialization")
+
+        // Schedule reset worker
+        WorkManagerHelper.scheduleResetWorker(this)
+
+
 
         setContent {
             UXUIApplicationTheme {
