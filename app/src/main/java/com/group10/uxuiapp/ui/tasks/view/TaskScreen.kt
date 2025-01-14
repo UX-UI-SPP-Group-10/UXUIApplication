@@ -162,42 +162,7 @@ fun TaskScreen(todoListId: Int, appNavigator: AppNavigator, viewModel: TaskViewM
                         }
                     }
                 }
-
             }
         }
     }
-
-    /*
-    if (selectedTask != null || selectedSubTask != null) {
-        EditTaskPopup(
-            taskName = when {
-                selectedTask != null -> selectedTask!!.label
-                selectedSubTask != null -> selectedSubTask!!.label
-                else -> "" // Fallback, should not reach here
-            },
-            onSaveTask = { newName ->
-                if(selectedTask != null){
-                    viewModel.updateTaskItem(taskItem = selectedTask!!, label = newName)
-                }
-                if(selectedSubTask != null){
-                    viewModel.updateSubTask(subTask = selectedSubTask!!, label = newName)
-                }
-                viewModel.selectTaskForChange(null, null)
-            },
-            onDeleteTask = {
-                if(selectedTask != null){
-                    viewModel.deleteTask(selectedTask!!)
-                }
-                if(selectedSubTask != null){
-                    viewModel.deleteSupTask(selectedSubTask!!)
-                }
-
-                viewModel.selectTaskForChange(null, null)
-            },
-            onDismiss = {
-                viewModel.selectTaskForChange(null, null)
-            }
-        )
-    }*/
-
 }

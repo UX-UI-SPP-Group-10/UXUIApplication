@@ -48,10 +48,9 @@ fun TaskRowItem(
     val coroutineScope = rememberCoroutineScope()
     var debounceJob by remember { mutableStateOf<Job?>(null) }
     val boxWhith =
-        if(selectedTask == task){
+        if (selectedTask == task) {
             Modifier.width(340.dp)
-        }
-        else{
+        } else {
             Modifier.fillMaxWidth()
         }
 
@@ -65,7 +64,7 @@ fun TaskRowItem(
             modifier = Modifier.fillMaxHeight().fillMaxWidth(),
             contentAlignment = Alignment.CenterEnd
         ) {
-            Delete(onClick = { viewModel.deleteTask(task)})
+            Delete(onClick = { viewModel.deleteTask(task) })
         }
         Box(
             modifier = Modifier
@@ -80,6 +79,9 @@ fun TaskRowItem(
 
                         if (dragAmount < -30) {
                             viewModel.selectTaskForChange(task)
+                        }
+                        else if (dragAmount > 30) {
+                            viewModel.selectTaskForChange(null, null)
                         }
                     }
                 }
@@ -114,62 +116,62 @@ fun TaskRowItem(
                     modifier = Modifier.size(28.dp)
                 )
 
-            // 3) Editable text
-            TextField(
-                value = textValue,
-                onValueChange = { newText ->
-                    if (newText.length <= 25) {
-                        textValue = newText
+                // 3) Editable text
+                TextField(
+                    value = textValue,
+                    onValueChange = { newText ->
+                        if (newText.length <= 25) {
+                            textValue = newText
 
-                        debounceJob?.cancel() // Cancel the ongoing debounce job
-                        debounceJob = coroutineScope.launch {
-                            delay(200) // 200ms debounce delay
-                            viewModel.updateTaskItem(task, label = newText) // Update ViewModel
+                            debounceJob?.cancel() // Cancel the ongoing debounce job
+                            debounceJob = coroutineScope.launch {
+                                delay(200) // 200ms debounce delay
+                                viewModel.updateTaskItem(task, label = newText) // Update ViewModel
+                            }
                         }
-                    }
-                },
-                singleLine = true,
-                textStyle = MaterialTheme.typography.bodyLarge.copy(
-                    textDecoration = if (isChecked) TextDecoration.LineThrough else null,
-                    fontWeight = FontWeight.Medium,
-                    color = if (isChecked) {
-                        MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
-                    } else {
-                        MaterialTheme.colorScheme.onSurface
-                    }
-                ),
-                colors = TextFieldDefaults.colors(
-                    unfocusedContainerColor = Color.Transparent, // No background
-                    focusedContainerColor = Color.Transparent,  // No background on focus
-                    unfocusedIndicatorColor = Color.Transparent, // No underline
-                    focusedIndicatorColor = Color.Transparent // No underline
+                    },
+                    singleLine = true,
+                    textStyle = MaterialTheme.typography.bodyLarge.copy(
+                        textDecoration = if (isChecked) TextDecoration.LineThrough else null,
+                        fontWeight = FontWeight.Medium,
+                        color = if (isChecked) {
+                            MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
+                        } else {
+                            MaterialTheme.colorScheme.onSurface
+                        }
+                    ),
+                    colors = TextFieldDefaults.colors(
+                        unfocusedContainerColor = Color.Transparent, // No background
+                        focusedContainerColor = Color.Transparent,  // No background on focus
+                        unfocusedIndicatorColor = Color.Transparent, // No underline
+                        focusedIndicatorColor = Color.Transparent // No underline
+                    )
                 )
-            )
 
 
-            Box(
-                modifier = Modifier.fillMaxWidth(),
-                contentAlignment = Alignment.CenterEnd
-            ) {
-                Row {
-                    AddSubTaskButton(onClick = {
-                        val newSubTask = SubTask(label = "", taskItemId = task.id)
-                        viewModel.addSupTask(newSubTask)
-                    })
+                Box(
+                    modifier = Modifier.fillMaxWidth(),
+                    contentAlignment = Alignment.CenterEnd
+                ) {
+                    Row {
+                        AddSubTaskButton(onClick = {
+                            val newSubTask = SubTask(label = "", taskItemId = task.id)
+                            viewModel.addSupTask(newSubTask)
+                        })
 
                         Spacer(modifier = Modifier.width(6.dp))
 
-                    TaskFolderButton(
-                        onClick = {
-                            isFoldet = !isFoldet
-                            viewModel.updateTaskItem(task, isFolded = isFoldet)
-                        },
-                        isFoldet = isFoldet
-                    )
+                        TaskFolderButton(
+                            onClick = {
+                                isFoldet = !isFoldet
+                                viewModel.updateTaskItem(task, isFolded = isFoldet)
+                            },
+                            isFoldet = isFoldet
+                        )
+                    }
                 }
             }
         }
     }
 }
-    }
 

@@ -69,6 +69,9 @@ fun SubTaskRow(
                             if (dragAmount < -30) {
                                 viewModel.selectTaskForChange(subTask = task)
                             }
+                            else if (dragAmount > 30) {
+                                viewModel.selectTaskForChange(null, null)
+                            }
                         }
                     }
             ) {
