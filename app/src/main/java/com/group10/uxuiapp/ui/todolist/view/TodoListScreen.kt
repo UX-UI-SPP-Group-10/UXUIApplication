@@ -111,7 +111,7 @@ fun TodoListScreen(viewModel: TodoListViewModel, appNavigator: AppNavigator) {
             topBar = { TopAppBarWithMenu(showLiked, viewModel) },
             floatingActionButton = {
                 AddNewTodoListButton {
-                    viewModel.setNewlistState()
+                    viewModel.addTodoList("")
                 }
             }
         ) { innerPadding  ->
