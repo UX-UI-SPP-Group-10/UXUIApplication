@@ -118,7 +118,8 @@ class TaskDataSource(private val taskDao: TaskDao) {
 
     fun getTodoListsDueBefore(timestamp: Long): Flow<List<TodoList>> = taskDao.getTodoListsDueBefore(timestamp)
 
-    suspend fun updateDueDate(todoListId: Int, dueDate: Long?) {
+    suspend fun updateDueDate(todoListId: Int, dueDate: Long?, todoListTitle: String) {
+        Log.d("NotificationTest","updateDueDate called with ID: $todoListId and dueDate: $dueDate")
         taskDao.updateDueDate(todoListId, dueDate)
     }
 

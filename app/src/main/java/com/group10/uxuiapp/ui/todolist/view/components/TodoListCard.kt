@@ -53,11 +53,9 @@ import com.group10.uxuiapp.ui.todolist.view.components.buttons.IsLikedButton
 import com.group10.uxuiapp.ui.todolist.viewmodel.TodoListViewModel
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalView
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.core.view.HapticFeedbackConstantsCompat
 import androidx.core.view.ViewCompat
-import com.group10.uxuiapp.R
 import sh.calvin.reorderable.ReorderableCollectionItemScope
 import kotlin.math.log
 
@@ -198,9 +196,8 @@ fun TodoListCard(
                     color = Color(android.graphics.Color.parseColor(todoList.textColor)),
                     modifier = Modifier.fillMaxWidth()
                 )
-                DueByDate(todoList)
+                DueByDate(todoList = todoList, viewModel = viewModel)
                 TagsDisplay(tags = todoList.tags, color = Color(android.graphics.Color.parseColor(todoList.textColor)))
-
             }
 
             // Spacing between content and buttons
@@ -211,15 +208,6 @@ fun TodoListCard(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.End
             ) {
-                if (todoList.isRepeating) { // Check if the list is repeatable
-                    Icon(
-                        painter = painterResource(id = R.drawable.repeat), // Replace with your repeat icon
-                        contentDescription = "Repeat",
-                        tint = MaterialTheme.colorScheme.primary,
-                        modifier = Modifier.padding(end = 8.dp) // Add some spacing
-                    )
-                }
-
                 IconButton(onClick = {
                     val finalOffset = IntOffset(
                         x = 0,

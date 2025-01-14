@@ -10,6 +10,7 @@ import androidx.work.Configuration
 import androidx.work.WorkManager
 import com.giphy.sdk.ui.Giphy
 import com.group10.uxuiapp.data.DatabaseProvider
+import com.group10.uxuiapp.data.NotificationHelper
 import com.group10.uxuiapp.data.TaskDataSource
 import com.group10.uxuiapp.data.data_class.WorkManagerHelper
 import com.group10.uxuiapp.ui.navigation.MainNavigation
@@ -44,6 +45,15 @@ class MainActivity : FragmentActivity() {  //FragmentActivity
 
         // Schedule reset worker
         WorkManagerHelper.scheduleResetWorker(this)
+
+//        val notificationHelper = NotificationHelper(this)
+//        Timber.tag("NotificationTest").d("TEst")
+//        notificationHelper.sendNotification(
+//            title = "Test Title",
+//            message = "This is a test notification."
+//        )
+
+
 
 
 

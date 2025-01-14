@@ -1,10 +1,12 @@
 package com.group10.uxuiapp.ui.todolist.viewmodel
 
+import android.content.Context
 import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewModelScope
+import com.group10.uxuiapp.data.NotificationHelper
 import com.group10.uxuiapp.data.data_class.TodoList
 import com.group10.uxuiapp.data.data_class.TodoListWithTaskItem
 import com.group10.uxuiapp.data.TaskDataSource
@@ -16,6 +18,8 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import timber.log.Timber
+import java.sql.Date
 
 class TodoListViewModel(private val taskDataSource: TaskDataSource) : ViewModel() {
     private val TAG = "TodoListViewModel" // Debug tag for logs
@@ -289,9 +293,26 @@ class TodoListViewModel(private val taskDataSource: TaskDataSource) : ViewModel(
             } ?: Log.e(TAG, "TodoList not found for id: $todoListId")
         }
     }
-    fun updateTodoListDueDate(todoListId: Int, dueDate: Long?) {
+    fun updateTodoListDueDate(todoListId: Int, dueDate: Long?, context: Context, todoListTitle: String) {
+        Log.d("NotificationTest","updateTodoListDueDate called with ID: $todoListId and dueDate: $dueDate")
+
         viewModelScope.launch {
-            taskDataSource.updateDueDate(todoListId, dueDate)
+            try {
+                taskDataSource.updateDueDate(todoListId, dueDate, todoListTitle)
+                Log.d("NotificationTest", "Due date updated for TodoList ID: $todoListId")
+
+                // Schedule notification
+                dueDate?.let {
+                    NotificationHelper(context).scheduleDueDateNotification(
+                        todoTitle = ": $todoListTitle",
+                        message = "Your task is due soon!",
+                        dueDateMillis = it
+                    )
+                    Log.d("NotificationTest", "Notification scheduled for due date: ${Date(it)}")
+                }
+            } catch (e: Exception) {
+                Timber.tag("NotificationTest").e(e, "Error updating TodoList due date")
+            }
         }
     }
 
