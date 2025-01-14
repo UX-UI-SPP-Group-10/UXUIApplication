@@ -52,6 +52,8 @@ import com.group10.uxuiapp.ui.tasks.view.components.AddSubTaskButton
 import com.group10.uxuiapp.ui.tasks.view.components.SubTaskRow
 
 
+
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TaskScreen(todoListId: Int, appNavigator: AppNavigator, viewModel: TaskViewModel) {
@@ -149,8 +151,10 @@ fun TaskScreen(todoListId: Int, appNavigator: AppNavigator, viewModel: TaskViewM
                         .fillMaxSize(),
                     contentPadding = PaddingValues(
                         end = innerPadding.calculateEndPadding(LocalLayoutDirection.current) + 12.dp,
+                        start = innerPadding.calculateStartPadding(LocalLayoutDirection.current) + 12.dp,
                         bottom = innerPadding.calculateBottomPadding() + extraBottomPadding
-                    )
+                    ),
+                    verticalArrangement = Arrangement.spacedBy(6.dp)
                 ){
                     items(
                         items = sortedTasks,
