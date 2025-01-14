@@ -157,6 +157,12 @@ class TaskViewModel(private val taskDataSource: TaskDataSource) : ViewModel() {
         }
     }
 
+    fun deleteCompletedTasks(todoListId: Int) {
+        viewModelScope.launch {
+            taskDataSource.deleteCompletedTasksAndSubTasks(todoListId)
+        }
+    }
+
     fun deleteSupTask(subTask: SubTask) {
         viewModelScope.launch {
             Log.d(TAG, "Deleting TaskItem: $subTask")
