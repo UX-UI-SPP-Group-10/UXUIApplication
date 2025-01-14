@@ -42,7 +42,7 @@ fun PopupManager(
         is TodoListState.Rename -> {
             EditTodolistDialog(
                 onDismiss = onDismiss,
-                onConfirm = { newName, selectedColor, selectedDate ->
+                onConfirm = { newName, selectedColor, selectedDate, isRepeating, selectedDay ->
                     val currentTodoList = popupState.todoList
 
                     val finalName = if (newName.isBlank()) currentTodoList.title else newName
@@ -63,6 +63,8 @@ fun PopupManager(
                         title = finalName,
                         textColor = finalColor,
                         dueDate = finalDate,
+                        isRepeating = isRepeating,
+                        repeatDay = selectedDay
                     )
                     onDismiss()
                 }

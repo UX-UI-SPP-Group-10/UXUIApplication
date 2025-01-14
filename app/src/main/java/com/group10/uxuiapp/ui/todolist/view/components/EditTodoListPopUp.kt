@@ -27,15 +27,18 @@ sealed class EditListPage {
     object NameInput : EditListPage()
     object ColorPicker : EditListPage()
     object DueDatePicker : EditListPage()
+    object RepeatPicker : EditListPage()
 }
 
 
 @Composable
-fun EditTodolistDialog(onDismiss: () -> Unit, onConfirm: (String, String, String) -> Unit) {
+fun EditTodolistDialog(onDismiss: () -> Unit, onConfirm: (String, String, String, Boolean, Int?) -> Unit) {
     var currentPage by remember { mutableStateOf<EditListPage>(EditListPage.NameInput) }
     var listName by remember { mutableStateOf("") }
     var selectedColor by remember { mutableStateOf("#FFFFFF") }
     var selectedDate by remember { mutableStateOf("") }
+    var isRepeating by remember { mutableStateOf(false) }
+    var selectedDay by remember { mutableStateOf<Int?>(null) }
 
     AlertDialog(
         onDismissRequest = { onDismiss() },
@@ -62,6 +65,13 @@ fun EditTodolistDialog(onDismiss: () -> Unit, onConfirm: (String, String, String
                     Icon(
                         painter = painterResource(id = R.drawable.calendar),
                         contentDescription = "Date",
+                        tint = MaterialTheme.colorScheme.onTertiaryContainer
+                    )
+                }
+                IconButton(onClick = { currentPage = EditListPage.RepeatPicker }) {
+                    Icon(
+                        painter = painterResource(id = R.drawable.repeat),
+                        contentDescription = "Repeat",
                         tint = MaterialTheme.colorScheme.onTertiaryContainer
                     )
                 }
@@ -94,12 +104,45 @@ fun EditTodolistDialog(onDismiss: () -> Unit, onConfirm: (String, String, String
                         }
                     )
                 }
+                is EditListPage.RepeatPicker -> {
+                    Column {
+                        Row {
+                            Text("Repeatable")
+                            androidx.compose.material3.Switch(
+                                checked = isRepeating,
+                                onCheckedChange = { isRepeating = it }
+                            )
+                        }
+                        if (isRepeating) {
+                            Text("Select a Day of the Week")
+
+                            Row(modifier = Modifier.fillMaxWidth()) {
+                                listOf("Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat").forEachIndexed { index, day ->
+                                    TextButton(
+                                        onClick = {selectedDay = index + 1},
+                                        modifier = Modifier.weight(1f),
+                                        colors = androidx.compose.material3.ButtonDefaults.textButtonColors(
+                                            containerColor = if (selectedDay == index + 1) MaterialTheme.colorScheme.primary
+                                            else MaterialTheme.colorScheme.surface
+                                        )
+                                    ){
+                                        Text(
+                                            text = day,
+                                            color = if (selectedDay == index + 1) MaterialTheme.colorScheme.onPrimary
+                                            else MaterialTheme.colorScheme.onSurface
+                                        )
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
             }
        },
         confirmButton = {
             TextButton(
                 onClick = {
-                    onConfirm(listName, selectedColor, selectedDate) // Pass the name entered to the onConfirm handler
+                    onConfirm(listName, selectedColor, selectedDate, isRepeating, selectedDay) // Pass the name entered to the onConfirm handler
                 }
             ) {
                 Text("Confirm")

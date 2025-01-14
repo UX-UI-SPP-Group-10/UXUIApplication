@@ -1,6 +1,11 @@
 package com.group10.uxuiapp.ui.tasks.view
 
 import android.util.Log
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
@@ -45,6 +50,8 @@ import com.group10.uxuiapp.ui.tasks.view.components.AddSubTaskButton
 import com.group10.uxuiapp.ui.tasks.view.components.SubTaskRow
 
 
+
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TaskScreen(todoListId: Int, appNavigator: AppNavigator, viewModel: TaskViewModel) {
@@ -61,6 +68,8 @@ fun TaskScreen(todoListId: Int, appNavigator: AppNavigator, viewModel: TaskViewM
     val selectedSubTask by viewModel.selectedSubTask.collectAsState()
     val taskItemWithSubTask by viewModel.lists.collectAsState()
     val lazyListState = rememberLazyListState()
+    val topBarVisible = lazyListState.firstVisibleItemIndex == 0 && lazyListState.firstVisibleItemScrollOffset < 150
+
 
     if (taskListWithItems == null) {
         // Loading state
@@ -75,27 +84,33 @@ fun TaskScreen(todoListId: Int, appNavigator: AppNavigator, viewModel: TaskViewM
 
     Scaffold(
         topBar = {
-            TopAppBar(
-                title = { Text(taskListWithItems!!.todoList.title) },
-                navigationIcon = {
-                    IconButton(onClick = { appNavigator.popBackStack() }) {
-                        Icon(
-                            painter = painterResource(id = R.drawable.arrow_left),
-                            contentDescription = "Back"
+            AnimatedVisibility(
+                visible = topBarVisible,
+                enter = fadeIn() + slideInVertically { -it / 2 },
+                exit = fadeOut() + slideOutVertically { -it / 2 }
+            ) {
+                TopAppBar(
+                    title = { Text(taskListWithItems!!.todoList.title) },
+                    navigationIcon = {
+                        IconButton(onClick = { appNavigator.popBackStack() }) {
+                            Icon(
+                                painter = painterResource(id = R.drawable.arrow_left),
+                                contentDescription = "Back"
+                            )
+                        }
+                    },
+                    actions = {
+                        SettingsButton(
+                            context = context,
+                            onSetting1Click = { Log.d("TaskPage", "Setting 1 clicked") },
+                            onSetting2Click = { Log.d("TaskPage", "Setting 2 clicked") },
+                            onSetting3Click = { Log.d("TaskPage", "Setting 3 clicked") }
                         )
-                    }
-                },
-                actions = {
-                    SettingsButton(
-                        context = context,
-                        onSetting1Click = { Log.d("TaskPage", "Setting 1 clicked") },
-                        onSetting2Click = { Log.d("TaskPage", "Setting 2 clicked") },
-                        onSetting3Click = { Log.d("TaskPage", "Setting 3 clicked") }
-                    )
-                },
-                colors = TopAppBarDefaults.topAppBarColors(),
-                scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
-            )
+                    },
+                    colors = TopAppBarDefaults.topAppBarColors(),
+                    scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
+                )
+            }
         },
         floatingActionButton = {
             AddTaskButton(onClick = {
@@ -128,8 +143,10 @@ fun TaskScreen(todoListId: Int, appNavigator: AppNavigator, viewModel: TaskViewM
                         .fillMaxSize(),
                     contentPadding = PaddingValues(
                         end = innerPadding.calculateEndPadding(LocalLayoutDirection.current) + 12.dp,
+                        start = innerPadding.calculateStartPadding(LocalLayoutDirection.current) + 12.dp,
                         bottom = innerPadding.calculateBottomPadding() + extraBottomPadding
-                    )
+                    ),
+                    verticalArrangement = Arrangement.spacedBy(6.dp)
                 ){
                     items(
                         items = taskListWithItems!!.taskItems,

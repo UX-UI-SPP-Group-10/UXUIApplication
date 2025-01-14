@@ -10,8 +10,11 @@ import com.group10.uxuiapp.data.data_class.TodoListWithTaskItem
 import com.group10.uxuiapp.data.TaskDataSource
 import com.group10.uxuiapp.data.data_class.TaskItem
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
 class TodoListViewModel(private val taskDataSource: TaskDataSource) : ViewModel() {
@@ -33,6 +36,31 @@ class TodoListViewModel(private val taskDataSource: TaskDataSource) : ViewModel(
     private val _todoListState = MutableStateFlow<TodoListState>(TodoListState.None)
     val todoListState = _todoListState.asStateFlow()
 
+    private val _isSearching = MutableStateFlow(false)
+    val isSearching = _isSearching.asStateFlow()
+
+    private val _searchQuery = MutableStateFlow("")
+    val searchQuery = _searchQuery.asStateFlow()
+
+    val searchList = searchQuery
+        .combine(_lists) { query, lists ->
+            if(query.isEmpty()) {
+                lists
+            } else {
+                lists.filter {
+                    it.doesMatchSearchQuery(query)
+                }
+            }
+        }
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5000),
+            initialValue = _lists.value
+        )
+
+    fun onSearchQueryChange(query: String) {
+        _searchQuery.value = query
+    }
 
     init {
         viewModelScope.launch {
@@ -80,7 +108,7 @@ class TodoListViewModel(private val taskDataSource: TaskDataSource) : ViewModel(
 
 
     fun selectTodoList(todoList: TodoList?) {
-        // If null is passed, it means we want to clear the selection
+        Log.d(TAG, "Selecting TodoList with id: ${todoList?.title}")
         _selectedTodoList.value = todoList
     }
 
@@ -180,7 +208,9 @@ class TodoListViewModel(private val taskDataSource: TaskDataSource) : ViewModel(
         isLiked: Boolean? = null,
         textColor: String? = null,
         dueDate: Long? = null,
-        newIndex: Int? = null
+        newIndex: Int? = null,
+        isRepeating: Boolean? = null,
+        repeatDay: Int? = null
     ) {
         viewModelScope.launch {
             try {
@@ -188,7 +218,9 @@ class TodoListViewModel(private val taskDataSource: TaskDataSource) : ViewModel(
                     title = title ?: todoList.title,
                     isLiked = isLiked ?: todoList.isLiked,
                     textColor = textColor ?: todoList.textColor,
-                    dueDate = dueDate ?: todoList.dueDate
+                    dueDate = dueDate ?: todoList.dueDate,
+                    isRepeating = isRepeating ?: todoList.isRepeating,
+                    repeatDay = repeatDay ?: todoList.repeatDay
                 )
 
                 // If newIndex is provided, update the listIndex
