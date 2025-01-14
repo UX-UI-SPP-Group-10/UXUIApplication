@@ -66,7 +66,6 @@ import sh.calvin.reorderable.rememberReorderableLazyListState
 @OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class)
 @Composable
 fun TodoListScreen(viewModel: TodoListViewModel, appNavigator: AppNavigator) {
-    val query = remember { mutableStateOf("") }
     val popupOffset = remember { mutableStateOf(IntOffset.Zero) }
     val showLiked = remember { mutableStateOf(false) }
 
@@ -92,6 +91,11 @@ fun TodoListScreen(viewModel: TodoListViewModel, appNavigator: AppNavigator) {
 
     val todoLists = remember { mutableStateOf(emptyList<TodoListWithTaskItem>()) }      // temporary list while dragging. Need optimization
     todoLists.value = searchList
+    todoLists.value = if (showLiked.value) {
+        searchList.filter { it.todoList.isLiked }
+    } else {
+        searchList
+    }
 
     val lazyListState = rememberLazyListState()
     val reorderableLazyListState = rememberReorderableLazyListState(lazyListState) { from, to ->
