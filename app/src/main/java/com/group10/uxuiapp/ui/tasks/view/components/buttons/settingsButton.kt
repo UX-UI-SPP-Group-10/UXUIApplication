@@ -14,6 +14,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -25,8 +26,9 @@ import androidx.compose.ui.unit.dp
 @Composable
 fun SettingsButton(
     context: Context,
+    //sortByComplete: MutableState<Boolean>,
     deleteCompletedClick: () -> Unit,
-    onSetting2Click: () -> Unit,
+    sortCompleted: () -> Unit,
     onSetting3Click: () -> Unit,
 ) {
     val expanded = remember { mutableStateOf(false) }
@@ -57,23 +59,25 @@ fun SettingsButton(
             onClick = {
                 deleteCompletedClick()
                 expanded.value = false
-                Toast.makeText(context, "Option 1 clicked", Toast.LENGTH_SHORT).show()
+                //Toast.makeText(context, "Option 1 clicked", Toast.LENGTH_SHORT).show()
             },
             modifier = Modifier.fillMaxWidth()
         )
         DropdownMenuItem(
-            text = { Text("Option 2") },
+            text = { Text("Sort by completed")},
+            //onClick = {
+            //text = { Text("Option 2") },
             onClick = {
-                onSetting2Click()
+                sortCompleted()
                 expanded.value = false
-                Toast.makeText(context, "Option 2 clicked", Toast.LENGTH_SHORT).show()
+                //sortByComplete.value = !sortByComplete.value
+                //Toast.makeText(context, "Option 2 clicked", Toast.LENGTH_SHORT).show()
             },
             modifier = Modifier.fillMaxWidth()
         )
         DropdownMenuItem(
             text = { Text("Option 3") },
             onClick = {
-                onSetting3Click()
                 expanded.value = false
                 Toast.makeText(context, "Option 3 clicked", Toast.LENGTH_SHORT).show()
             },
