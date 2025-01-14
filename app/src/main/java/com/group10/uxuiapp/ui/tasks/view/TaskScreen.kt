@@ -64,7 +64,6 @@ fun TaskScreen(todoListId: Int, appNavigator: AppNavigator, viewModel: TaskViewM
     val selectedTask by viewModel.selectedTaskItem.collectAsState()
     val selectedSubTask by viewModel.selectedSubTask.collectAsState()
     val taskItemWithSubTask by viewModel.lists.collectAsState()
-    val lastSelectedTask by viewModel.lastSelectedTaskItem.collectAsState()
     val lazyListState = rememberLazyListState()
     val topBarVisible = lazyListState.firstVisibleItemIndex == 0 && lazyListState.firstVisibleItemScrollOffset < 150
     val sortByComplete = remember { mutableStateOf(false) }
@@ -177,41 +176,7 @@ fun TaskScreen(todoListId: Int, appNavigator: AppNavigator, viewModel: TaskViewM
                         }
                     }
                 }
-
             }
         }
     }
-
-    if (selectedTask != null || selectedSubTask != null) {
-        EditTaskPopup(
-            taskName = when {
-                selectedTask != null -> selectedTask!!.label
-                selectedSubTask != null -> selectedSubTask!!.label
-                else -> "" // Fallback, should not reach here
-            },
-            onSaveTask = { newName ->
-                if(selectedTask != null){
-                    viewModel.updateTaskItem(taskItem = selectedTask!!, label = newName)
-                }
-                if(selectedSubTask != null){
-                    viewModel.updateSubTask(subTask = selectedSubTask!!, label = newName)
-                }
-                viewModel.selectTaskForChange(null, null)
-            },
-            onDeleteTask = {
-                if(selectedTask != null){
-                    viewModel.deleteTask(selectedTask!!)
-                }
-                if(selectedSubTask != null){
-                    viewModel.deleteSupTask(selectedSubTask!!)
-                }
-
-                viewModel.selectTaskForChange(null, null)
-            },
-            onDismiss = {
-                viewModel.selectTaskForChange(null, null)
-            }
-        )
-    }
-
 }
