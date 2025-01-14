@@ -42,6 +42,8 @@ import com.group10.uxuiapp.ui.tasks.view.components.EditTaskPopup
 import com.group10.uxuiapp.ui.tasks.viewmodel.TaskViewModel
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.unit.dp
 import com.group10.uxuiapp.ui.tasks.view.components.buttons.SettingsButton
@@ -68,6 +70,7 @@ fun TaskScreen(todoListId: Int, appNavigator: AppNavigator, viewModel: TaskViewM
     val lastSelectedTask by viewModel.lastSelectedTaskItem.collectAsState()
     val lazyListState = rememberLazyListState()
     val topBarVisible = lazyListState.firstVisibleItemIndex == 0 && lazyListState.firstVisibleItemScrollOffset < 150
+    val sortByComplete = remember { mutableStateOf(false) }
 
 
     if (taskListWithItems == null) {
@@ -79,6 +82,12 @@ fun TaskScreen(todoListId: Int, appNavigator: AppNavigator, viewModel: TaskViewM
             CircularProgressIndicator()
         }
         return
+    }
+
+    val sortedTasks = remember(taskListWithItems?.taskItems, sortByComplete.value) {
+        taskListWithItems?.taskItems?.let {
+            if (sortByComplete.value) it.sortedByDescending { task ->  task.isComplete } else it
+        } ?: emptyList()
     }
 
     Scaffold(
@@ -101,9 +110,7 @@ fun TaskScreen(todoListId: Int, appNavigator: AppNavigator, viewModel: TaskViewM
                     actions = {
                         SettingsButton(
                             context = context,
-                            onSetting1Click = { Log.d("TaskPage", "Setting 1 clicked") },
-                            onSetting2Click = { Log.d("TaskPage", "Setting 2 clicked") },
-                            onSetting3Click = { Log.d("TaskPage", "Setting 3 clicked") }
+                            sortByComplete = sortByComplete
                         )
                     },
                     colors = TopAppBarDefaults.topAppBarColors(),
@@ -126,7 +133,7 @@ fun TaskScreen(todoListId: Int, appNavigator: AppNavigator, viewModel: TaskViewM
                 .padding(innerPadding),
             contentAlignment = Alignment.TopCenter
         ) {
-            if (taskListWithItems!!.taskItems.isEmpty()) {
+            if (sortedTasks.isEmpty()) {
                 // Empty state
                 Box(
                     modifier = Modifier.fillMaxSize(),
@@ -146,15 +153,22 @@ fun TaskScreen(todoListId: Int, appNavigator: AppNavigator, viewModel: TaskViewM
                     )
                 ){
                     items(
-                        items = taskListWithItems!!.taskItems,
+                        items = sortedTasks,
                         key = { task -> task.id }
                     ) { task ->
                         TaskRowItem(task = task, viewModel = viewModel)
                         val taskWithSubTasks = taskItemWithSubTask.find { it.taskItem.id == task.id }
 
                         if (taskWithSubTasks != null && !task.isFolded) {
-                            taskWithSubTasks.subTasks.forEach { subTask ->
-                                SubTaskRow(subTask, viewModel)
+                            val sortedSubTasks = remember(taskWithSubTasks.subTasks) {
+                                if (sortByComplete.value) {
+                                    taskWithSubTasks.subTasks.sortedByDescending { subTask -> subTask.isComplete }
+                                } else {
+                                    taskWithSubTasks.subTasks
+                                }
+                            }
+                            sortedSubTasks.forEach {
+                                subTask ->  SubTaskRow(subTask, viewModel)
                             }
                         }
                     }
