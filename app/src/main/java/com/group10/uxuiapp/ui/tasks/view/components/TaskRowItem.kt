@@ -56,8 +56,7 @@ fun TaskRowItem(
 
     Box(
         modifier = Modifier
-            .padding(vertical = 6.dp, horizontal = 12.dp)
-            .height(40.dp)
+            .height(50.dp)
             .fillMaxWidth()
     ) {
         Box(
@@ -88,11 +87,10 @@ fun TaskRowItem(
         ) {
             Row(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .height(56.dp),
+                    .padding(vertical = 0.dp, horizontal = 12.dp)   // This is the inner padding
+                    .fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Spacer(modifier = Modifier.width(16.dp))
                 // 2) Checkbox
                 Checkbox(
                     checked = isChecked,
