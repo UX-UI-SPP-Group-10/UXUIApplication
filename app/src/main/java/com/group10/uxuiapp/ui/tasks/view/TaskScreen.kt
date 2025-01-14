@@ -107,13 +107,12 @@ fun TaskScreen(todoListId: Int, appNavigator: AppNavigator, viewModel: TaskViewM
                     actions = {
                         SettingsButton(
                             context = context,
-<<<<<<< HEAD
-                            sortByComplete = sortByComplete
-=======
+                            //sortByComplete = sortByComplete
                             deleteCompletedClick = { viewModel.deleteCompletedTasks(todoListId) },
-                            onSetting2Click = { Log.d("TaskPage", "Setting 2 clicked") },
+                            sortCompleted = {
+                                sortByComplete.value = !sortByComplete.value
+                            },
                             onSetting3Click = { Log.d("TaskPage", "Setting 3 clicked") }
->>>>>>> dev
                         )
                     },
                     colors = TopAppBarDefaults.topAppBarColors(),

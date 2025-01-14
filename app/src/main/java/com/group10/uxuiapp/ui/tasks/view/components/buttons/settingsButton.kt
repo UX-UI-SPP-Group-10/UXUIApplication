@@ -26,13 +26,10 @@ import androidx.compose.ui.unit.dp
 @Composable
 fun SettingsButton(
     context: Context,
-<<<<<<< HEAD
-    sortByComplete: MutableState<Boolean>
-=======
+    //sortByComplete: MutableState<Boolean>,
     deleteCompletedClick: () -> Unit,
-    onSetting2Click: () -> Unit,
+    sortCompleted: () -> Unit,
     onSetting3Click: () -> Unit,
->>>>>>> dev
 ) {
     val expanded = remember { mutableStateOf(false) }
     val rotationAngle by animateFloatAsState(
@@ -58,25 +55,23 @@ fun SettingsButton(
         offset = DpOffset(x = (0).dp, y = 0.dp)
     ) {
         DropdownMenuItem(
-<<<<<<< HEAD
-            text = { Text(if (sortByComplete.value) "Show all" else "Sort by completed")},
-            onClick = {
-=======
             text = { Text("Delete Completed") },
             onClick = {
                 deleteCompletedClick()
->>>>>>> dev
                 expanded.value = false
-                sortByComplete.value = !sortByComplete.value
                 //Toast.makeText(context, "Option 1 clicked", Toast.LENGTH_SHORT).show()
             },
             modifier = Modifier.fillMaxWidth()
         )
         DropdownMenuItem(
-            text = { Text("Option 2") },
+            text = { Text("Sort by completed")},
+            //onClick = {
+            //text = { Text("Option 2") },
             onClick = {
+                sortCompleted()
                 expanded.value = false
-                Toast.makeText(context, "Option 2 clicked", Toast.LENGTH_SHORT).show()
+                //sortByComplete.value = !sortByComplete.value
+                //Toast.makeText(context, "Option 2 clicked", Toast.LENGTH_SHORT).show()
             },
             modifier = Modifier.fillMaxWidth()
         )
