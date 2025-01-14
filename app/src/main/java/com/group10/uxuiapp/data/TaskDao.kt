@@ -164,4 +164,20 @@ interface TaskDao {
 
     @Delete
     suspend fun deleteSubTask(subTask: SubTask)
+
+    @Query("""
+    DELETE FROM SubTask 
+    WHERE taskItemId IN (
+        SELECT id FROM TaskItem WHERE todoListId = :todoListId
+    ) AND isComplete = 1
+""")
+    suspend fun deleteCompletedSubTasksByTodoListId(todoListId: Int)
+
+    @Query("""
+    DELETE FROM TaskItem 
+    WHERE todoListId = :todoListId AND isComplete = 1
+""")
+    suspend fun deleteCompletedTasksByTodoListId(todoListId: Int)
+
+
 }

@@ -25,7 +25,7 @@ import androidx.compose.ui.unit.dp
 @Composable
 fun SettingsButton(
     context: Context,
-    onSetting1Click: () -> Unit,
+    deleteCompletedClick: () -> Unit,
     onSetting2Click: () -> Unit,
     onSetting3Click: () -> Unit,
 ) {
@@ -53,9 +53,9 @@ fun SettingsButton(
         offset = DpOffset(x = (0).dp, y = 0.dp)
     ) {
         DropdownMenuItem(
-            text = { Text("Option 1") },
+            text = { Text("Delete Completed") },
             onClick = {
-                onSetting1Click()
+                deleteCompletedClick()
                 expanded.value = false
                 Toast.makeText(context, "Option 1 clicked", Toast.LENGTH_SHORT).show()
             },
