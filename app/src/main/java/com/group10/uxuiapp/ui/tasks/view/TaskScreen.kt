@@ -82,7 +82,7 @@ fun TaskScreen(todoListId: Int, appNavigator: AppNavigator, viewModel: TaskViewM
 
     val sortedTasks = remember(taskListWithItems?.taskItems, sortByComplete.value) {
         taskListWithItems?.taskItems?.let {
-            if (sortByComplete.value) it.sortedByDescending { task ->  task.isComplete } else it
+            if (sortByComplete.value) it.sortedBy { task ->  task.isComplete } else it
         } ?: emptyList()
     }
 
@@ -165,7 +165,7 @@ fun TaskScreen(todoListId: Int, appNavigator: AppNavigator, viewModel: TaskViewM
                         if (taskWithSubTasks != null && !task.isFolded) {
                             val sortedSubTasks = remember(taskWithSubTasks.subTasks, sortByComplete.value) {
                                 if (sortByComplete.value) {
-                                    taskWithSubTasks.subTasks.sortedByDescending { subTask -> subTask.isComplete }
+                                    taskWithSubTasks.subTasks.sortedBy { subTask -> subTask.isComplete }
                                 } else {
                                     taskWithSubTasks.subTasks
                                 }
