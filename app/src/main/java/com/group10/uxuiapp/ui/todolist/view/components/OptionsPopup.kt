@@ -38,7 +38,7 @@ fun OptionsPopup(
     offset: IntOffset
 ) {
     val boxHeight = 60.dp
-    val boxWidth = 360.dp
+    val boxWidth = 240.dp
 
     if (expanded) {
         // Wrap your card in a Popup
@@ -93,17 +93,7 @@ fun OptionsPopup(
                     }
                     Spacer(modifier = Modifier.width(8.dp))
 
-                    // 4) Edit Tags
-                    IconButton(onClick = onTagsEdit) {
-                        Icon(
-                            painter = painterResource(id = R.drawable.tag),
-                            contentDescription = "Tags",
-                            tint = MaterialTheme.colorScheme.onTertiaryContainer
-                        )
-                    }
-                    Spacer(modifier = Modifier.width(8.dp))
-
-                    // 5) Delete
+                    // 4) Delete
                     IconButton(onClick = onDelete) {
                         Icon(
                             painter = painterResource(id = R.drawable.delete),

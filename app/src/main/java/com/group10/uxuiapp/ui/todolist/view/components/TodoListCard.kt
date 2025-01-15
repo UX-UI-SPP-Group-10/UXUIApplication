@@ -218,7 +218,6 @@ fun TodoListCard(
             Column(
                 modifier = Modifier.weight(1f) // This allows the column to take remaining space
             ) {
-                DueByDate(todoList = todoList, viewModel = viewModel)
                 if (isEditing) {
                     // Show TextField only during initial creation
                     TextField(
