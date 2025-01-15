@@ -27,9 +27,6 @@ class TaskViewModel(private val taskDataSource: TaskDataSource) : ViewModel() {
     private val _selectedTask = MutableStateFlow<TaskItem?>(null)
     val selectedTaskItem: StateFlow<TaskItem?> = _selectedTask
 
-    private val _lastSelectedTaskItem = MutableStateFlow<TaskItem?>(null)
-    val lastSelectedTaskItem: StateFlow<TaskItem?> = _lastSelectedTaskItem
-
     private val _lists = MutableStateFlow<List<TaskItemWithSubTask>>(emptyList())
     val lists: StateFlow<List<TaskItemWithSubTask>> = _lists
 
@@ -126,24 +123,11 @@ class TaskViewModel(private val taskDataSource: TaskDataSource) : ViewModel() {
         }
     }
 
-    fun selectTask(taskItem: TaskItem?) {
-        Log.d(TAG, "Selecting TaskItem: ${taskItem?.id.toString()}")
-        if(taskItem != null){
-            _lastSelectedTaskItem.value = taskItem
-        }
-    }
-
     fun selectTaskForChange(taskItem: TaskItem? = null, subTask: SubTask? = null) {
         Log.d(TAG, "Selecting TaskItem: ${taskItem?.id.toString()}")
         _selectedTask.value = taskItem
         _selectedSubTask.value = subTask
     }
-
-    fun selectSubtask(subTask: SubTask?) {
-        Log.d(TAG, "Selecting TaskItem: ${subTask?.id.toString()}")
-        TODO()
-    }
-
 
     fun addSupTask(subTask: SubTask) {
         viewModelScope.launch {
@@ -154,6 +138,12 @@ class TaskViewModel(private val taskDataSource: TaskDataSource) : ViewModel() {
             } catch (e: Exception) {
                 Log.e(TAG, "Error adding TaskItem: ${e.message}", e)
             }
+        }
+    }
+
+    fun deleteCompletedTasks(todoListId: Int) {
+        viewModelScope.launch {
+            taskDataSource.deleteCompletedTasksAndSubTasks(todoListId)
         }
     }
 

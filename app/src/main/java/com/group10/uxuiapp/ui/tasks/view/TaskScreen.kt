@@ -1,6 +1,11 @@
 package com.group10.uxuiapp.ui.tasks.view
 
 import android.util.Log
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
@@ -9,9 +14,6 @@ import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -37,12 +39,14 @@ import com.group10.uxuiapp.ui.tasks.view.components.EditTaskPopup
 import com.group10.uxuiapp.ui.tasks.viewmodel.TaskViewModel
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.unit.dp
 import com.group10.uxuiapp.ui.tasks.view.components.buttons.SettingsButton
-import com.group10.uxuiapp.data.data_class.SubTask
-import com.group10.uxuiapp.ui.tasks.view.components.AddSubTaskButton
 import com.group10.uxuiapp.ui.tasks.view.components.SubTaskRow
+
+
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -60,8 +64,10 @@ fun TaskScreen(todoListId: Int, appNavigator: AppNavigator, viewModel: TaskViewM
     val selectedTask by viewModel.selectedTaskItem.collectAsState()
     val selectedSubTask by viewModel.selectedSubTask.collectAsState()
     val taskItemWithSubTask by viewModel.lists.collectAsState()
-    val lastSelectedTask by viewModel.lastSelectedTaskItem.collectAsState()
     val lazyListState = rememberLazyListState()
+    val topBarVisible = lazyListState.firstVisibleItemIndex == 0 && lazyListState.firstVisibleItemScrollOffset < 150
+    val sortByComplete = remember { mutableStateOf(false) }
+
 
     if (taskListWithItems == null) {
         // Loading state
@@ -74,29 +80,44 @@ fun TaskScreen(todoListId: Int, appNavigator: AppNavigator, viewModel: TaskViewM
         return
     }
 
+    val sortedTasks = remember(taskListWithItems?.taskItems, sortByComplete.value) {
+        taskListWithItems?.taskItems?.let {
+            if (sortByComplete.value) it.sortedByDescending { task ->  task.isComplete } else it
+        } ?: emptyList()
+    }
+
     Scaffold(
         topBar = {
-            TopAppBar(
-                title = { Text(taskListWithItems!!.todoList.title) },
-                navigationIcon = {
-                    IconButton(onClick = { appNavigator.popBackStack() }) {
-                        Icon(
-                            painter = painterResource(id = R.drawable.arrow_left),
-                            contentDescription = "Back"
+            AnimatedVisibility(
+                visible = topBarVisible,
+                enter = fadeIn() + slideInVertically { -it / 2 },
+                exit = fadeOut() + slideOutVertically { -it / 2 }
+            ) {
+                TopAppBar(
+                    title = { Text(taskListWithItems!!.todoList.title) },
+                    navigationIcon = {
+                        IconButton(onClick = { appNavigator.popBackStack() }) {
+                            Icon(
+                                painter = painterResource(id = R.drawable.arrow_left),
+                                contentDescription = "Back"
+                            )
+                        }
+                    },
+                    actions = {
+                        SettingsButton(
+                            context = context,
+                            //sortByComplete = sortByComplete
+                            deleteCompletedClick = { viewModel.deleteCompletedTasks(todoListId) },
+                            sortCompleted = {
+                                sortByComplete.value = !sortByComplete.value
+                            },
+                            onSetting3Click = { Log.d("TaskPage", "Setting 3 clicked") }
                         )
-                    }
-                },
-                actions = {
-                    SettingsButton(
-                        context = context,
-                        onSetting1Click = { Log.d("TaskPage", "Setting 1 clicked") },
-                        onSetting2Click = { Log.d("TaskPage", "Setting 2 clicked") },
-                        onSetting3Click = { Log.d("TaskPage", "Setting 3 clicked") }
-                    )
-                },
-                colors = TopAppBarDefaults.topAppBarColors(),
-                scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
-            )
+                    },
+                    colors = TopAppBarDefaults.topAppBarColors(),
+                    scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
+                )
+            }
         },
         floatingActionButton = {
             AddTaskButton(onClick = {
@@ -113,7 +134,7 @@ fun TaskScreen(todoListId: Int, appNavigator: AppNavigator, viewModel: TaskViewM
                 .padding(innerPadding),
             contentAlignment = Alignment.TopCenter
         ) {
-            if (taskListWithItems!!.taskItems.isEmpty()) {
+            if (sortedTasks.isEmpty()) {
                 // Empty state
                 Box(
                     modifier = Modifier.fillMaxSize(),
@@ -129,58 +150,33 @@ fun TaskScreen(todoListId: Int, appNavigator: AppNavigator, viewModel: TaskViewM
                         .fillMaxSize(),
                     contentPadding = PaddingValues(
                         end = innerPadding.calculateEndPadding(LocalLayoutDirection.current) + 12.dp,
+                        start = innerPadding.calculateStartPadding(LocalLayoutDirection.current) + 12.dp,
                         bottom = innerPadding.calculateBottomPadding() + extraBottomPadding
-                    )
+                    ),
+                    verticalArrangement = Arrangement.spacedBy(6.dp)
                 ){
                     items(
-                        items = taskListWithItems!!.taskItems,
+                        items = sortedTasks,
                         key = { task -> task.id }
                     ) { task ->
                         TaskRowItem(task = task, viewModel = viewModel)
                         val taskWithSubTasks = taskItemWithSubTask.find { it.taskItem.id == task.id }
 
                         if (taskWithSubTasks != null && !task.isFolded) {
-                            taskWithSubTasks.subTasks.forEach { subTask ->
-                                SubTaskRow(subTask, viewModel)
+                            val sortedSubTasks = remember(taskWithSubTasks.subTasks, sortByComplete.value) {
+                                if (sortByComplete.value) {
+                                    taskWithSubTasks.subTasks.sortedByDescending { subTask -> subTask.isComplete }
+                                } else {
+                                    taskWithSubTasks.subTasks
+                                }
+                            }
+                            sortedSubTasks.forEach {
+                                subTask ->  SubTaskRow(subTask, viewModel)
                             }
                         }
                     }
                 }
-
             }
         }
     }
-
-    if (selectedTask != null || selectedSubTask != null) {
-        EditTaskPopup(
-            taskName = when {
-                selectedTask != null -> selectedTask!!.label
-                selectedSubTask != null -> selectedSubTask!!.label
-                else -> "" // Fallback, should not reach here
-            },
-            onSaveTask = { newName ->
-                if(selectedTask != null){
-                    viewModel.updateTaskItem(taskItem = selectedTask!!, label = newName)
-                }
-                if(selectedSubTask != null){
-                    viewModel.updateSubTask(subTask = selectedSubTask!!, label = newName)
-                }
-                viewModel.selectTaskForChange(null, null)
-            },
-            onDeleteTask = {
-                if(selectedTask != null){
-                    viewModel.deleteTask(selectedTask!!)
-                }
-                if(selectedSubTask != null){
-                    viewModel.deleteSupTask(selectedSubTask!!)
-                }
-
-                viewModel.selectTaskForChange(null, null)
-            },
-            onDismiss = {
-                viewModel.selectTaskForChange(null, null)
-            }
-        )
-    }
-
 }

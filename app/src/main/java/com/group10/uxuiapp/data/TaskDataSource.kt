@@ -136,6 +136,13 @@ class TaskDataSource(private val taskDao: TaskDao) {
         }
     }
 
+    suspend fun deleteCompletedTasksAndSubTasks(todoListId: Int) {
+        Log.d("TaskDataSource", "Deleting completed tasks and subtasks for todoListId=$todoListId")
+        taskDao.deleteCompletedSubTasksByTodoListId(todoListId)
+        taskDao.deleteCompletedTasksByTodoListId(todoListId)
+    }
+
+
 
     suspend fun deleteSubTask(subTask: SubTask) = taskDao.deleteSubTask(subTask)
 }

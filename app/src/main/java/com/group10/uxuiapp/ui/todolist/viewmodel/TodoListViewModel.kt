@@ -40,11 +40,11 @@ class TodoListViewModel(private val taskDataSource: TaskDataSource) : ViewModel(
     private val _todoListState = MutableStateFlow<TodoListState>(TodoListState.None)
     val todoListState = _todoListState.asStateFlow()
 
-    private val _isSearching = MutableStateFlow(false)
-    val isSearching = _isSearching.asStateFlow()
-
     private val _searchQuery = MutableStateFlow("")
     val searchQuery = _searchQuery.asStateFlow()
+
+    private val _newTodoListId = MutableStateFlow<Int?>(null)
+    val newTodoListId = _newTodoListId.asStateFlow()
 
     val searchList = searchQuery
         .combine(_lists) { query, lists ->
@@ -124,12 +124,17 @@ class TodoListViewModel(private val taskDataSource: TaskDataSource) : ViewModel(
                 listIndex = _lists.value.size // Set index to the current list size
             )
             try {
-                val id = taskDataSource.insertTodoList(newList)
+                val id = taskDataSource.insertTodoList(newList).toInt()
+                _newTodoListId.value = id // Track the newly created list's ID
                 Log.d(TAG, "Added new TodoList with id: $id and title: $title")
             } catch (e: Exception) {
                 Log.e(TAG, "Error adding TodoList: ${e.message}", e)
             }
         }
+    }
+
+    fun resetNewTodoList() {
+        _newTodoListId.value = null
     }
 
 

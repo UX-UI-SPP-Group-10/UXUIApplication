@@ -1,8 +1,8 @@
 package com.group10.uxuiapp.ui.tasks.view.components
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.gestures.detectHorizontalDragGestures
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CheckboxDefaults
 import androidx.compose.material3.MaterialTheme
@@ -16,11 +16,22 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.group10.uxuiapp.data.data_class.TaskItem
 import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalFocusManager
 import com.group10.uxuiapp.data.data_class.SubTask
 import com.group10.uxuiapp.ui.tasks.view.components.buttons.AddTaskButton
+import com.group10.uxuiapp.ui.tasks.view.components.buttons.Delete
 import com.group10.uxuiapp.ui.tasks.viewmodel.TaskViewModel
+import androidx.compose.material3.TextField
+import androidx.compose.material3.TextFieldDefaults
+import androidx.compose.ui.tooling.preview.Preview
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 
 @Composable
@@ -29,103 +40,133 @@ fun TaskRowItem(
     viewModel: TaskViewModel
 ) {
     val taskItemWithSubTask by viewModel.lists.collectAsState()
+    val selectedTask by viewModel.selectedTaskItem.collectAsState()
     var isChecked = task.isComplete
     var isFoldet = task.isFolded
+    var textValue by remember { mutableStateOf(task.label) }
+
+    val coroutineScope = rememberCoroutineScope()
+    var debounceJob by remember { mutableStateOf<Job?>(null) }
+    val boxWhith =
+        if (selectedTask == task) {
+            Modifier.width(340.dp)
+        } else {
+            Modifier.fillMaxWidth()
+        }
 
     Box(
         modifier = Modifier
-            .padding(vertical = 6.dp, horizontal = 12.dp)
-            .height(40.dp)
+            .height(50.dp)
             .fillMaxWidth()
-            .background(
-                color = MaterialTheme.colorScheme.secondary,
-                shape = MaterialTheme.shapes.small
-            )
-            .pointerInput(Unit){
-                detectTapGestures(onPress = { viewModel.selectTask(task) },
-                    onLongPress = {viewModel.selectTaskForChange(taskItem = task)})
-            }
     ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(56.dp),
-            verticalAlignment = Alignment.CenterVertically
+        Box(
+            modifier = Modifier.fillMaxHeight().fillMaxWidth(),
+            contentAlignment = Alignment.CenterEnd
         ) {
-            Spacer(modifier = Modifier.width(16.dp))
-            // 2) Checkbox
-            Checkbox(
-                checked = isChecked,
-                onCheckedChange = { newChecked ->
-                    isChecked = newChecked
-                    viewModel.updateTaskItem(task, isComplete = newChecked)
-                    val taskWithSubTasks = taskItemWithSubTask.find { it.taskItem.id == task.id }
+            Delete(onClick = { viewModel.deleteTask(task) })
+        }
+        Box(
+            modifier = Modifier
+                .then(boxWhith)
+                .background(
+                    color = MaterialTheme.colorScheme.secondary,
+                    shape = MaterialTheme.shapes.small
+                )
+                .pointerInput(Unit) {
+                    detectHorizontalDragGestures { change, dragAmount ->
+                        change.consume()
 
-                    if (taskWithSubTasks != null && !task.isFolded) {
-                        taskWithSubTasks.subTasks.forEach { subTask ->
-                            viewModel.updateSubTask(subTask, isComplete = newChecked)
+                        if (dragAmount < -30) {
+                            viewModel.selectTaskForChange(task)
+                        }
+                        else if (dragAmount > 30) {
+                            viewModel.selectTaskForChange(null, null)
                         }
                     }
-                },
-                colors = CheckboxDefaults.colors(
-                    checkedColor = Color(0XFF20792F),
-                    uncheckedColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
-                    checkmarkColor = MaterialTheme.colorScheme.secondary
-                ),
-                modifier = Modifier.size(28.dp)
-            )
-
-            // 3) Editable text
-            BasicTextField(
-                value = task.label,
-                onValueChange = { newText ->
-                    viewModel.updateTaskItem(task, label = newText)
-                },
-                textStyle = MaterialTheme.typography.bodyLarge.copy(
-                    textDecoration = if (isChecked) TextDecoration.LineThrough else null,
-                    fontWeight = FontWeight.Medium,
-                    color = if (isChecked) {
-                        MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
-                    } else {
-                        MaterialTheme.colorScheme.onSurface
-                    }
-                ),
-                singleLine = true,
-                modifier = Modifier
-                    .widthIn(max = 200.dp)
-                    .padding(start = 4.dp)
-            ) {
-                // Placeholder if you want one
-                if (task.label.isEmpty()) {
-                    Text(
-                        text = "new Task",
-                        fontSize = 16.sp,
-                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.4f)
-                    )
                 }
-                it()
-            }
-            Box(
-                modifier = Modifier.fillMaxWidth(),
-                contentAlignment = Alignment.CenterEnd
+        ) {
+            Row(
+                modifier = Modifier
+                    .padding(vertical = 0.dp, horizontal = 12.dp)   // This is the inner padding
+                    .fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                Row {
-                    AddSubTaskButton(onClick = {
-                        val newSubTask = SubTask(label = "", taskItemId = task.id)
-                        viewModel.addSupTask(newSubTask)
-                    })
+                // 2) Checkbox
+                Checkbox(
+                    checked = isChecked,
+                    onCheckedChange = { newChecked ->
+                        isChecked = newChecked
+                        viewModel.updateTaskItem(task, isComplete = newChecked)
+                        val taskWithSubTasks =
+                            taskItemWithSubTask.find { it.taskItem.id == task.id }
 
-                    Spacer(modifier = Modifier.width(6.dp))
+                        if (taskWithSubTasks != null && !task.isFolded) {
+                            taskWithSubTasks.subTasks.forEach { subTask ->
+                                viewModel.updateSubTask(subTask, isComplete = newChecked)
+                            }
+                        }
+                    },
+                    colors = CheckboxDefaults.colors(
+                        checkedColor = Color(0XFF20792F),
+                        uncheckedColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
+                        checkmarkColor = MaterialTheme.colorScheme.secondary
+                    ),
+                    modifier = Modifier.size(28.dp)
+                )
 
-                    TaskFolderButton(
-                        onClick = {
-                            isFoldet = !isFoldet
-                            viewModel.updateTaskItem(task, isFolded = isFoldet)
-                        },
-                        isFoldet = isFoldet
+                // 3) Editable text
+                TextField(
+                    value = textValue,
+                    onValueChange = { newText ->
+                        if (newText.length <= 25) {
+                            textValue = newText
+
+                            debounceJob?.cancel() // Cancel the ongoing debounce job
+                            debounceJob = coroutineScope.launch {
+                                delay(200) // 200ms debounce delay
+                                viewModel.updateTaskItem(task, label = newText) // Update ViewModel
+                            }
+                        }
+                    },
+                    singleLine = true,
+                    textStyle = MaterialTheme.typography.bodyLarge.copy(
+                        textDecoration = if (isChecked) TextDecoration.LineThrough else null,
+                        fontWeight = FontWeight.Medium,
+                        color = if (isChecked) {
+                            MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
+                        } else {
+                            MaterialTheme.colorScheme.onSurface
+                        }
+                    ),
+                    colors = TextFieldDefaults.colors(
+                        unfocusedContainerColor = Color.Transparent, // No background
+                        focusedContainerColor = Color.Transparent,  // No background on focus
+                        unfocusedIndicatorColor = Color.Transparent, // No underline
+                        focusedIndicatorColor = Color.Transparent // No underline
                     )
+                )
 
-                    Spacer(modifier = Modifier.width(6.dp))
+
+                Box(
+                    modifier = Modifier.fillMaxWidth(),
+                    contentAlignment = Alignment.CenterEnd
+                ) {
+                    Row {
+                        AddSubTaskButton(onClick = {
+                            val newSubTask = SubTask(label = "", taskItemId = task.id)
+                            viewModel.addSupTask(newSubTask)
+                        })
+
+                        Spacer(modifier = Modifier.width(6.dp))
+
+                        TaskFolderButton(
+                            onClick = {
+                                isFoldet = !isFoldet
+                                viewModel.updateTaskItem(task, isFolded = isFoldet)
+                            },
+                            isFoldet = isFoldet
+                        )
+                    }
                 }
             }
         }
