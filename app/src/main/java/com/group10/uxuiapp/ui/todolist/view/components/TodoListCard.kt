@@ -262,7 +262,7 @@ fun TodoListCard(
 
 
 
-                DueByDate(todoList = todoList, viewModel = viewModel)
+                DueByDate(todoList = todoList)
                 TagsDisplay(tags = todoList.tags, color = Color(android.graphics.Color.parseColor(todoList.textColor)))
 
             }

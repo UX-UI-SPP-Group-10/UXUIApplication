@@ -80,9 +80,6 @@ class NotificationHelper(private val context: Context) {
         val formattedDate = dateFormat.format(Date(notificationTime))
         Log.d("NotificationTest", "Notification scheduled for: $formattedDate")
 
-        Log.d("NotificationTest", "Alarm set for: $formattedDate")
-
-
         val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
         val intent = Intent(context, ReminderReceiver::class.java).apply {
             putExtra("title", "Task Due $todoTitle")

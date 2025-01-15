@@ -168,39 +168,42 @@ fun TodoListScreen(viewModel: TodoListViewModel, appNavigator: AppNavigator) {
             }
         )
 
-        PopupManager(
-            popupState = popupState,
-            viewModel = viewModel,
-            onNewListConfirm = { name ->
-                viewModel.addTodoList(name)
-                viewModel.setNoneState()
-            },
-            onRenameConfirm = { todoList, newName, selectedColor, selectedDate ->
-                viewModel.updateTodoList(
-                    todoList = todoList,
-                    title = newName,
-                    textColor = selectedColor,
-                    dueDate = selectedDate
-                    // Handle selectedDate if applicable
-                )
-                viewModel.setNoneState()
-            },
-            onGifSelected = { todoList, gifUrl ->
-                viewModel.updateGifUrl(todoList.id, gifUrl)
-                viewModel.setNoneState()
-            },
-            onColorSelected = { todoList, color ->
-                viewModel.updateTextColor(todoList.id, color)
-                viewModel.setNoneState()
-            },
-            onTagsEdited = { todoList, tags ->
-                viewModel.updateTags(todoList.id, tags)
-                viewModel.setNoneState()
-            },
-            onDismiss = {
-                viewModel.setNoneState()
-            }
-        )
+        selectedTodoList?.let {
+            PopupManager(
+                popupState = popupState,
+                todoList = it,
+                viewModel = viewModel,
+                onNewListConfirm = { name ->
+                    viewModel.addTodoList(name)
+                    viewModel.setNoneState()
+                },
+                onRenameConfirm = { todoList, newName, selectedColor, selectedDate ->
+                    viewModel.updateTodoList(
+                        todoList = todoList,
+                        title = newName,
+                        textColor = selectedColor,
+                        dueDate = selectedDate
+                        // Handle selectedDate if applicable
+                    )
+                    viewModel.setNoneState()
+                },
+                onGifSelected = { todoList, gifUrl ->
+                    viewModel.updateGifUrl(todoList.id, gifUrl)
+                    viewModel.setNoneState()
+                },
+                onColorSelected = { todoList, color ->
+                    viewModel.updateTextColor(todoList.id, color)
+                    viewModel.setNoneState()
+                },
+                onTagsEdited = { todoList, tags ->
+                    viewModel.updateTags(todoList.id, tags)
+                    viewModel.setNoneState()
+                },
+                onDismiss = {
+                    viewModel.setNoneState()
+                }
+            )
+        }
     }
 }
 

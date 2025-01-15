@@ -10,11 +10,9 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.group10.uxuiapp.data.data_class.TodoList
-import com.group10.uxuiapp.ui.todolist.viewmodel.TodoListViewModel
 
 @Composable
-fun DueByDate(todoList: TodoList, viewModel: TodoListViewModel){
-    val context = LocalContext.current
+fun DueByDate(todoList: TodoList){
 
     todoList.dueDate?.let { timestamp ->
         val formattedDate =
@@ -24,14 +22,6 @@ fun DueByDate(todoList: TodoList, viewModel: TodoListViewModel){
             color = Color(android.graphics.Color.parseColor(todoList.textColor)),
             fontSize = 12.sp,
             modifier = Modifier.padding(start = 0.dp)
-        )
-
-        // Schedule the notification
-        viewModel.updateTodoListDueDate(
-            todoListId = todoList.id,
-            dueDate = timestamp,
-            context = context,
-            todoListTitle = todoList.title
         )
     }
 }

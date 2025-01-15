@@ -17,6 +17,7 @@ import java.util.Locale
 fun PopupManager(
     popupState: TodoListState,
     // Provide any callbacks your dialogs need
+    todoList: TodoList,
     viewModel: TodoListViewModel,
     onNewListConfirm: (String) -> Unit,
     onRenameConfirm: (TodoList, String, String, Long?) -> Unit,
@@ -42,6 +43,8 @@ fun PopupManager(
 
         is TodoListState.Rename -> {
             EditTodolistDialog(
+                todoList = todoList, // Pass the current TodoList
+                viewModel = viewModel, // Pass the ViewModel
                 onDismiss = onDismiss,
                 onConfirm = { newName, selectedColor, selectedTags,selectedDate, isRepeating, selectedDay ->
                     val currentTodoList = popupState.todoList
