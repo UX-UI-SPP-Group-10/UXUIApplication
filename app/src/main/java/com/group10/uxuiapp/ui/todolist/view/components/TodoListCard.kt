@@ -218,11 +218,6 @@ fun TodoListCard(
             Column(
                 modifier = Modifier.weight(1f) // This allows the column to take remaining space
             ) {
-                Text(
-                    text = todoList.title,
-                    color = Color(android.graphics.Color.parseColor(todoList.textColor)),
-                    modifier = Modifier.fillMaxWidth()
-                )
                 DueByDate(todoList = todoList, viewModel = viewModel)
                 if (isEditing) {
                     // Show TextField only during initial creation
