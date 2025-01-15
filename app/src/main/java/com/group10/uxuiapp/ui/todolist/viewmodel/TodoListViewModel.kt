@@ -160,25 +160,6 @@ class TodoListViewModel(private val taskDataSource: TaskDataSource) : ViewModel(
         }
     }
 
-
-
-    fun updateListOrder(updatedOrder: List<TodoListWithTaskItem>) {
-        viewModelScope.launch {
-            try {
-                // Update each TodoList's listIndex based on its position in the updatedOrder list
-                updatedOrder.forEachIndexed { index, todoListWithTaskItem ->
-                    val updatedTodoList = todoListWithTaskItem.todoList.copy(listIndex = index)
-                    taskDataSource.updateTodoList(updatedTodoList)
-                }
-                // Update the _lists StateFlow with the new order
-                _lists.value = updatedOrder
-                Log.d(TAG, "Updated list order successfully")
-            } catch (e: Exception) {
-                Log.e(TAG, "Error updating list order: ${e.message}", e)
-            }
-        }
-    }
-
     fun updateAllListIndexes(updatedOrder: List<TodoListWithTaskItem>) {
         viewModelScope.launch {
             try {
@@ -195,18 +176,6 @@ class TodoListViewModel(private val taskDataSource: TaskDataSource) : ViewModel(
                 Log.d(TAG, "Updated all list indexes successfully")
             } catch (e: Exception) {
                 Log.e(TAG, "Error updating all list indexes: ${e.message}", e)
-            }
-        }
-    }
-
-
-    fun addTaskToList(taskItem: TaskItem) {
-        viewModelScope.launch {
-            try {
-                val insertedTask = taskDataSource.insertTaskItem(taskItem)
-                Log.d(TAG, "Added TaskItem: $insertedTask")
-            } catch (e: Exception) {
-                Log.e(TAG, "Error adding TaskItem: ${e.message}", e)
             }
         }
     }
@@ -245,22 +214,6 @@ class TodoListViewModel(private val taskDataSource: TaskDataSource) : ViewModel(
                 Log.d(TAG, "Updated TodoList with id: ${updatedTodoList.id}")
             } catch (e: Exception) {
                 Log.e(TAG, "Error updating TodoList: ${e.message}", e)
-            }
-        }
-    }
-
-    fun updateTaskItem(taskItem: TaskItem, label: String? = null, isComplete: Boolean? = null) {
-        viewModelScope.launch {
-            try {
-                Log.d(TAG, "Updating TaskItem with id: ${taskItem.id}, label: $label, isComplete: $isComplete")
-                taskDataSource.updateTaskItem(
-                    taskItem = taskItem,
-                    label = label,
-                    isComplete = isComplete
-                )
-                Log.d(TAG, "TaskItem updated successfully")
-            } catch (e: Exception) {
-                Log.e(TAG, "Error updating TaskItem: ${e.message}", e)
             }
         }
     }
