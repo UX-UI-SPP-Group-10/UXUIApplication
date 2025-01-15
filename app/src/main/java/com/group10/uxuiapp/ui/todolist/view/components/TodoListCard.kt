@@ -13,7 +13,9 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
@@ -218,7 +220,6 @@ fun TodoListCard(
             Column(
                 modifier = Modifier.weight(1f) // This allows the column to take remaining space
             ) {
-                DueByDate(todoList = todoList, viewModel = viewModel)
                 if (isEditing) {
                     // Show TextField only during initial creation
                     TextField(
@@ -280,7 +281,7 @@ fun TodoListCard(
 
             // More Options and Like Buttons
             Row(
-                verticalAlignment = Alignment.CenterVertically,
+                verticalAlignment = Alignment.Top,
                 horizontalArrangement = Arrangement.End
             ) {
                 if (todoList.isRepeating) { // Check if the list is repeatable
@@ -301,11 +302,15 @@ fun TodoListCard(
                 }) {
                     Icon(
                         imageVector = Icons.Default.MoreVert,
-                        contentDescription = "Options"
+                        contentDescription = "Options",
+                        modifier = Modifier
+                            .size(25.dp)
+                            .offset(x = 5.dp, y = -11.dp),
+                        tint = Color(android.graphics.Color.parseColor(todoList.textColor))
                     )
                 }
 
-                Spacer(modifier = Modifier.width(8.dp)) // Space between buttons
+                Spacer(modifier = Modifier.width(0.dp)) // Space between buttons
 
                 IsLikedButton(todoList, onClick = {
                     viewModel.updateTodoList(todoList, isLiked = !todoList.isLiked)

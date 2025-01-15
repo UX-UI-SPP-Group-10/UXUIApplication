@@ -42,11 +42,12 @@ fun PopupManager(
         is TodoListState.Rename -> {
             EditTodolistDialog(
                 onDismiss = onDismiss,
-                onConfirm = { newName, selectedColor, selectedDate, isRepeating, selectedDay ->
+                onConfirm = { newName, selectedColor, selectedTags,selectedDate, isRepeating, selectedDay ->
                     val currentTodoList = popupState.todoList
 
                     val finalName = if (newName.isBlank()) currentTodoList.title else newName
                     val finalColor = if (selectedColor.isBlank()) currentTodoList.textColor else selectedColor
+                    val finalTags = if (selectedTags.isBlank()) currentTodoList.tags else selectedTags
                     val finalDate = if (selectedDate.isBlank()) currentTodoList.dueDate else {
                         try {
                             val formatter = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
@@ -57,11 +58,13 @@ fun PopupManager(
                             currentTodoList.dueDate // Fallback to current due date
                         }
                     }
+
                     // Update the TodoList using the ViewModel
                     viewModel.updateTodoList(
                         todoList = currentTodoList,
                         title = finalName,
                         textColor = finalColor,
+                        tags = finalTags,
                         dueDate = finalDate,
                         isRepeating = isRepeating,
                         repeatDay = selectedDay

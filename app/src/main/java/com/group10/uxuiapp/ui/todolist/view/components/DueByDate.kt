@@ -23,7 +23,7 @@ fun DueByDate(todoList: TodoList, viewModel: TodoListViewModel){
             text = "Due: $formattedDate",
             color = Color(android.graphics.Color.parseColor(todoList.textColor)),
             fontSize = 12.sp,
-            modifier = Modifier.padding(start = 4.dp)
+            modifier = Modifier.padding(start = 0.dp)
         )
 
         // Schedule the notification

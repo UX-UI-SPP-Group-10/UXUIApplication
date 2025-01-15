@@ -26,17 +26,21 @@ import java.util.Locale
 sealed class EditListPage {
     object NameInput : EditListPage()
     object ColorPicker : EditListPage()
+    object TagPicker : EditListPage()
     object DueDatePicker : EditListPage()
     object RepeatPicker : EditListPage()
 }
 
 
 @Composable
-fun EditTodolistDialog(onDismiss: () -> Unit, onConfirm: (String, String, String, Boolean, Int?) -> Unit) {
+fun EditTodolistDialog(
+    onDismiss: () -> Unit,
+    onConfirm: (String, String, String , String, Boolean, Int?) -> Unit) {
     var currentPage by remember { mutableStateOf<EditListPage>(EditListPage.NameInput) }
     var listName by remember { mutableStateOf("") }
-    var selectedColor by remember { mutableStateOf("#FFFFFF") }
+    var selectedColor by remember { mutableStateOf("") }
     var selectedDate by remember { mutableStateOf("") }
+    var selectedTags by remember { mutableStateOf("") }
     var isRepeating by remember { mutableStateOf(false) }
     var selectedDay by remember { mutableStateOf<Int?>(null) }
 
@@ -58,6 +62,13 @@ fun EditTodolistDialog(onDismiss: () -> Unit, onConfirm: (String, String, String
                     Icon(
                         painter = painterResource(id = R.drawable.palette),
                         contentDescription = "Color",
+                        tint = MaterialTheme.colorScheme.onTertiaryContainer
+                    )
+                }
+                IconButton(onClick = { currentPage = EditListPage.TagPicker }) {
+                    Icon(
+                        painter = painterResource(id = R.drawable.tag),
+                        contentDescription = "Tag",
                         tint = MaterialTheme.colorScheme.onTertiaryContainer
                     )
                 }
@@ -93,6 +104,18 @@ fun EditTodolistDialog(onDismiss: () -> Unit, onConfirm: (String, String, String
                 is EditListPage.ColorPicker -> {
                     ColorPicker { selectedColor = it }
                 }
+                is EditListPage.TagPicker -> {
+                    Column {
+                        Text("Edit Tags", style = MaterialTheme.typography.bodyLarge)
+                        OutlinedTextField(
+                            value = selectedTags,
+                            onValueChange = { selectedTags = it },
+                            label = { Text("Enter tags, separated by commas") },
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                    }
+                }
+
                 is EditListPage.DueDatePicker -> {
                     DatePickerComponent(
                         context = LocalContext.current,
@@ -142,7 +165,7 @@ fun EditTodolistDialog(onDismiss: () -> Unit, onConfirm: (String, String, String
         confirmButton = {
             TextButton(
                 onClick = {
-                    onConfirm(listName, selectedColor, selectedDate, isRepeating, selectedDay) // Pass the name entered to the onConfirm handler
+                    onConfirm(listName, selectedColor, selectedTags,selectedDate, isRepeating, selectedDay) // Pass the name entered to the onConfirm handler
                 }
             ) {
                 Text("Confirm")
