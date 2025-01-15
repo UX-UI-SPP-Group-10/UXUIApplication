@@ -112,8 +112,12 @@ fun TodoListScreen(viewModel: TodoListViewModel, appNavigator: AppNavigator) {
                         animateItemModifier = Modifier.animateItem()
                     ) { isDragging ->
                         val elevation by animateDpAsState(if (isDragging) 12.dp else 0.dp)
-                        if(!isDragging) {
-                            viewModel.updateAllListIndexes(todoLists.value)
+                        LaunchedEffect(isDragging) {
+                            viewModel.setDraggingState(isDragging)
+                            if (!isDragging) {
+                                // Save the updated order when dragging stops
+                                viewModel.updateAllListIndexes(todoLists.value)
+                            }
                         }
                         TodoListCard(
                             elevation = elevation,

@@ -46,6 +46,13 @@ class TodoListViewModel(private val taskDataSource: TaskDataSource) : ViewModel(
     private val _newTodoListId = MutableStateFlow<Int?>(null)
     val newTodoListId = _newTodoListId.asStateFlow()
 
+    private val _isCurrentlyDragging = MutableStateFlow(false)
+    val isCurrentlyDragging: StateFlow<Boolean> = _isCurrentlyDragging.asStateFlow()
+
+    fun setDraggingState(isDragging: Boolean) {
+        _isCurrentlyDragging.value = isDragging
+    }
+
     val searchList = searchQuery
         .combine(_lists) { query, lists ->
             if(query.isEmpty()) {
@@ -163,15 +170,17 @@ class TodoListViewModel(private val taskDataSource: TaskDataSource) : ViewModel(
     fun updateAllListIndexes(updatedOrder: List<TodoListWithTaskItem>) {
         viewModelScope.launch {
             try {
-                // Prepare the list of (id, newIndex) pairs
+                // Update indexes only if dragging is not active
+                if (_isCurrentlyDragging.value) {
+                    Log.d(TAG, "Skipping update: Dragging is active")
+                    return@launch
+                }
+
                 val updatedIndexes = updatedOrder.mapIndexed { index, todoListWithTaskItem ->
                     todoListWithTaskItem.todoList.id to index
                 }
 
-                // Perform bulk update of list indexes
                 taskDataSource.updateAllIndexes(updatedIndexes)
-
-                // Update the _lists StateFlow with the new order
                 _lists.value = updatedOrder
                 Log.d(TAG, "Updated all list indexes successfully")
             } catch (e: Exception) {
@@ -179,6 +188,7 @@ class TodoListViewModel(private val taskDataSource: TaskDataSource) : ViewModel(
             }
         }
     }
+
 
     fun updateTodoList(
         todoList: TodoList,
