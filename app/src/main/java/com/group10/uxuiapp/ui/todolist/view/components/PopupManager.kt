@@ -8,6 +8,7 @@ import androidx.compose.ui.platform.LocalContext
 import com.group10.uxuiapp.data.data_class.TodoList
 import com.group10.uxuiapp.ui.todolist.viewmodel.TodoListState
 import com.group10.uxuiapp.ui.todolist.viewmodel.TodoListViewModel
+import timber.log.Timber
 import java.text.ParseException
 import java.text.SimpleDateFormat
 import java.util.Locale
@@ -72,14 +73,6 @@ fun PopupManager(
                     onDismiss()
                 }
             )
-            // Show dialog for rename
-//            ListNameInputDialog(
-//                onDismiss = onDismiss,
-//                onConfirm = { newName ->
-//                    onRenameConfirm(popupState.todoList, newName)
-//                }
-//            )
-
         }
 
         is TodoListState.SelectGif -> {
@@ -87,9 +80,8 @@ fun PopupManager(
             GiphyDialog(
                 context = LocalContext.current,
                 onGifSelected = { gifUrl ->
-                    viewModel.updateGifUrl(
-                        popupState.todoList.id,
-                        gifUrl = gifUrl)
+                    Timber.tag("GiphyDialog").d("GIF selected: $gifUrl")
+                    onGifSelected(popupState.todoList, gifUrl)
                 },
                 onDismissed = {
                     onDismiss()
