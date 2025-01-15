@@ -20,6 +20,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 
@@ -52,7 +53,9 @@ fun SettingsButton(
     DropdownMenu(
         expanded = expanded.value,
         onDismissRequest = { expanded.value = false },
-        offset = DpOffset(x = (0).dp, y = 0.dp)
+        offset = DpOffset(x = (0).dp, y = 0.dp),
+        containerColor = Color(0XFFEEEEEE)
+        //containerColor = Color(0xFFB7B8BE)
     ) {
         DropdownMenuItem(
             text = { Text("Delete Completed") },
@@ -64,7 +67,7 @@ fun SettingsButton(
             modifier = Modifier.fillMaxWidth()
         )
         DropdownMenuItem(
-            text = { Text("Sort by completed")},
+            text = { Text("Sort By Completed")},
             //onClick = {
             //text = { Text("Option 2") },
             onClick = {

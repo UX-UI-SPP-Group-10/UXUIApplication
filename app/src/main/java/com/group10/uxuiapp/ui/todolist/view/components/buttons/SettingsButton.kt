@@ -12,6 +12,7 @@ import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
@@ -20,6 +21,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 
@@ -46,10 +48,11 @@ fun SettingsButton(context: Context, showLiked: MutableState<Boolean>) {
     DropdownMenu(
         expanded = expanded.value,
         onDismissRequest = { expanded.value = false },
-        offset = DpOffset(x = (0).dp, y = 0.dp)
+        offset = DpOffset(x = (0).dp, y = 0.dp),
+        containerColor = Color(0xFFB7B8BE)
     ) {
         DropdownMenuItem(
-            text = { Text(if (showLiked.value) "Show all" else "Show liked")},
+            text = { Text(if (showLiked.value) "Show All" else "Show Liked")},
             onClick = {
                 expanded.value = false
                 showLiked.value = !showLiked.value

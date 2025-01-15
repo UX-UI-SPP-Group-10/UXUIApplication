@@ -27,12 +27,12 @@ import androidx.compose.ui.unit.sp
 fun AddNewTodoListButton(onClick: () -> Unit) {
     FloatingActionButton(
         onClick = onClick,
-        containerColor = Color(0xFF4658FF),
+        containerColor = Color(0XFF20792F),
         contentColor = Color.White,
         shape = RoundedCornerShape(32.dp),
         modifier = Modifier
             .padding(16.dp)
-            .width(135.dp)
+            .width(140.dp)
             .height(60.dp)
             .offset(x = 15.dp, y = (-10).dp)
     ) {
@@ -44,14 +44,16 @@ fun AddNewTodoListButton(onClick: () -> Unit) {
             Icon(
                 imageVector = Icons.Default.Add,
                 contentDescription = "Add Item",
-                modifier = Modifier.size(30.dp)
+                modifier = Modifier.size(30.dp),
+                tint = MaterialTheme.colorScheme.tertiary
             )
             Spacer(modifier = Modifier.width(8.dp))
             Text(
-                text = "NEW LIST",
+                text = "New List",
                 style = MaterialTheme.typography.bodyMedium.copy(
-                    fontSize = 14.sp,
-                    fontWeight = FontWeight.Bold
+                    fontSize = 18.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.tertiary
                 )
             )
         }

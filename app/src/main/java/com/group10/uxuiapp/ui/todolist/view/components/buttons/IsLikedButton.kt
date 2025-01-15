@@ -47,7 +47,7 @@ fun IsLikedButton(todoList: TodoList, onClick: () -> Unit) {
                 modifier = Modifier
                     .size(25.dp)
                     .align(Alignment.Center),
-                tint = Color.Red 
+                tint = Color.Red
             )
         }
     }
