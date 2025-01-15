@@ -216,6 +216,7 @@ class TodoListViewModel(private val taskDataSource: TaskDataSource) : ViewModel(
         title: String? = null,
         isLiked: Boolean? = null,
         textColor: String? = null,
+        tags: String? = null,
         dueDate: Long? = null,
         newIndex: Int? = null,
         isRepeating: Boolean? = null,
@@ -227,6 +228,7 @@ class TodoListViewModel(private val taskDataSource: TaskDataSource) : ViewModel(
                     title = title ?: todoList.title,
                     isLiked = isLiked ?: todoList.isLiked,
                     textColor = textColor ?: todoList.textColor,
+                    tags = tags ?: todoList.tags,
                     dueDate = dueDate ?: todoList.dueDate,
                     isRepeating = isRepeating ?: todoList.isRepeating,
                     repeatDay = repeatDay ?: todoList.repeatDay

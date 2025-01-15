@@ -23,6 +23,6 @@ fun IsLikedButton(todoList: TodoList, onClick: () -> Unit) {
         modifier = Modifier
             .size(25.dp)
             .clickable { onClick() }, // Use the passed lambda here
-        tint = if (isLiked) Color.Red else Color.White
+        tint = if (isLiked) Color.Red else Color(android.graphics.Color.parseColor(todoList.textColor))
     )
 }
