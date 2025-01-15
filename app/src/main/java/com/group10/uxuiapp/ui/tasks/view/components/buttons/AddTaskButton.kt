@@ -19,14 +19,14 @@ import androidx.compose.ui.graphics.Color
 @Composable
 fun AddTaskButton(onClick: () -> Unit) {
     Box(
-        modifier = Modifier.fillMaxWidth().padding(12.dp),
+        modifier = Modifier.fillMaxWidth(),
         contentAlignment = Alignment.BottomEnd
     ) {
         Button(
             onClick = onClick,
             shape = RoundedCornerShape(50),
             modifier = Modifier
-                .padding(8.dp)
+                .padding(end = 9.dp)
                 .height(48.dp),
             colors = ButtonDefaults.buttonColors(
                 containerColor = Color(0XFF20792F),
@@ -40,10 +40,11 @@ fun AddTaskButton(onClick: () -> Unit) {
                 Icon(
                     imageVector = Icons.Default.Add,
                     contentDescription = "Add Task",
-                    modifier = Modifier.size(25.dp),
+                    modifier = Modifier.size(25.dp)
+                        .offset(x = -5.dp),
                     tint = MaterialTheme.colorScheme.tertiary
                 )
-                Spacer(modifier = Modifier.width(6.dp))
+                Spacer(modifier = Modifier.width(1.dp))
                 Text(
                     text = "Add Task",
                     style = MaterialTheme.typography.headlineMedium,

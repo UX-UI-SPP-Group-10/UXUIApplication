@@ -1,5 +1,6 @@
 package com.group10.uxuiapp.ui.todolist.view.components.buttons
 
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
@@ -19,6 +20,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.LineHeightStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
@@ -32,14 +34,15 @@ fun AddNewTodoListButton(onClick: () -> Unit) {
         shape = RoundedCornerShape(32.dp),
         modifier = Modifier
             .padding(16.dp)
-            .width(140.dp)
+            .width(150.dp)
             .height(60.dp)
             .offset(x = 15.dp, y = (-10).dp)
     ) {
         // Row to position icon and text horizontally
         Row(
             verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.padding(horizontal = 8.dp)
+            horizontalArrangement = Arrangement.Center,
+            modifier = Modifier.padding(end = 9.dp)
         ) {
             Icon(
                 imageVector = Icons.Default.Add,
