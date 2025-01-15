@@ -35,7 +35,7 @@ sealed class EditListPage {
 @Composable
 fun EditTodolistDialog(
     onDismiss: () -> Unit,
-    onConfirm: (String, String, String, Boolean, Int?) -> Unit) {
+    onConfirm: (String, String, String , String, Boolean, Int?) -> Unit) {
     var currentPage by remember { mutableStateOf<EditListPage>(EditListPage.NameInput) }
     var listName by remember { mutableStateOf("") }
     var selectedColor by remember { mutableStateOf("") }
