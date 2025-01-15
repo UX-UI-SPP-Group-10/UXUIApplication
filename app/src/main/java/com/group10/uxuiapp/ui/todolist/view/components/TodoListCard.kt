@@ -223,6 +223,9 @@ fun TodoListCard(
                                 }
                             }
                         },
+                        placeholder = {
+                            Text(text = "New List")
+                        },
                         singleLine = true,
                         textStyle = MaterialTheme.typography.displaySmall.copy(
                             color = Color(android.graphics.Color.parseColor(todoList.textColor))
