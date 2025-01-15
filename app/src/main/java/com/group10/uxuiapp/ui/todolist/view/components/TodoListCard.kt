@@ -299,13 +299,14 @@ fun TodoListCard(
                         y = (cardGlobalOffset.y + cardHeight).toInt() - extraYOffsetPx
                     )
                     onPositionChange(finalOffset, todoList)
-                }) {
+                },
+                    modifier = Modifier.offset(x = 5.dp, y = -11.dp)
+                ) {
                     Icon(
                         imageVector = Icons.Default.MoreVert,
                         contentDescription = "Options",
                         modifier = Modifier
-                            .size(25.dp)
-                            .offset(x = 5.dp, y = -11.dp),
+                            .size(25.dp),
                         tint = Color(android.graphics.Color.parseColor(todoList.textColor))
                     )
                 }
