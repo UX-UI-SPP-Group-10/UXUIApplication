@@ -32,10 +32,12 @@ sealed class EditListPage {
 
 
 @Composable
-fun EditTodolistDialog(onDismiss: () -> Unit, onConfirm: (String, String, String, Boolean, Int?) -> Unit) {
+fun EditTodolistDialog(
+    onDismiss: () -> Unit,
+    onConfirm: (String, String, String, Boolean, Int?) -> Unit) {
     var currentPage by remember { mutableStateOf<EditListPage>(EditListPage.NameInput) }
     var listName by remember { mutableStateOf("") }
-    var selectedColor by remember { mutableStateOf("#FFFFFF") }
+    var selectedColor by remember { mutableStateOf("") }
     var selectedDate by remember { mutableStateOf("") }
     var isRepeating by remember { mutableStateOf(false) }
     var selectedDay by remember { mutableStateOf<Int?>(null) }

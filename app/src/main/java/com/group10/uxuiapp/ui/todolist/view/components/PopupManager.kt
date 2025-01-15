@@ -57,6 +57,7 @@ fun PopupManager(
                             currentTodoList.dueDate // Fallback to current due date
                         }
                     }
+
                     // Update the TodoList using the ViewModel
                     viewModel.updateTodoList(
                         todoList = currentTodoList,
