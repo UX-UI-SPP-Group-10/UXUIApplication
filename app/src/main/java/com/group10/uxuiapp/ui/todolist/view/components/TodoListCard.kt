@@ -219,7 +219,7 @@ fun TodoListCard(
                                 debounceJob?.cancel()
                                 debounceJob = coroutineScope.launch {
                                     delay(200)
-                                    viewModel.updateTodoList(todoList, title = newText)
+                                    viewModel.updateTodoList(id = todoList.id, title = newText)
                                 }
                             }
                         },
@@ -304,7 +304,7 @@ fun TodoListCard(
                 Spacer(modifier = Modifier.width(0.dp)) // Space between buttons
 
                 IsLikedButton(todoList, onClick = {
-                    viewModel.updateTodoList(todoList, isLiked = !todoList.isLiked)
+                    viewModel.updateTodoList(todoList.id, isLiked = !todoList.isLiked)
                 })
             }
         }

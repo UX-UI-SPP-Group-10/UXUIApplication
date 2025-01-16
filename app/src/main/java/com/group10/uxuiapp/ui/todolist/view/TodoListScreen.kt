@@ -1,5 +1,6 @@
 package com.group10.uxuiapp.ui.todolist.view
 
+import android.R
 import android.util.Log
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateDpAsState
@@ -179,7 +180,7 @@ fun TodoListScreen(viewModel: TodoListViewModel, appNavigator: AppNavigator) {
                 },
                 onRenameConfirm = { todoList, newName, selectedColor, selectedDate ->
                     viewModel.updateTodoList(
-                        todoList = todoList,
+                        id = todoList.id,
                         title = newName,
                         textColor = selectedColor,
                         dueDate = selectedDate
@@ -188,15 +189,15 @@ fun TodoListScreen(viewModel: TodoListViewModel, appNavigator: AppNavigator) {
                     viewModel.setNoneState()
                 },
                 onGifSelected = { todoList, gifUrl ->
-                    viewModel.updateGifUrl(todoList.id, gifUrl)
+                    viewModel.updateTodoList(id = todoList.id, gifUrl = gifUrl)
                     viewModel.setNoneState()
                 },
                 onColorSelected = { todoList, color ->
-                    viewModel.updateTextColor(todoList.id, color)
+                    viewModel.updateTodoList(id = todoList.id, textColor = color)
                     viewModel.setNoneState()
                 },
                 onTagsEdited = { todoList, tags ->
-                    viewModel.updateTags(todoList.id, tags)
+                    viewModel.updateTodoList(id = todoList.id, tags = tags)
                     viewModel.setNoneState()
                 },
                 onDismiss = {

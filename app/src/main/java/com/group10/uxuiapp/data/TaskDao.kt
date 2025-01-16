@@ -2,7 +2,6 @@ package com.group10.uxuiapp.data
 
 import androidx.room.*
 import com.group10.uxuiapp.data.data_class.SubTask
-import coil.request.Tags
 import com.group10.uxuiapp.data.data_class.TaskItem
 import com.group10.uxuiapp.data.data_class.TaskItemWithSubTask
 import com.group10.uxuiapp.data.data_class.TodoList
@@ -45,30 +44,34 @@ interface TaskDao {
     @Query("SELECT * FROM TaskItem WHERE id = :taskItemId")
     fun getTaskItemWithSubTaskById(taskItemId: Int): Flow<TaskItemWithSubTask>
 
-    @Query("""
+    // Update Operations. If the value is null, the original value is used.
+    @Query(
+        """
     UPDATE TodoList
     SET 
-        title = :title,
-        isLiked = :isLiked,
-        gifUrl = :gifUrl,
-        dueDate = :dueDate,
-        textColor = :textColor,
-        tags = :tags,
-        repeatDay = :repeatDay,
-        isRepeating = :isRepeating
-    WHERE id = :id
-""")
-    suspend fun updateTodoList(
-        id: Int,
-        title: String,
-        isLiked: Boolean,
-        gifUrl: String,
-        textColor: String,
-        dueDate: Long?,
-        tags: String?,
-        repeatDay: Int?,
-        isRepeating: Boolean?
+        title = CASE WHEN :title IS NOT NULL THEN :title ELSE title END,  
+        isLiked = CASE WHEN :isLiked IS NOT NULL THEN :isLiked ELSE isLiked END,
+        gifUrl = CASE WHEN :gifUrl IS NOT NULL THEN :gifUrl ELSE gifUrl END,
+        textColor = CASE WHEN :textColor IS NOT NULL THEN :textColor ELSE textColor END,
+        dueDate = CASE WHEN :dueDate IS NOT NULL THEN :dueDate ELSE dueDate END,
+        tags = CASE WHEN :tags IS NOT NULL THEN :tags ELSE tags END,
+        repeatDay = CASE WHEN :repeatDay IS NOT NULL THEN :repeatDay ELSE repeatDay END,
+        isRepeating = CASE WHEN :isRepeating IS NOT NULL THEN :isRepeating ELSE isRepeating END
+    WHERE id = :todoListId
+"""
     )
+    suspend fun updateTodoList(
+        todoListId: Int,
+        title: String? = null,
+        isLiked: Boolean? = null,
+        gifUrl: String? = null,
+        textColor: String? = null,
+        dueDate: Long? = null,
+        tags: String? = null,
+        repeatDay: Int? = null,
+        isRepeating: Boolean? = null,
+    )
+
 
     @Query("""
         UPDATE TodoList

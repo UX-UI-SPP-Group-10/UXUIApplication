@@ -3,7 +3,6 @@ package com.group10.uxuiapp.ui.todolist.view.components
 import GiphyDialog
 import android.util.Log
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.MutableState
 import androidx.compose.ui.platform.LocalContext
 import com.group10.uxuiapp.data.data_class.TodoList
 import com.group10.uxuiapp.ui.todolist.viewmodel.TodoListState
@@ -65,7 +64,7 @@ fun PopupManager(
 
                     // Update the TodoList using the ViewModel
                     viewModel.updateTodoList(
-                        todoList = currentTodoList,
+                        id = currentTodoList.id,
                         title = finalName,
                         textColor = finalColor,
                         tags = finalTags,

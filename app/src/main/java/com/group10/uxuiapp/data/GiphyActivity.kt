@@ -37,7 +37,7 @@ class GiphyActivity : AppCompatActivity() {
                 // Assuming taskListId is passed to this activity
                 val todoListId = intent.getIntExtra("todoListId", -1)
                 if (todoListId != -1 && gifUrl != null) {
-                    todoListViewModel.updateGifUrl(todoListId, gifUrl)
+                    todoListViewModel.updateTodoList(id = todoListId, gifUrl = gifUrl)
 
                     Toast.makeText(this@GiphyActivity, "GIF updated successfully", Toast.LENGTH_SHORT).show()
                 }

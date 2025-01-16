@@ -86,11 +86,6 @@ class TodoListViewModel(private val taskDataSource: TaskDataSource) : ViewModel(
         }
     }
 
-    fun setNewlistState() {
-        Log.d(TAG, "Setting NewList state")
-        _todoListState.value = TodoListState.NewList
-    }
-
     fun setRenameState(todoList: TodoList) {
         Log.d(TAG, "Setting Rename state for TodoList with id: ${todoList.id}")
         _selectedTodoList.value = todoList
@@ -101,11 +96,6 @@ class TodoListViewModel(private val taskDataSource: TaskDataSource) : ViewModel(
         Log.d(TAG, "Setting SelectGif state for TodoList with id: ${todoList.id}")
         _todoListState.value = TodoListState.SelectGif(todoList)
     }
-
-//    fun setColorPickState(todoList: TodoList) {
-//        Log.d(TAG, "Setting ColorPick state for TodoList with id: ${todoList.id}")
-//        _todoListState.value = TodoListState.ColorPick(todoList)
-//    }
 
     fun setTagEditState(todoList: TodoList) {
         Log.d(TAG, "Setting TagEdit state for TodoList with id: ${todoList.id}")
@@ -191,84 +181,45 @@ class TodoListViewModel(private val taskDataSource: TaskDataSource) : ViewModel(
 
 
     fun updateTodoList(
-        todoList: TodoList,
+        id: Int,
         title: String? = null,
         isLiked: Boolean? = null,
+        gifUrl: String? = null,
         textColor: String? = null,
         tags: String? = null,
         dueDate: Long? = null,
-        newIndex: Int? = null,
+        newIndex: Int? = null,  // unused for now, updating all indexes instead when moving
         isRepeating: Boolean? = null,
         repeatDay: Int? = null
     ) {
         viewModelScope.launch {
             try {
-                val updatedTodoList = todoList.copy(
-                    title = title ?: todoList.title,
-                    isLiked = isLiked ?: todoList.isLiked,
-                    textColor = textColor ?: todoList.textColor,
-                    tags = tags ?: todoList.tags,
-                    dueDate = dueDate ?: todoList.dueDate,
-                    isRepeating = isRepeating ?: todoList.isRepeating,
-                    repeatDay = repeatDay ?: todoList.repeatDay
-                )
-
-                // If newIndex is provided, update the listIndex
-                newIndex?.let {
-                    taskDataSource.updateListIndex(todoList.id, it)
-                    Log.d(TAG, "Updated listIndex for TodoList with id: ${todoList.id} to $it")
-                }
 
                 // Update other fields in the database
-                taskDataSource.updateTodoList(updatedTodoList)
-                Log.d(TAG, "Updated TodoList with id: ${updatedTodoList.id}")
+                taskDataSource.updateTodoList(
+                    todoListId = id,
+                    title = title,
+                    isLiked = isLiked,
+                    gifUrl = gifUrl,
+                    textColor = textColor,
+                    tags = tags,
+                    dueDate = dueDate,
+                    isRepeating = isRepeating,
+                    repeatDay = repeatDay
+                )
+                Log.d(TAG, "Updated TodoList with id: ${id}")
             } catch (e: Exception) {
                 Log.e(TAG, "Error updating TodoList: ${e.message}", e)
             }
         }
     }
 
-    fun updateGifUrl(todoListId: Int, gifUrl: String) {
-        viewModelScope.launch {
-            try {
-                taskDataSource.getTodoListById(todoListId).collect { todoList ->
-                    val updatedTodoList = todoList.copy(gifUrl = gifUrl)
-                    taskDataSource.updateTodoList(updatedTodoList)
-                    Log.d(TAG, "Updated gifUrl for TodoList with id: $todoListId")
-                }
-            } catch (e: Exception) {
-                Log.e(TAG, "Error updating gifUrl: ${e.message}", e)
-            }
-        }
-    }
-
-    fun deleteTask(taskItem: TaskItem) {
-        viewModelScope.launch {
-            try {
-                taskDataSource.deleteTaskItem(taskItem)
-                Log.d(TAG, "Deleted TaskItem with id: ${taskItem.id}")
-            } catch (e: Exception) {
-                Log.e(TAG, "Error deleting TaskItem: ${e.message}", e)
-            }
-        }
-    }
-
-    fun updateTextColor(todoListId: Int, newColor: String) {
-        viewModelScope.launch {
-            val todoList = _lists.value.find { it.todoList.id == todoListId }?.todoList
-            todoList?.let {
-                it.textColor = newColor
-                taskDataSource.updateTodoList(it)
-                Log.d(TAG, "Updated text color for TodoList id: $todoListId")
-            } ?: Log.e(TAG, "TodoList not found for id: $todoListId")
-        }
-    }
     fun updateTodoListDueDate(todoListId: Int, dueDate: Long?, context: Context, todoListTitle: String) {
         Log.d("NotificationTest","updateTodoListDueDate called with ID: $todoListId and dueDate: $dueDate")
 
         viewModelScope.launch {
             try {
-                taskDataSource.updateDueDate(todoListId, dueDate, todoListTitle)
+                updateTodoList(id = todoListId, dueDate = dueDate, title = todoListTitle)
                 Log.d("NotificationTest", "Due date updated for TodoList ID: $todoListId")
 
                 // Schedule notification
@@ -290,23 +241,6 @@ class TodoListViewModel(private val taskDataSource: TaskDataSource) : ViewModel(
 
     fun getTaskDueBefore(timestamp: Long): LiveData<List<TodoList>> {
         return taskDataSource.getTodoListsDueBefore(timestamp).asLiveData()
-    }
-
-    fun updateTags(todoListId: Int, newTags: String) {
-        viewModelScope.launch {
-            val todoList = _lists.value.find { it.todoList.id == todoListId }?.todoList
-            if (todoList != null) {
-                val updatedTodoList = todoList.copy(tags = newTags)
-                taskDataSource.updateTodoList(updatedTodoList)
-                // Force an update to _lists to ensure the UI gets the new data
-                _lists.value = _lists.value.map {
-                    if (it.todoList.id == todoListId) it.copy(todoList = updatedTodoList) else it
-                }
-                Log.d(TAG, "Updated tags for TodoList id: $todoListId")
-            } else {
-                Log.e(TAG, "TodoList not found for id: $todoListId")
-            }
-        }
     }
 
 
