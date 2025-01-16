@@ -54,7 +54,7 @@ interface TaskDao {
         gifUrl = CASE WHEN :gifUrl IS NOT NULL THEN :gifUrl ELSE gifUrl END,
         textColor = CASE WHEN :textColor IS NOT NULL THEN :textColor ELSE textColor END,
         dueDate = CASE WHEN :dueDate IS NOT NULL THEN :dueDate ELSE dueDate END,
-        tags = CASE WHEN :tags IS NOT NULL THEN :tags ELSE tags END,
+        tags = CASE WHEN :tags IS NOT NULL THEN :tags WHEN :tags = "" THEN "" ELSE tags END,
         repeatDay = CASE WHEN :repeatDay IS NOT NULL THEN :repeatDay ELSE repeatDay END,
         isRepeating = CASE WHEN :isRepeating IS NOT NULL THEN :isRepeating ELSE isRepeating END
     WHERE id = :todoListId

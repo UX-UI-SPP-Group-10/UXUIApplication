@@ -50,7 +50,7 @@ fun PopupManager(
 
                     val finalName = if (newName.isBlank()) currentTodoList.title else newName
                     val finalColor = if (selectedColor.isBlank()) currentTodoList.textColor else selectedColor
-                    val finalTags = if (selectedTags.isBlank()) currentTodoList.tags else selectedTags
+                    val finalTags = if (selectedTags.isBlank()) "" else selectedTags
                     val finalDate = if (selectedDate.isBlank()) currentTodoList.dueDate else {
                         try {
                             val formatter = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
