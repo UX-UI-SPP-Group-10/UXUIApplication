@@ -6,9 +6,12 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
@@ -40,6 +43,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.text.TextStyle
@@ -230,8 +234,8 @@ private fun TopAppBarWithMenu(showLiked: MutableState<Boolean>, viewModel: TodoL
         title = {
             AnimatedVisibility(
                 visible = textFieldVisible.value,
-                enter = fadeIn() + slideInVertically(initialOffsetY = { -it / 2 }),
-                exit = fadeOut() + slideOutVertically(targetOffsetY = { -it / 2 })
+                enter = fadeIn(),
+                exit = fadeOut()
             ) {
                 OutlinedTextField(
                     value = searchQuery,
@@ -242,7 +246,12 @@ private fun TopAppBarWithMenu(showLiked: MutableState<Boolean>, viewModel: TodoL
                     modifier = Modifier
                         .focusRequester(focusRequester)
                         .fillMaxWidth()
-                        .height(56.dp),
+                        .height(56.dp)
+                        .border(
+                            width = 2.dp,
+                            color = Color.Black, // Set your custom outline color here
+                            shape = RoundedCornerShape(12.dp)
+                        ),
                     textStyle = TextStyle(fontSize = 16.sp, color = MaterialTheme.colorScheme.onPrimary),
                     trailingIcon = {
                         if (searchQuery.isNotEmpty()) {
