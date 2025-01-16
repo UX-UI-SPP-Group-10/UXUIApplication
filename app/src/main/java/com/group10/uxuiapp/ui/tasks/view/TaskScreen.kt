@@ -113,7 +113,7 @@ fun TaskScreen(todoListId: Int, appNavigator: AppNavigator, viewModel: TaskViewM
                             sortCompleted = {
                                 sortByComplete.value = !sortByComplete.value
                             },
-                            onSetting3Click = { Log.d("TaskPage", "Setting 3 clicked") }
+                            sortByCompleted = sortByComplete.value
                         )
                     },
                     colors = TopAppBarDefaults.topAppBarColors(),
