@@ -86,13 +86,15 @@ fun TaskScreen(todoListId: Int, appNavigator: AppNavigator, viewModel: TaskViewM
         } ?: emptyList()
     }
 
+    val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
     Scaffold(
         topBar = {
             AnimatedVisibility(
-                visible = topBarVisible,
-                enter = fadeIn() + slideInVertically { -it / 2 },
-                exit = fadeOut() + slideOutVertically { -it / 2 }
-            ) {
+                  visible = topBarVisible,
+                  enter = slideInVertically { -it },
+                  exit = slideOutVertically { -it }
+            )
+            {
                 TopAppBar(
                     title = { Text(taskListWithItems!!.todoList.title) },
                     navigationIcon = {
@@ -115,7 +117,7 @@ fun TaskScreen(todoListId: Int, appNavigator: AppNavigator, viewModel: TaskViewM
                         )
                     },
                     colors = TopAppBarDefaults.topAppBarColors(),
-                    scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
+                    scrollBehavior = scrollBehavior
                 )
             }
         },
