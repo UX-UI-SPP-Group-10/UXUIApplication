@@ -6,6 +6,7 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
+import androidx.compose.foundation.gestures.snapping.snapFlingBehavior
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
@@ -90,9 +91,7 @@ fun TaskScreen(todoListId: Int, appNavigator: AppNavigator, viewModel: TaskViewM
     Scaffold(
         topBar = {
             AnimatedVisibility(
-                  visible = topBarVisible,
-                  enter = slideInVertically { -it },
-                  exit = slideOutVertically { -it }
+                  visible = topBarVisible
             )
             {
                 TopAppBar(
@@ -113,7 +112,7 @@ fun TaskScreen(todoListId: Int, appNavigator: AppNavigator, viewModel: TaskViewM
                             sortCompleted = {
                                 sortByComplete.value = !sortByComplete.value
                             },
-                            onSetting3Click = { Log.d("TaskPage", "Setting 3 clicked") }
+                            sortByCompleted = sortByComplete.value
                         )
                     },
                     colors = TopAppBarDefaults.topAppBarColors(),
