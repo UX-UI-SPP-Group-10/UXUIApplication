@@ -16,11 +16,16 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.material3.TextField
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import com.group10.uxuiapp.data.data_class.SubTask
 import com.group10.uxuiapp.ui.tasks.view.components.buttons.Delete
 import com.group10.uxuiapp.ui.tasks.viewmodel.TaskViewModel
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 
 @Composable
@@ -30,22 +35,23 @@ fun SubTaskRow(
 ) {
     var isChecked = task.isComplete
     val selectedTask by viewModel.selectedSubTask.collectAsState()
+    var textValue by remember { mutableStateOf(task.label) }
+    val coroutineScope = rememberCoroutineScope()
+    var debounceJob by remember { mutableStateOf<Job?>(null) }
     val boxWhith =
         if(selectedTask == task){
-            Modifier.width(300.dp)
+            Modifier.width(295.dp)
         }
         else{
             Modifier.fillMaxWidth()
         }
 
     Row(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier.fillMaxWidth().padding(top = 7.dp).height(40.dp),
         horizontalArrangement = Arrangement.End
     ) {
         Box(
             modifier = Modifier
-                .padding(vertical = 6.dp, horizontal = 12.dp)
-                .height(40.dp)
                 .width(340.dp)
         )
         {
@@ -68,8 +74,7 @@ fun SubTaskRow(
 
                             if (dragAmount < -30) {
                                 viewModel.selectTaskForChange(subTask = task)
-                            }
-                            else if (dragAmount > 30) {
+                            } else if (dragAmount > 30) {
                                 viewModel.selectTaskForChange(null, null)
                             }
                         }
@@ -77,12 +82,11 @@ fun SubTaskRow(
             ) {
                 Row(
                     modifier = Modifier
-                        .fillMaxWidth()
-                        .height(56.dp),
+                        .padding(vertical = 6.dp, horizontal = 12.dp)
+                        .fillMaxWidth(),
                     horizontalArrangement = Arrangement.Start,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Spacer(modifier = Modifier.width(16.dp))
                     // 2) Checkbox
                     Checkbox(
                         checked = isChecked,
@@ -99,11 +103,23 @@ fun SubTaskRow(
                     )
 
                     // 3) Editable text
-                    BasicTextField(
-                        value = task.label,
+                    TextField(
+                        value = textValue,
                         onValueChange = { newText ->
-                            viewModel.updateSubTask(task, label = newText)
+                            if (newText.length <= 20) {
+                                textValue = newText
+
+                                debounceJob?.cancel() // Cancel the ongoing debounce job
+                                debounceJob = coroutineScope.launch {
+                                    delay(200) // 200ms debounce delay
+                                    viewModel.updateSubTask(
+                                        task,
+                                        label = newText
+                                    ) // Update ViewModel
+                                }
+                            }
                         },
+                        singleLine = true,
                         textStyle = MaterialTheme.typography.bodyLarge.copy(
                             textDecoration = if (isChecked) TextDecoration.LineThrough else null,
                             fontWeight = FontWeight.Medium,
@@ -113,22 +129,14 @@ fun SubTaskRow(
                                 MaterialTheme.colorScheme.onSurface
                             }
                         ),
-                        singleLine = true,
-                        modifier = Modifier
-                            .widthIn(max = 200.dp)
-                            .padding(start = 4.dp)
-                    ) {
-                        // Placeholder if you want one
-                        if (task.label.isEmpty()) {
-                            Text(
-                                text = "new Task",
-                                fontSize = 16.sp,
-                                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.4f)
-                            )
-                        }
-                        it()
-                    }
-                    Spacer(modifier = Modifier.weight(1f))
+                        colors = TextFieldDefaults.colors(
+                            unfocusedContainerColor = Color.Transparent, // No background
+                            focusedContainerColor = Color.Transparent,  // No background on focus
+                            unfocusedIndicatorColor = Color.Transparent, // No underline
+                            focusedIndicatorColor = Color.Transparent // No underline
+                        ),
+                        modifier = Modifier.width(225.dp)
+                    )
                 }
             }
         }

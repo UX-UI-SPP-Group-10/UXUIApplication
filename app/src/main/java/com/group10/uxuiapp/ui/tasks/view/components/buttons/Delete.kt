@@ -38,7 +38,7 @@ fun Delete(onClick: () -> Unit){
             onClick = onClick,
             shape = RoundedCornerShape(20),
             modifier = Modifier
-                .height(48.dp),
+                .height(38.dp),
             colors = ButtonDefaults.buttonColors(
                 containerColor = Color(0xFFF44336),
                 //containerColor = MaterialTheme.colorScheme.tertiary,
