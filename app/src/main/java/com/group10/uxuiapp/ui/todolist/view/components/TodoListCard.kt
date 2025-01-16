@@ -1,6 +1,7 @@
 package com.group10.uxuiapp.ui.todolist.view.components
 
 import android.util.Log
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectTapGestures
@@ -44,6 +45,7 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onGloballyPositioned
@@ -99,6 +101,8 @@ fun TodoListCard(
         }
     }
 
+    val scale by animateFloatAsState(targetValue = if (elevation > 0.dp) 1.03f else 1f)
+
     var textValue by remember(todoList.title) { mutableStateOf(todoList.title) }
     val coroutineScope = rememberCoroutineScope()
     var debounceJob by remember { mutableStateOf<Job?>(null) }
@@ -131,6 +135,7 @@ fun TodoListCard(
             modifier
                 .fillMaxWidth()
                 .height(100.dp)
+                .graphicsLayer(scaleX = scale, scaleY = scale)
                 .onGloballyPositioned { layoutCoordinates ->
                     cardGlobalOffset = layoutCoordinates.localToRoot(Offset.Zero)
                     cardHeight = layoutCoordinates.size.height
