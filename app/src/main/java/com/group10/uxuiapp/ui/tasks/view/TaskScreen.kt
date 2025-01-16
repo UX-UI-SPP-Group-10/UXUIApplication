@@ -91,9 +91,7 @@ fun TaskScreen(todoListId: Int, appNavigator: AppNavigator, viewModel: TaskViewM
     Scaffold(
         topBar = {
             AnimatedVisibility(
-                  visible = topBarVisible,
-                  enter = slideInVertically { -it },
-                  exit = slideOutVertically { -it }
+                  visible = topBarVisible
             )
             {
                 TopAppBar(
