@@ -16,6 +16,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.group10.uxuiapp.data.data_class.TaskItem
 import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
@@ -118,7 +119,7 @@ fun TaskRowItem(
                 TextField(
                     value = textValue,
                     onValueChange = { newText ->
-                        if (newText.length <= 25) {
+                        if (newText.length <= 20) {
                             textValue = newText
 
                             debounceJob?.cancel() // Cancel the ongoing debounce job
@@ -143,7 +144,8 @@ fun TaskRowItem(
                         focusedContainerColor = Color.Transparent,  // No background on focus
                         unfocusedIndicatorColor = Color.Transparent, // No underline
                         focusedIndicatorColor = Color.Transparent // No underline
-                    )
+                    ),
+                    modifier = Modifier.width(225.dp)
                 )
 
 
@@ -151,13 +153,15 @@ fun TaskRowItem(
                     modifier = Modifier.fillMaxWidth(),
                     contentAlignment = Alignment.CenterEnd
                 ) {
-                    Row {
+                    Row(
+                        modifier = Modifier.width(50.dp),
+                        horizontalArrangement = Arrangement.spacedBy(6.dp, Alignment.End),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
                         AddSubTaskButton(onClick = {
                             val newSubTask = SubTask(label = "", taskItemId = task.id)
                             viewModel.addSupTask(newSubTask)
                         })
-
-                        Spacer(modifier = Modifier.width(6.dp))
 
                         TaskFolderButton(
                             onClick = {
