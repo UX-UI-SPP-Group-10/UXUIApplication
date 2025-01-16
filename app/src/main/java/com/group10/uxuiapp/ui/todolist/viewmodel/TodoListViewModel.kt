@@ -246,6 +246,17 @@ class TodoListViewModel(private val taskDataSource: TaskDataSource) : ViewModel(
         }
     }
 
+    fun deleteAllTodoLists() {
+        viewModelScope.launch {
+            try {
+                taskDataSource.deleteAllTodoLists()
+                Log.d(TAG, "Deleted all TodoLists")
+            } catch (e: Exception) {
+                Log.e(TAG, "Error deleting all TodoLists: ${e.message}", e)
+            }
+        }
+    }
+
     val taskWithDueDates: LiveData<List<TodoList>> = taskDataSource.getTodoListsWithDueDates().asLiveData()
 
     fun getTaskDueBefore(timestamp: Long): LiveData<List<TodoList>> {

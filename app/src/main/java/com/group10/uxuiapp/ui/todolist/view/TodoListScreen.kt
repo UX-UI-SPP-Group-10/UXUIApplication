@@ -9,6 +9,7 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.gestures.animateScrollBy
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
@@ -19,6 +20,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -52,6 +54,7 @@ import com.group10.uxuiapp.ui.todolist.view.components.*
 import com.group10.uxuiapp.ui.todolist.view.components.buttons.AddNewTodoListButton
 import com.group10.uxuiapp.ui.todolist.view.components.buttons.SettingsButton
 import com.group10.uxuiapp.ui.todolist.viewmodel.TodoListViewModel
+import kotlinx.coroutines.delay
 import sh.calvin.reorderable.ReorderableItem
 import sh.calvin.reorderable.rememberReorderableLazyListState
 
@@ -83,6 +86,20 @@ fun TodoListScreen(viewModel: TodoListViewModel, appNavigator: AppNavigator) {
         todoLists.value = updatedList // Update the MutableState
     }
 
+    val scrollToBottomTrigger = remember { mutableStateOf(false) }
+    LaunchedEffect(scrollToBottomTrigger.value) {
+        if (scrollToBottomTrigger.value) {
+            val targetIndex = todoLists.value.size - 1
+            lazyListState.animateScrollToItem(
+                index = targetIndex,
+                scrollOffset = 0 // Ensure the item is fully visible
+            )
+            delay(1000) // Add delay for smoother visual transition
+            scrollToBottomTrigger.value = false
+        }
+    }
+
+
 
     Box(modifier = Modifier.fillMaxSize()) {
         Scaffold(
@@ -90,6 +107,7 @@ fun TodoListScreen(viewModel: TodoListViewModel, appNavigator: AppNavigator) {
             floatingActionButton = {
                 AddNewTodoListButton {
                     viewModel.addTodoList("")
+                    scrollToBottomTrigger.value = true
                 }
             }
         ) { innerPadding  ->
@@ -266,7 +284,8 @@ private fun TopAppBarWithMenu(showLiked: MutableState<Boolean>, viewModel: TodoL
         actions = {
             SettingsButton(
                 context = context,
-                showLiked = showLiked
+                showLiked = showLiked,
+                onDeleteAllConfirmed = { viewModel.deleteAllTodoLists() }
             )
         },
         colors = TopAppBarDefaults.topAppBarColors(),
