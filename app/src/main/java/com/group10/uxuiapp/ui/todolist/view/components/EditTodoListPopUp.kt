@@ -47,7 +47,7 @@ fun EditTodolistDialog(
     var listName by remember { mutableStateOf("") }
     var selectedColor by remember { mutableStateOf("") }
     var selectedDate by remember { mutableStateOf("") }
-    var selectedTags by remember { mutableStateOf("") }
+    var selectedTags by remember { mutableStateOf(todoList.tags ?: "") }
     var isRepeating by remember { mutableStateOf(false) }
     var selectedDay by remember { mutableStateOf<Int?>(null) }
 
@@ -223,7 +223,8 @@ fun EditTodolistDialog(
         confirmButton = {
             TextButton(
                 onClick = {
-                    onConfirm(listName, selectedColor, selectedTags,selectedDate, isRepeating, selectedDay) // Pass the name entered to the onConfirm handler
+                    val finalTags = if(selectedTags.isBlank()) "" else selectedTags
+                    onConfirm(listName, selectedColor, finalTags,selectedDate, isRepeating, selectedDay) // Pass the name entered to the onConfirm handler
                 }
             ) {
                 Text("Confirm")
