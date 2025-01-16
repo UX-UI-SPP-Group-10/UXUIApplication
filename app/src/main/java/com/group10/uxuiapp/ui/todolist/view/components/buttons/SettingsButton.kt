@@ -32,6 +32,7 @@ fun SettingsButton(context: Context, showLiked: MutableState<Boolean>) {
         targetValue = if (expanded.value) 90f else 0f,
         animationSpec = tween(durationMillis = 300), label = ""
     )
+    val settingsColor = Color(0XFFE6ECE7)
     IconButton(onClick = {
         expanded.value = !expanded.value // Toggle expanded state
     }) {
@@ -49,7 +50,7 @@ fun SettingsButton(context: Context, showLiked: MutableState<Boolean>) {
         expanded = expanded.value,
         onDismissRequest = { expanded.value = false },
         offset = DpOffset(x = (0).dp, y = 0.dp),
-        containerColor = Color(0xFFB7B8BE)
+        containerColor = settingsColor
     ) {
         DropdownMenuItem(
             text = { Text(if (showLiked.value) "Show All" else "Show Liked")},
