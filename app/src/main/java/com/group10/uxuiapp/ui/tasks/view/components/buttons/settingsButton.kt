@@ -13,10 +13,13 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.Checkbox
+import androidx.compose.material3.CheckboxColors
+import androidx.compose.material3.CheckboxDefaults
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
@@ -44,6 +47,7 @@ fun SettingsButton(
         targetValue = if (expanded.value) 90f else 0f,
         animationSpec = tween(durationMillis = 300), label = ""
     )
+    val settingsColor = Color(0XFFEEEEEE)
     IconButton(onClick = {
         expanded.value = !expanded.value // Toggle expanded state
     }) {
@@ -61,7 +65,7 @@ fun SettingsButton(
         expanded = expanded.value,
         onDismissRequest = { expanded.value = false },
         offset = DpOffset(x = (0).dp, y = 0.dp),
-        containerColor = Color(0XFFEEEEEE)
+        containerColor = settingsColor
         //containerColor = Color(0xFFB7B8BE)
     ) {
         DropdownMenuItem(
@@ -84,7 +88,11 @@ fun SettingsButton(
                             onCheckedChange = {
                                 sortCompleted() // Call your sorting function
                             },
-                            modifier = Modifier.padding(0.dp)
+                            modifier = Modifier.padding(0.dp),
+                            colors = CheckboxDefaults.colors(
+                                checkedColor = settingsColor,
+                                uncheckedColor = settingsColor
+                            )
                         )
                     }
                 },
