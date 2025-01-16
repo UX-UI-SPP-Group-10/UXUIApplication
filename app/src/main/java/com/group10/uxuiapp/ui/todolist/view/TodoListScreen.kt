@@ -55,6 +55,7 @@ import com.group10.uxuiapp.ui.todolist.view.components.buttons.AddNewTodoListBut
 import com.group10.uxuiapp.ui.todolist.view.components.buttons.SettingsButton
 import com.group10.uxuiapp.ui.todolist.viewmodel.TodoListViewModel
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import sh.calvin.reorderable.ReorderableItem
 import sh.calvin.reorderable.rememberReorderableLazyListState
 
@@ -86,20 +87,7 @@ fun TodoListScreen(viewModel: TodoListViewModel, appNavigator: AppNavigator) {
         todoLists.value = updatedList // Update the MutableState
     }
 
-    val scrollToBottomTrigger = remember { mutableStateOf(false) }
-    LaunchedEffect(scrollToBottomTrigger.value) {
-        if (scrollToBottomTrigger.value) {
-            val targetIndex = todoLists.value.size - 1
-            lazyListState.animateScrollToItem(
-                index = targetIndex,
-                scrollOffset = 0 // Ensure the item is fully visible
-            )
-            delay(1000) // Add delay for smoother visual transition
-            scrollToBottomTrigger.value = false
-        }
-    }
-
-
+    val coroutineScope = rememberCoroutineScope()
 
     Box(modifier = Modifier.fillMaxSize()) {
         Scaffold(
@@ -107,11 +95,16 @@ fun TodoListScreen(viewModel: TodoListViewModel, appNavigator: AppNavigator) {
             floatingActionButton = {
                 AddNewTodoListButton {
                     viewModel.addTodoList("")
-                    scrollToBottomTrigger.value = true
+                    coroutineScope.launch {
+                        val lastIndex = todoLists.value.size - 1
+                        if (lastIndex >= 0) {
+                            lazyListState.animateScrollToItem(index = lastIndex)
+                        }
+                    }
                 }
             }
         ) { innerPadding  ->
-            val extraBottomPadding = 150.dp // Change this for more bottom padding
+            val extraBottomPadding = 300.dp // Change this for more bottom padding
             LazyColumn(
                 state = lazyListState,
                 verticalArrangement = Arrangement.spacedBy(16.dp),
