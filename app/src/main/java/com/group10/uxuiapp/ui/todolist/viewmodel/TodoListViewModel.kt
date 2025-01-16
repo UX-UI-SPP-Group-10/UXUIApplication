@@ -11,11 +11,13 @@ import com.group10.uxuiapp.data.data_class.TodoList
 import com.group10.uxuiapp.data.data_class.TodoListWithTaskItem
 import com.group10.uxuiapp.data.TaskDataSource
 import com.group10.uxuiapp.data.data_class.TaskItem
+import com.group10.uxuiapp.data.data_class.TaskItemWithSubTask
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import timber.log.Timber
@@ -26,7 +28,6 @@ class TodoListViewModel(private val taskDataSource: TaskDataSource) : ViewModel(
 
     // Our Main List from database
     private val _lists = MutableStateFlow<List<TodoListWithTaskItem>>(emptyList())
-    val lists: StateFlow<List<TodoListWithTaskItem>> = _lists
 
     // This list is used while dragging to keep track of the temporary order
     private val _temporaryList = MutableStateFlow<List<TodoListWithTaskItem>>(emptyList())
@@ -47,7 +48,6 @@ class TodoListViewModel(private val taskDataSource: TaskDataSource) : ViewModel(
     val newTodoListId = _newTodoListId.asStateFlow()
 
     private val _isCurrentlyDragging = MutableStateFlow(false)
-    val isCurrentlyDragging: StateFlow<Boolean> = _isCurrentlyDragging.asStateFlow()
 
     fun setDraggingState(isDragging: Boolean) {
         _isCurrentlyDragging.value = isDragging
@@ -55,11 +55,18 @@ class TodoListViewModel(private val taskDataSource: TaskDataSource) : ViewModel(
 
     val searchList = searchQuery
         .combine(_lists) { query, lists ->
-            if(query.isEmpty()) {
+            if (query.isEmpty()) {
                 lists
             } else {
-                lists.filter {
-                    it.doesMatchSearchQuery(query)
+                lists.filter { todoList ->
+                    // Collect taskItemsWithSubTasks
+                    val taskItemsWithSubTasks = taskDataSource
+                        .getTaskItemWithSubTask()
+                        .firstOrNull()
+                        ?.filter { it.taskItem.todoListId == todoList.todoList.id }
+                        ?: emptyList()
+
+                    todoList.doesMatchSearchQuery(query, taskItemsWithSubTasks)
                 }
             }
         }
@@ -68,6 +75,8 @@ class TodoListViewModel(private val taskDataSource: TaskDataSource) : ViewModel(
             started = SharingStarted.WhileSubscribed(5000),
             initialValue = _lists.value
         )
+
+
 
     fun onSearchQueryChange(query: String) {
         _searchQuery.value = query
@@ -242,6 +251,7 @@ class TodoListViewModel(private val taskDataSource: TaskDataSource) : ViewModel(
     fun getTaskDueBefore(timestamp: Long): LiveData<List<TodoList>> {
         return taskDataSource.getTodoListsDueBefore(timestamp).asLiveData()
     }
+
 
 
 

@@ -11,12 +11,13 @@ data class TodoListWithTaskItem(
     )
     val taskItems: List<TaskItem>
 ) {
-    fun doesMatchSearchQuery(query: String): Boolean {
+    fun doesMatchSearchQuery(query: String, taskItemsWithSubTasks: List<TaskItemWithSubTask>): Boolean {
+        val subTasks = taskItemsWithSubTasks.flatMap { it.subTasks }
         val matchCombinations = listOf(
             todoList.title,
             todoList.tags,
-            taskItems.joinToString { it.label }
-                    // taskItems.joinToString { it.subTasks.joinToString { subTask -> subTask.label } }
+            taskItems.joinToString { it.label }, // Search in task item labels
+            subTasks.joinToString { it.label }  // Search in subtask labels
         )
         return matchCombinations.any { it.contains(query, ignoreCase = true) }
     }
