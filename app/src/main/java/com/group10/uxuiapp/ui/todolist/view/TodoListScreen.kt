@@ -1,5 +1,6 @@
 package com.group10.uxuiapp.ui.todolist.view
 
+import android.R
 import android.util.Log
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateDpAsState
@@ -8,7 +9,6 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
@@ -18,12 +18,10 @@ import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Search
@@ -39,20 +37,15 @@ import androidx.compose.runtime.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLayoutDirection
-import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.group10.uxuiapp.data.data_class.TodoList
 import com.group10.uxuiapp.data.data_class.TodoListWithTaskItem
 import com.group10.uxuiapp.ui.navigation.AppNavigator
 import com.group10.uxuiapp.ui.todolist.view.components.*
@@ -69,25 +62,10 @@ fun TodoListScreen(viewModel: TodoListViewModel, appNavigator: AppNavigator) {
     val popupOffset = remember { mutableStateOf(IntOffset.Zero) }
     val showLiked = remember { mutableStateOf(false) }
 
-    // Colorpicker relevance
-    val showColorPickerDialog = remember { mutableStateOf(false) }
-    val selectedColor = remember { mutableStateOf("#FFFFFF") }
-
     // Collect the lists from the ViewModel's Flow
-    val todoListsWithItems by viewModel.lists.collectAsState(emptyList())
     val selectedTodoList by viewModel.selectedTodoList.collectAsState()
-    val temporaryList by viewModel.temporaryList.collectAsState()
     val popupState by viewModel.todoListState.collectAsState()
     val searchList by viewModel.searchList.collectAsState()
-
-    // Use LaunchedEffect to reset selectedIndex if list size changes
-    LaunchedEffect(todoListsWithItems) {
-        if (selectedTodoList != null &&
-            todoListsWithItems.none { it.todoList == selectedTodoList }
-        ) {
-            viewModel.selectTodoList(null)
-        }
-    }
 
     val todoLists = remember { mutableStateOf(emptyList<TodoListWithTaskItem>()) }      // temporary list while dragging. Need optimization
     todoLists.value = searchList
@@ -135,8 +113,12 @@ fun TodoListScreen(viewModel: TodoListViewModel, appNavigator: AppNavigator) {
                         animateItemModifier = Modifier.animateItem()
                     ) { isDragging ->
                         val elevation by animateDpAsState(if (isDragging) 12.dp else 0.dp)
-                        if(!isDragging) {
-                            viewModel.updateAllListIndexes(todoLists.value)
+                        LaunchedEffect(isDragging) {
+                            viewModel.setDraggingState(isDragging)
+                            if (!isDragging) {
+                                // Save the updated order when dragging stops
+                                viewModel.updateAllListIndexes(todoLists.value)
+                            }
                         }
                         TodoListCard(
                             elevation = elevation,
@@ -147,7 +129,6 @@ fun TodoListScreen(viewModel: TodoListViewModel, appNavigator: AppNavigator) {
                             },
                             viewModel = viewModel,
                             appNavigator = appNavigator,
-                            taskListsWithItems = todoListsWithItems,
                             scope = this
                         )
                     }
@@ -188,39 +169,42 @@ fun TodoListScreen(viewModel: TodoListViewModel, appNavigator: AppNavigator) {
             }
         )
 
-        PopupManager(
-            popupState = popupState,
-            viewModel = viewModel,
-            onNewListConfirm = { name ->
-                viewModel.addTodoList(name)
-                viewModel.setNoneState()
-            },
-            onRenameConfirm = { todoList, newName, selectedColor, selectedDate ->
-                viewModel.updateTodoList(
-                    todoList = todoList,
-                    title = newName,
-                    textColor = selectedColor,
-                    dueDate = selectedDate
-                    // Handle selectedDate if applicable
-                )
-                viewModel.setNoneState()
-            },
-            onGifSelected = { todoList, gifUrl ->
-                viewModel.updateGifUrl(todoList.id, gifUrl)
-                viewModel.setNoneState()
-            },
-            onColorSelected = { todoList, color ->
-                viewModel.updateTextColor(todoList.id, color)
-                viewModel.setNoneState()
-            },
-            onTagsEdited = { todoList, tags ->
-                viewModel.updateTags(todoList.id, tags)
-                viewModel.setNoneState()
-            },
-            onDismiss = {
-                viewModel.setNoneState()
-            }
-        )
+        selectedTodoList?.let {
+            PopupManager(
+                popupState = popupState,
+                todoList = it,
+                viewModel = viewModel,
+                onNewListConfirm = { name ->
+                    viewModel.addTodoList(name)
+                    viewModel.setNoneState()
+                },
+                onRenameConfirm = { todoList, newName, selectedColor, selectedDate ->
+                    viewModel.updateTodoList(
+                        id = todoList.id,
+                        title = newName,
+                        textColor = selectedColor,
+                        dueDate = selectedDate
+                        // Handle selectedDate if applicable
+                    )
+                    viewModel.setNoneState()
+                },
+                onGifSelected = { todoList, gifUrl ->
+                    viewModel.updateTodoList(id = todoList.id, gifUrl = gifUrl)
+                    viewModel.setNoneState()
+                },
+                onColorSelected = { todoList, color ->
+                    viewModel.updateTodoList(id = todoList.id, textColor = color)
+                    viewModel.setNoneState()
+                },
+                onTagsEdited = { todoList, tags ->
+                    viewModel.updateTodoList(id = todoList.id, tags = tags)
+                    viewModel.setNoneState()
+                },
+                onDismiss = {
+                    viewModel.setNoneState()
+                }
+            )
+        }
     }
 }
 

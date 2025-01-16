@@ -13,10 +13,14 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.group10.uxuiapp.data.data_class.TodoList
+import com.group10.uxuiapp.ui.todolist.viewmodel.TodoListViewModel
 
 @Composable
 fun DatePickerComponent(
     context: Context,
+    todoList: TodoList,
+    viewModel: TodoListViewModel,
     onDateSelected: (String) -> Unit
 ){
     val selectedDate = remember { mutableStateOf("") }
@@ -29,7 +33,21 @@ fun DatePickerComponent(
             val formattedDate = "$dayOfMonth/${month + 1}/$year"
             selectedDate.value = formattedDate
             onDateSelected(formattedDate)
+
+            val dueDateTimestamp = calendar.apply {
+                set(
+                    year, month, dayOfMonth
+                )
+            }.timeInMillis
+
+            viewModel.updateTodoListDueDate(
+                todoListId = todoList.id,
+                dueDate = dueDateTimestamp,
+                context = context,
+                todoListTitle = todoList.title
+            )
         },
+
         calendar.get(Calendar.YEAR),
         calendar.get(Calendar.MONTH),
         calendar.get(Calendar.DAY_OF_MONTH)
@@ -40,4 +58,5 @@ fun DatePickerComponent(
         text = "Selected Date: ${selectedDate.value}",
         style = MaterialTheme.typography.bodyMedium
     )
+
 }

@@ -11,11 +11,13 @@ import com.group10.uxuiapp.data.data_class.TodoList
 import com.group10.uxuiapp.data.data_class.TodoListWithTaskItem
 import com.group10.uxuiapp.data.TaskDataSource
 import com.group10.uxuiapp.data.data_class.TaskItem
+import com.group10.uxuiapp.data.data_class.TaskItemWithSubTask
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import timber.log.Timber
@@ -26,7 +28,6 @@ class TodoListViewModel(private val taskDataSource: TaskDataSource) : ViewModel(
 
     // Our Main List from database
     private val _lists = MutableStateFlow<List<TodoListWithTaskItem>>(emptyList())
-    val lists: StateFlow<List<TodoListWithTaskItem>> = _lists
 
     // This list is used while dragging to keep track of the temporary order
     private val _temporaryList = MutableStateFlow<List<TodoListWithTaskItem>>(emptyList())
@@ -46,13 +47,26 @@ class TodoListViewModel(private val taskDataSource: TaskDataSource) : ViewModel(
     private val _newTodoListId = MutableStateFlow<Int?>(null)
     val newTodoListId = _newTodoListId.asStateFlow()
 
+    private val _isCurrentlyDragging = MutableStateFlow(false)
+
+    fun setDraggingState(isDragging: Boolean) {
+        _isCurrentlyDragging.value = isDragging
+    }
+
     val searchList = searchQuery
         .combine(_lists) { query, lists ->
-            if(query.isEmpty()) {
+            if (query.isEmpty()) {
                 lists
             } else {
-                lists.filter {
-                    it.doesMatchSearchQuery(query)
+                lists.filter { todoList ->
+                    // Collect taskItemsWithSubTasks
+                    val taskItemsWithSubTasks = taskDataSource
+                        .getTaskItemWithSubTask()
+                        .firstOrNull()
+                        ?.filter { it.taskItem.todoListId == todoList.todoList.id }
+                        ?: emptyList()
+
+                    todoList.doesMatchSearchQuery(query, taskItemsWithSubTasks)
                 }
             }
         }
@@ -61,6 +75,8 @@ class TodoListViewModel(private val taskDataSource: TaskDataSource) : ViewModel(
             started = SharingStarted.WhileSubscribed(5000),
             initialValue = _lists.value
         )
+
+
 
     fun onSearchQueryChange(query: String) {
         _searchQuery.value = query
@@ -79,11 +95,6 @@ class TodoListViewModel(private val taskDataSource: TaskDataSource) : ViewModel(
         }
     }
 
-    fun setNewlistState() {
-        Log.d(TAG, "Setting NewList state")
-        _todoListState.value = TodoListState.NewList
-    }
-
     fun setRenameState(todoList: TodoList) {
         Log.d(TAG, "Setting Rename state for TodoList with id: ${todoList.id}")
         _selectedTodoList.value = todoList
@@ -94,11 +105,6 @@ class TodoListViewModel(private val taskDataSource: TaskDataSource) : ViewModel(
         Log.d(TAG, "Setting SelectGif state for TodoList with id: ${todoList.id}")
         _todoListState.value = TodoListState.SelectGif(todoList)
     }
-
-//    fun setColorPickState(todoList: TodoList) {
-//        Log.d(TAG, "Setting ColorPick state for TodoList with id: ${todoList.id}")
-//        _todoListState.value = TodoListState.ColorPick(todoList)
-//    }
 
     fun setTagEditState(todoList: TodoList) {
         Log.d(TAG, "Setting TagEdit state for TodoList with id: ${todoList.id}")
@@ -160,37 +166,20 @@ class TodoListViewModel(private val taskDataSource: TaskDataSource) : ViewModel(
         }
     }
 
-
-
-    fun updateListOrder(updatedOrder: List<TodoListWithTaskItem>) {
-        viewModelScope.launch {
-            try {
-                // Update each TodoList's listIndex based on its position in the updatedOrder list
-                updatedOrder.forEachIndexed { index, todoListWithTaskItem ->
-                    val updatedTodoList = todoListWithTaskItem.todoList.copy(listIndex = index)
-                    taskDataSource.updateTodoList(updatedTodoList)
-                }
-                // Update the _lists StateFlow with the new order
-                _lists.value = updatedOrder
-                Log.d(TAG, "Updated list order successfully")
-            } catch (e: Exception) {
-                Log.e(TAG, "Error updating list order: ${e.message}", e)
-            }
-        }
-    }
-
     fun updateAllListIndexes(updatedOrder: List<TodoListWithTaskItem>) {
         viewModelScope.launch {
             try {
-                // Prepare the list of (id, newIndex) pairs
+                // Update indexes only if dragging is not active
+                if (_isCurrentlyDragging.value) {
+                    Log.d(TAG, "Skipping update: Dragging is active")
+                    return@launch
+                }
+
                 val updatedIndexes = updatedOrder.mapIndexed { index, todoListWithTaskItem ->
                     todoListWithTaskItem.todoList.id to index
                 }
 
-                // Perform bulk update of list indexes
                 taskDataSource.updateAllIndexes(updatedIndexes)
-
-                // Update the _lists StateFlow with the new order
                 _lists.value = updatedOrder
                 Log.d(TAG, "Updated all list indexes successfully")
             } catch (e: Exception) {
@@ -200,112 +189,46 @@ class TodoListViewModel(private val taskDataSource: TaskDataSource) : ViewModel(
     }
 
 
-    fun addTaskToList(taskItem: TaskItem) {
-        viewModelScope.launch {
-            try {
-                val insertedTask = taskDataSource.insertTaskItem(taskItem)
-                Log.d(TAG, "Added TaskItem: $insertedTask")
-            } catch (e: Exception) {
-                Log.e(TAG, "Error adding TaskItem: ${e.message}", e)
-            }
-        }
-    }
-
     fun updateTodoList(
-        todoList: TodoList,
+        id: Int,
         title: String? = null,
         isLiked: Boolean? = null,
+        gifUrl: String? = null,
         textColor: String? = null,
         tags: String? = null,
         dueDate: Long? = null,
-        newIndex: Int? = null,
+        newIndex: Int? = null,  // unused for now, updating all indexes instead when moving
         isRepeating: Boolean? = null,
         repeatDay: Int? = null
     ) {
         viewModelScope.launch {
             try {
-                val updatedTodoList = todoList.copy(
-                    title = title ?: todoList.title,
-                    isLiked = isLiked ?: todoList.isLiked,
-                    textColor = textColor ?: todoList.textColor,
-                    tags = tags ?: todoList.tags,
-                    dueDate = dueDate ?: todoList.dueDate,
-                    isRepeating = isRepeating ?: todoList.isRepeating,
-                    repeatDay = repeatDay ?: todoList.repeatDay
-                )
-
-                // If newIndex is provided, update the listIndex
-                newIndex?.let {
-                    taskDataSource.updateListIndex(todoList.id, it)
-                    Log.d(TAG, "Updated listIndex for TodoList with id: ${todoList.id} to $it")
-                }
 
                 // Update other fields in the database
-                taskDataSource.updateTodoList(updatedTodoList)
-                Log.d(TAG, "Updated TodoList with id: ${updatedTodoList.id}")
+                taskDataSource.updateTodoList(
+                    todoListId = id,
+                    title = title,
+                    isLiked = isLiked,
+                    gifUrl = gifUrl,
+                    textColor = textColor,
+                    tags = tags,
+                    dueDate = dueDate,
+                    isRepeating = isRepeating,
+                    repeatDay = repeatDay
+                )
+                Log.d(TAG, "Updated TodoList with id: ${id}")
             } catch (e: Exception) {
                 Log.e(TAG, "Error updating TodoList: ${e.message}", e)
             }
         }
     }
 
-    fun updateTaskItem(taskItem: TaskItem, label: String? = null, isComplete: Boolean? = null) {
-        viewModelScope.launch {
-            try {
-                Log.d(TAG, "Updating TaskItem with id: ${taskItem.id}, label: $label, isComplete: $isComplete")
-                taskDataSource.updateTaskItem(
-                    taskItem = taskItem,
-                    label = label,
-                    isComplete = isComplete
-                )
-                Log.d(TAG, "TaskItem updated successfully")
-            } catch (e: Exception) {
-                Log.e(TAG, "Error updating TaskItem: ${e.message}", e)
-            }
-        }
-    }
-
-    fun updateGifUrl(todoListId: Int, gifUrl: String) {
-        viewModelScope.launch {
-            try {
-                taskDataSource.getTodoListById(todoListId).collect { todoList ->
-                    val updatedTodoList = todoList.copy(gifUrl = gifUrl)
-                    taskDataSource.updateTodoList(updatedTodoList)
-                    Log.d(TAG, "Updated gifUrl for TodoList with id: $todoListId")
-                }
-            } catch (e: Exception) {
-                Log.e(TAG, "Error updating gifUrl: ${e.message}", e)
-            }
-        }
-    }
-
-    fun deleteTask(taskItem: TaskItem) {
-        viewModelScope.launch {
-            try {
-                taskDataSource.deleteTaskItem(taskItem)
-                Log.d(TAG, "Deleted TaskItem with id: ${taskItem.id}")
-            } catch (e: Exception) {
-                Log.e(TAG, "Error deleting TaskItem: ${e.message}", e)
-            }
-        }
-    }
-
-    fun updateTextColor(todoListId: Int, newColor: String) {
-        viewModelScope.launch {
-            val todoList = _lists.value.find { it.todoList.id == todoListId }?.todoList
-            todoList?.let {
-                it.textColor = newColor
-                taskDataSource.updateTodoList(it)
-                Log.d(TAG, "Updated text color for TodoList id: $todoListId")
-            } ?: Log.e(TAG, "TodoList not found for id: $todoListId")
-        }
-    }
     fun updateTodoListDueDate(todoListId: Int, dueDate: Long?, context: Context, todoListTitle: String) {
         Log.d("NotificationTest","updateTodoListDueDate called with ID: $todoListId and dueDate: $dueDate")
 
         viewModelScope.launch {
             try {
-                taskDataSource.updateDueDate(todoListId, dueDate, todoListTitle)
+                updateTodoList(id = todoListId, dueDate = dueDate, title = todoListTitle)
                 Log.d("NotificationTest", "Due date updated for TodoList ID: $todoListId")
 
                 // Schedule notification
@@ -329,22 +252,6 @@ class TodoListViewModel(private val taskDataSource: TaskDataSource) : ViewModel(
         return taskDataSource.getTodoListsDueBefore(timestamp).asLiveData()
     }
 
-    fun updateTags(todoListId: Int, newTags: String) {
-        viewModelScope.launch {
-            val todoList = _lists.value.find { it.todoList.id == todoListId }?.todoList
-            if (todoList != null) {
-                val updatedTodoList = todoList.copy(tags = newTags)
-                taskDataSource.updateTodoList(updatedTodoList)
-                // Force an update to _lists to ensure the UI gets the new data
-                _lists.value = _lists.value.map {
-                    if (it.todoList.id == todoListId) it.copy(todoList = updatedTodoList) else it
-                }
-                Log.d(TAG, "Updated tags for TodoList id: $todoListId")
-            } else {
-                Log.e(TAG, "TodoList not found for id: $todoListId")
-            }
-        }
-    }
 
 
 

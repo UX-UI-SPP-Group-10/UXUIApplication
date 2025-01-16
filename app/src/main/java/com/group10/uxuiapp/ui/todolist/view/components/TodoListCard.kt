@@ -22,7 +22,6 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.MoreVert
-import androidx.compose.material3.Card
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -40,7 +39,6 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.geometry.Offset
@@ -49,7 +47,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onGloballyPositioned
-import androidx.compose.ui.modifier.modifierLocalOf
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.IntOffset
@@ -62,12 +59,9 @@ import com.group10.uxuiapp.data.data_class.TodoListWithTaskItem
 import com.group10.uxuiapp.ui.navigation.AppNavigator
 import com.group10.uxuiapp.ui.todolist.view.components.buttons.IsLikedButton
 import com.group10.uxuiapp.ui.todolist.viewmodel.TodoListViewModel
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
-import androidx.compose.ui.unit.dp
 import androidx.core.view.HapticFeedbackConstantsCompat
 import androidx.core.view.ViewCompat
 import com.group10.uxuiapp.R
@@ -75,7 +69,6 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import sh.calvin.reorderable.ReorderableCollectionItemScope
-import kotlin.math.log
 
 
 @Composable
@@ -85,7 +78,6 @@ fun TodoListCard(
     viewModel: TodoListViewModel,
     appNavigator: AppNavigator,
     onPositionChange: (IntOffset, TodoList) -> Unit,
-    taskListsWithItems: List<TodoListWithTaskItem>,
     scope: ReorderableCollectionItemScope,
     modifier: Modifier = Modifier
     ) {
@@ -163,11 +155,7 @@ fun TodoListCard(
             .pointerInput(Unit) {
                 detectTapGestures(
                     onTap = {
-                        // Normal tap
-                        val refreshedTaskList = taskListsWithItems.find { it.todoList.id == todoList.id }
-                        if (refreshedTaskList != null) {
-                            appNavigator.navigateToTask(refreshedTaskList.todoList.id)
-                        }
+                        appNavigator.navigateToTask(todoList.id)
                     }
                 )
             }
@@ -231,9 +219,12 @@ fun TodoListCard(
                                 debounceJob?.cancel()
                                 debounceJob = coroutineScope.launch {
                                     delay(200)
-                                    viewModel.updateTodoList(todoList, title = newText)
+                                    viewModel.updateTodoList(id = todoList.id, title = newText)
                                 }
                             }
+                        },
+                        placeholder = {
+                            Text(text = "New List")
                         },
                         singleLine = true,
                         textStyle = MaterialTheme.typography.displaySmall.copy(
@@ -271,7 +262,7 @@ fun TodoListCard(
 
 
 
-                DueByDate(todoList = todoList, viewModel = viewModel)
+                DueByDate(todoList = todoList)
                 TagsDisplay(tags = todoList.tags, color = Color(android.graphics.Color.parseColor(todoList.textColor)))
 
             }
@@ -314,7 +305,7 @@ fun TodoListCard(
                 Spacer(modifier = Modifier.width(0.dp)) // Space between buttons
 
                 IsLikedButton(todoList, onClick = {
-                    viewModel.updateTodoList(todoList, isLiked = !todoList.isLiked)
+                    viewModel.updateTodoList(todoList.id, isLiked = !todoList.isLiked)
                 })
             }
         }

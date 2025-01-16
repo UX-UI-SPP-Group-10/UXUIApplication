@@ -3,11 +3,11 @@ package com.group10.uxuiapp.ui.todolist.view.components
 import GiphyDialog
 import android.util.Log
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.MutableState
 import androidx.compose.ui.platform.LocalContext
 import com.group10.uxuiapp.data.data_class.TodoList
 import com.group10.uxuiapp.ui.todolist.viewmodel.TodoListState
 import com.group10.uxuiapp.ui.todolist.viewmodel.TodoListViewModel
+import timber.log.Timber
 import java.text.ParseException
 import java.text.SimpleDateFormat
 import java.util.Locale
@@ -16,6 +16,7 @@ import java.util.Locale
 fun PopupManager(
     popupState: TodoListState,
     // Provide any callbacks your dialogs need
+    todoList: TodoList,
     viewModel: TodoListViewModel,
     onNewListConfirm: (String) -> Unit,
     onRenameConfirm: (TodoList, String, String, Long?) -> Unit,
@@ -41,13 +42,15 @@ fun PopupManager(
 
         is TodoListState.Rename -> {
             EditTodolistDialog(
+                todoList = todoList, // Pass the current TodoList
+                viewModel = viewModel, // Pass the ViewModel
                 onDismiss = onDismiss,
                 onConfirm = { newName, selectedColor, selectedTags,selectedDate, isRepeating, selectedDay ->
                     val currentTodoList = popupState.todoList
 
                     val finalName = if (newName.isBlank()) currentTodoList.title else newName
                     val finalColor = if (selectedColor.isBlank()) currentTodoList.textColor else selectedColor
-                    val finalTags = if (selectedTags.isBlank()) currentTodoList.tags else selectedTags
+                    val finalTags = if (selectedTags.isBlank()) "" else selectedTags
                     val finalDate = if (selectedDate.isBlank()) currentTodoList.dueDate else {
                         try {
                             val formatter = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
@@ -61,7 +64,7 @@ fun PopupManager(
 
                     // Update the TodoList using the ViewModel
                     viewModel.updateTodoList(
-                        todoList = currentTodoList,
+                        id = currentTodoList.id,
                         title = finalName,
                         textColor = finalColor,
                         tags = finalTags,
@@ -72,14 +75,6 @@ fun PopupManager(
                     onDismiss()
                 }
             )
-            // Show dialog for rename
-//            ListNameInputDialog(
-//                onDismiss = onDismiss,
-//                onConfirm = { newName ->
-//                    onRenameConfirm(popupState.todoList, newName)
-//                }
-//            )
-
         }
 
         is TodoListState.SelectGif -> {
@@ -87,9 +82,8 @@ fun PopupManager(
             GiphyDialog(
                 context = LocalContext.current,
                 onGifSelected = { gifUrl ->
-                    viewModel.updateGifUrl(
-                        popupState.todoList.id,
-                        gifUrl = gifUrl)
+                    Timber.tag("GiphyDialog").d("GIF selected: $gifUrl")
+                    onGifSelected(popupState.todoList, gifUrl)
                 },
                 onDismissed = {
                     onDismiss()

@@ -30,7 +30,7 @@ fun TagEditDialog(todoList: TodoList, onTagsUpdated: (String) -> Unit, onDismiss
         confirmButton = {
             Button(
                 onClick = {
-                    onTagsUpdated(text)
+                    onTagsUpdated(text.trim())
                     onDismiss()
                 }
             ) {
