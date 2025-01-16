@@ -8,12 +8,14 @@ import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
@@ -26,8 +28,13 @@ import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 
 @Composable
-fun SettingsButton(context: Context, showLiked: MutableState<Boolean>) {
+fun SettingsButton(
+    context: Context,
+    showLiked: MutableState<Boolean>,
+    onDeleteAllConfirmed: () -> Unit
+) {
     val expanded = remember { mutableStateOf(false) }
+    val showDialog = remember { mutableStateOf(false) }
     val rotationAngle by animateFloatAsState(
         targetValue = if (expanded.value) 90f else 0f,
         animationSpec = tween(durationMillis = 300), label = ""
@@ -62,9 +69,10 @@ fun SettingsButton(context: Context, showLiked: MutableState<Boolean>) {
             modifier = Modifier.fillMaxWidth()
         )
         DropdownMenuItem(
-            text = { Text("Option 2") },
+            text = { Text("Delete All") },
             onClick = {
                 expanded.value = false
+                showDialog.value = true
                 Toast.makeText(context, "Option 2 clicked", Toast.LENGTH_SHORT).show()
             },
             modifier = Modifier.fillMaxWidth()
@@ -76,6 +84,28 @@ fun SettingsButton(context: Context, showLiked: MutableState<Boolean>) {
                 Toast.makeText(context, "Option 3 clicked", Toast.LENGTH_SHORT).show()
             },
             modifier = Modifier.fillMaxWidth()
+        )
+    }
+
+    if (showDialog.value) {
+        AlertDialog(
+            onDismissRequest = { showDialog.value = false },
+            title = { Text("Delete All Todo Lists") },
+            text = { Text("Are you sure you want to delete all todo lists? This action cannot be undone.") },
+            confirmButton = {
+                TextButton(onClick = {
+                    showDialog.value = false
+                    onDeleteAllConfirmed() // Perform deletion
+                    Toast.makeText(context, "All todo lists deleted", Toast.LENGTH_SHORT).show()
+                }) {
+                    Text("Yes")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showDialog.value = false }) {
+                    Text("No")
+                }
+            }
         )
     }
 }

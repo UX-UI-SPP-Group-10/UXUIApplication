@@ -17,6 +17,8 @@ import androidx.compose.ui.unit.sp
 import com.group10.uxuiapp.data.data_class.TaskItem
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
@@ -29,11 +31,14 @@ import com.group10.uxuiapp.ui.tasks.view.components.buttons.Delete
 import com.group10.uxuiapp.ui.tasks.viewmodel.TaskViewModel
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
+import androidx.compose.ui.input.key.KeyEventType
+import androidx.compose.ui.input.key.onKeyEvent
+import androidx.compose.ui.input.key.type
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.tooling.preview.Preview
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-
 
 @Composable
 fun TaskRowItem(
@@ -54,6 +59,8 @@ fun TaskRowItem(
         } else {
             Modifier.fillMaxWidth()
         }
+
+    val focusManager = LocalFocusManager.current
 
     Box(
         modifier = Modifier
@@ -145,7 +152,15 @@ fun TaskRowItem(
                         unfocusedIndicatorColor = Color.Transparent, // No underline
                         focusedIndicatorColor = Color.Transparent // No underline
                     ),
-                    modifier = Modifier.width(225.dp)
+                    modifier = Modifier.width(225.dp),
+                    keyboardOptions = KeyboardOptions.Default.copy(
+                        imeAction = ImeAction.Done
+                    ),
+                    keyboardActions = KeyboardActions(
+                        onDone = {
+                            focusManager.clearFocus()
+                        }
+                    )
                 )
 
 

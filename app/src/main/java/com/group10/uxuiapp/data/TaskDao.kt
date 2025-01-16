@@ -140,6 +140,10 @@ interface TaskDao {
     @Query("SELECT * FROM TaskItem WHERE isComplete = :isComplete")
     fun getTasksByCompletionStatus(isComplete: Boolean): Flow<List<TaskItem>>
 
+
+    @Query("DELETE FROM TodoList")
+    suspend fun deleteAllTodoLists()
+
     @Delete
     suspend fun deleteTodoList(todoList: TodoList)
 

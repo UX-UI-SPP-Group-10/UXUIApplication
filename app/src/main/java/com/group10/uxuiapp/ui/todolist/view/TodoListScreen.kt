@@ -12,6 +12,7 @@ import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.border
+import androidx.compose.foundation.gestures.animateScrollBy
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
@@ -22,6 +23,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -56,6 +58,8 @@ import com.group10.uxuiapp.ui.todolist.view.components.*
 import com.group10.uxuiapp.ui.todolist.view.components.buttons.AddNewTodoListButton
 import com.group10.uxuiapp.ui.todolist.view.components.buttons.SettingsButton
 import com.group10.uxuiapp.ui.todolist.viewmodel.TodoListViewModel
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import sh.calvin.reorderable.ReorderableItem
 import sh.calvin.reorderable.rememberReorderableLazyListState
 
@@ -87,6 +91,7 @@ fun TodoListScreen(viewModel: TodoListViewModel, appNavigator: AppNavigator) {
         todoLists.value = updatedList // Update the MutableState
     }
 
+    val coroutineScope = rememberCoroutineScope()
 
     Box(modifier = Modifier.fillMaxSize()) {
         Scaffold(
@@ -94,10 +99,16 @@ fun TodoListScreen(viewModel: TodoListViewModel, appNavigator: AppNavigator) {
             floatingActionButton = {
                 AddNewTodoListButton {
                     viewModel.addTodoList("")
+                    coroutineScope.launch {
+                        val lastIndex = todoLists.value.size - 1
+                        if (lastIndex >= 0) {
+                            lazyListState.animateScrollToItem(index = lastIndex)
+                        }
+                    }
                 }
             }
         ) { innerPadding  ->
-            val extraBottomPadding = 150.dp // Change this for more bottom padding
+            val extraBottomPadding = 300.dp // Change this for more bottom padding
             LazyColumn(
                 state = lazyListState,
                 verticalArrangement = Arrangement.spacedBy(16.dp),
@@ -275,7 +286,8 @@ private fun TopAppBarWithMenu(showLiked: MutableState<Boolean>, viewModel: TodoL
         actions = {
             SettingsButton(
                 context = context,
-                showLiked = showLiked
+                showLiked = showLiked,
+                onDeleteAllConfirmed = { viewModel.deleteAllTodoLists() }
             )
         },
         colors = TopAppBarDefaults.topAppBarColors(),

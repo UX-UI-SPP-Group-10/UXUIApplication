@@ -127,6 +127,8 @@ class TaskDataSource(private val taskDao: TaskDao) {
         taskDao.deleteCompletedTasksByTodoListId(todoListId)
     }
 
+    suspend fun deleteAllTodoLists() = taskDao.deleteAllTodoLists()
+
 
 
     suspend fun deleteSubTask(subTask: SubTask) = taskDao.deleteSubTask(subTask)
