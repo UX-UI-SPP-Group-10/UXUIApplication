@@ -154,7 +154,7 @@ fun TaskScreen(todoListId: Int, appNavigator: AppNavigator, viewModel: TaskViewM
                         start = innerPadding.calculateStartPadding(LocalLayoutDirection.current) + 12.dp,
                         bottom = innerPadding.calculateBottomPadding() + extraBottomPadding
                     ),
-                    verticalArrangement = Arrangement.spacedBy(10.dp)
+                    verticalArrangement = Arrangement.spacedBy(15.dp)
                 ){
                     items(
                         items = sortedTasks,

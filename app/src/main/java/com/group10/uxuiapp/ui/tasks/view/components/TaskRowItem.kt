@@ -64,7 +64,7 @@ fun TaskRowItem(
 
     Box(
         modifier = Modifier
-            .height(40.dp)
+            .height(50.dp)
             .fillMaxWidth()
     ) {
         Box(

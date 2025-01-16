@@ -47,7 +47,7 @@ fun SubTaskRow(
         }
 
     Row(
-        modifier = Modifier.fillMaxWidth().padding(top = 7.dp).height(40.dp),
+        modifier = Modifier.fillMaxWidth().padding(top = 7.dp).height(50.dp),
         horizontalArrangement = Arrangement.End
     ) {
         Box(
@@ -82,7 +82,7 @@ fun SubTaskRow(
             ) {
                 Row(
                     modifier = Modifier
-                        .padding(vertical = 6.dp, horizontal = 12.dp)
+                        .padding(vertical = 0.dp, horizontal = 12.dp)
                         .fillMaxWidth(),
                     horizontalArrangement = Arrangement.Start,
                     verticalAlignment = Alignment.CenterVertically

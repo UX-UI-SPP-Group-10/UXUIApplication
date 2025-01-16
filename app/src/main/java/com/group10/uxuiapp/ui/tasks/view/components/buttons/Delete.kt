@@ -38,7 +38,7 @@ fun Delete(onClick: () -> Unit){
             onClick = onClick,
             shape = RoundedCornerShape(20),
             modifier = Modifier
-                .height(38.dp),
+                .height(48.dp),
             colors = ButtonDefaults.buttonColors(
                 containerColor = Color(0xFFF44336),
                 //containerColor = MaterialTheme.colorScheme.tertiary,
@@ -51,7 +51,7 @@ fun Delete(onClick: () -> Unit){
                 Icon(
                     painter = painterResource(id = R.drawable.delete),
                     contentDescription = "Delete",
-                    modifier = Modifier.size(25.dp).offset(x = 12.dp),
+                    modifier = Modifier.size(35.dp).offset(x = 18.dp),
                     tint = MaterialTheme.colorScheme.onTertiaryContainer
                 )
             }
