@@ -55,7 +55,7 @@ fun TaskRowItem(
     var debounceJob by remember { mutableStateOf<Job?>(null) }
     val boxWhith =
         if (selectedTask == task) {
-            Modifier.width(340.dp)
+            Modifier.padding(end = 45.dp)
         } else {
             Modifier.fillMaxWidth()
         }
