@@ -9,6 +9,9 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonColors
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
@@ -64,7 +67,6 @@ fun SettingsButton(
             onClick = {
                 expanded.value = false
                 showLiked.value = !showLiked.value
-                //Toast.makeText(context, "Option 1 clicked", Toast.LENGTH_SHORT).show()
             },
             modifier = Modifier.fillMaxWidth()
         )
@@ -73,7 +75,6 @@ fun SettingsButton(
             onClick = {
                 expanded.value = false
                 showDialog.value = true
-                Toast.makeText(context, "Option 2 clicked", Toast.LENGTH_SHORT).show()
             },
             modifier = Modifier.fillMaxWidth()
         )
@@ -91,19 +92,29 @@ fun SettingsButton(
         AlertDialog(
             onDismissRequest = { showDialog.value = false },
             title = { Text("Delete All Todo Lists") },
-            text = { Text("Are you sure you want to delete all todo lists? This action cannot be undone.") },
+            text = { Text("Are you sure you want to delete all todo lists? \nThis action cannot be undone.") },
             confirmButton = {
-                TextButton(onClick = {
+                Button (onClick = {
                     showDialog.value = false
                     onDeleteAllConfirmed() // Perform deletion
                     Toast.makeText(context, "All todo lists deleted", Toast.LENGTH_SHORT).show()
-                }) {
-                    Text("Yes")
+                },
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFCE2D22))
+                ){
+                    Text(
+                        text = "Delete",
+                        color = MaterialTheme.colorScheme.onTertiary
+                    )
                 }
             },
             dismissButton = {
-                TextButton(onClick = { showDialog.value = false }) {
-                    Text("No")
+                Button(onClick = { showDialog.value = false },
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF268036))
+                    ) {
+                    Text(
+                        text = "Cancel",
+                        color = MaterialTheme.colorScheme.onTertiary
+                    )
                 }
             }
         )
