@@ -196,10 +196,7 @@ fun TodoListScreen(viewModel: TodoListViewModel, appNavigator: AppNavigator) {
             onGifSelect = {
                 viewModel.setSelectGifState(selectedTodoList!!)
             },
-            offset = popupOffset.value,
-////            onColorChange = {
-////                viewModel.setColorPickState(selectedTodoList!!)
-////            }
+            offset = IntOffset(popupOffset.value.x, popupOffset.value.y + 26),
             onTagsEdit = {
                 viewModel.setTagEditState(selectedTodoList!!)
             }
