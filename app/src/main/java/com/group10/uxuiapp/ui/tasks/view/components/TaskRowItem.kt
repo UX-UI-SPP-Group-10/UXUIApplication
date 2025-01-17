@@ -1,5 +1,7 @@
 package com.group10.uxuiapp.ui.tasks.view.components
 
+import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectHorizontalDragGestures
 import androidx.compose.foundation.layout.*
@@ -53,12 +55,14 @@ fun TaskRowItem(
 
     val coroutineScope = rememberCoroutineScope()
     var debounceJob by remember { mutableStateOf<Job?>(null) }
-    val boxWhith =
-        if (selectedTask == task) {
-            Modifier.padding(end = 45.dp)
-        } else {
-            Modifier.fillMaxWidth()
-        }
+    val animatedEndPadding by animateDpAsState(
+        targetValue = if (selectedTask == task) 45.dp else 0.dp,
+        animationSpec = tween(durationMillis = 200), label = "" // Adjust duration for smoothness
+    )
+
+    val boxWhith = Modifier
+        .fillMaxWidth()
+        .padding(end = animatedEndPadding)
 
     val focusManager = LocalFocusManager.current
 
