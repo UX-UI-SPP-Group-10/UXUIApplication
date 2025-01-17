@@ -40,19 +40,16 @@ fun SubTaskRow(
     var debounceJob by remember { mutableStateOf<Job?>(null) }
     val boxWhith =
         if(selectedTask == task){
-            Modifier.width(295.dp)
+            Modifier.padding(end = 45.dp)
         }
         else{
             Modifier.fillMaxWidth()
         }
-
-    Row(
-        modifier = Modifier.fillMaxWidth().padding(top = 7.dp).height(50.dp),
-        horizontalArrangement = Arrangement.End
-    ) {
         Box(
             modifier = Modifier
-                .width(340.dp)
+                .padding(top = 7.dp, start = 40.dp)
+                .fillMaxWidth()
+                .height(50.dp)
         )
         {
             Box(
@@ -141,5 +138,4 @@ fun SubTaskRow(
             }
         }
     }
-}
 
