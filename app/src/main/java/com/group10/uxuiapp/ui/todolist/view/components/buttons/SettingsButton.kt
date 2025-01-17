@@ -6,6 +6,7 @@ import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.AlertDialog
@@ -60,7 +61,8 @@ fun SettingsButton(
         expanded = expanded.value,
         onDismissRequest = { expanded.value = false },
         offset = DpOffset(x = (0).dp, y = 0.dp),
-        containerColor = settingsColor
+        containerColor = settingsColor,
+        shape = RoundedCornerShape(12.dp)
     ) {
         DropdownMenuItem(
             text = { Text(if (showLiked.value) "Show All" else "Show Liked")},
@@ -75,14 +77,6 @@ fun SettingsButton(
             onClick = {
                 expanded.value = false
                 showDialog.value = true
-            },
-            modifier = Modifier.fillMaxWidth()
-        )
-        DropdownMenuItem(
-            text = { Text("Option 3") },
-            onClick = {
-                expanded.value = false
-                Toast.makeText(context, "Option 3 clicked", Toast.LENGTH_SHORT).show()
             },
             modifier = Modifier.fillMaxWidth()
         )

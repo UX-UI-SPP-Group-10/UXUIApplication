@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.Checkbox
@@ -65,7 +66,8 @@ fun SettingsButton(
         expanded = expanded.value,
         onDismissRequest = { expanded.value = false },
         offset = DpOffset(x = (0).dp, y = 0.dp),
-        containerColor = settingsColor
+        containerColor = settingsColor,
+        shape = RoundedCornerShape(12.dp)
         //containerColor = Color(0xFFB7B8BE)
     ) {
         DropdownMenuItem(
