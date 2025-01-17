@@ -19,3 +19,17 @@ val BlueGrey80 = Color(0xFF698EB8)
 val Grey80 = Color(0xFFE0E0E0)
 val Grey60 = Color(0xFFBDBDBD)
 val Grey30 = Color(0XFFD1D1D1)
+
+val GreyWhite = Color(0xFFF7F6F4)
+val Olive94 = Color(0xFFC1D1BB)
+val Olive99 = Color(0xFFA3B18A)
+val OliveStd = Color(0xFF96AE8D)
+val Green = Color(0xFF3A5A40)
+val GreenDark = Color(0xFF344E41)
+
+// Suggested additions
+val MutedPeach = Color(0xFFF8E8DC)
+val LightTaupe = Color(0xFFD8C3A5)
+val DustyBlue = Color(0xFFA8C0C0)
+val GoldenBeige = Color(0xFFE2C290)
+val Terracotta = Color(0xFFD08C60)

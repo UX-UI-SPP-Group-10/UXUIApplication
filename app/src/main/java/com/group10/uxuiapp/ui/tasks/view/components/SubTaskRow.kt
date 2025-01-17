@@ -65,7 +65,7 @@ fun SubTaskRow(
                 modifier = Modifier
                     .then(boxWhith)
                     .background(
-                        color = MaterialTheme.colorScheme.onTertiary,
+                        color = MaterialTheme.colorScheme.tertiary,
                         shape = MaterialTheme.shapes.small
                     )
                     .pointerInput(Unit) {
@@ -95,9 +95,8 @@ fun SubTaskRow(
                             viewModel.updateSubTask(task, isComplete = newChecked)
                         },
                         colors = CheckboxDefaults.colors(
-                            checkedColor = Color(0XFF20792F),
-                            uncheckedColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
-                            checkmarkColor = MaterialTheme.colorScheme.onTertiary
+                            checkedColor = Color(0xFF7d8597),
+                            uncheckedColor = MaterialTheme.colorScheme.onSurface
                         ),
                         modifier = Modifier.size(28.dp)
                     )

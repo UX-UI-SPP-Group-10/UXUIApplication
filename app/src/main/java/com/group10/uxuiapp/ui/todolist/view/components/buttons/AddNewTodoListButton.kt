@@ -29,7 +29,7 @@
 fun AddNewTodoListButton(onClick: () -> Unit) {
     FloatingActionButton(
         onClick = onClick,
-        containerColor = Color(0XFF20792F),
+        containerColor = Color(0XFF1565C0),
         contentColor = Color.White,
         shape = RoundedCornerShape(32.dp),
         modifier = Modifier
@@ -47,16 +47,14 @@ fun AddNewTodoListButton(onClick: () -> Unit) {
             Icon(
                 imageVector = Icons.Default.Add,
                 contentDescription = "Add Item",
-                modifier = Modifier.size(30.dp),
-                tint = MaterialTheme.colorScheme.tertiary
+                modifier = Modifier.size(30.dp)
             )
             Spacer(modifier = Modifier.width(8.dp))
             Text(
                 text = "New List",
                 style = MaterialTheme.typography.bodyMedium.copy(
                     fontSize = 18.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.tertiary
+                    fontWeight = FontWeight.Bold
                 )
             )
         }

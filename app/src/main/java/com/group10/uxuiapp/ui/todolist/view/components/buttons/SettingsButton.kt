@@ -31,7 +31,8 @@ import androidx.compose.ui.unit.dp
 fun SettingsButton(
     context: Context,
     showLiked: MutableState<Boolean>,
-    onDeleteAllConfirmed: () -> Unit
+    onDeleteAllConfirmed: () -> Unit,
+    color : Color
 ) {
     val expanded = remember { mutableStateOf(false) }
     val showDialog = remember { mutableStateOf(false) }
@@ -48,7 +49,8 @@ fun SettingsButton(
             contentDescription = "MoreVert",
             modifier = Modifier
                 .rotate(rotationAngle) // Rotate based on expanded state
-                .animateContentSize() // smooth transition when rotating
+                .animateContentSize(), // smooth transition when rotating
+            tint = color
         )
     }
 

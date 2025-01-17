@@ -29,7 +29,7 @@ fun AddTaskButton(onClick: () -> Unit) {
                 .padding(end = 9.dp)
                 .height(48.dp),
             colors = ButtonDefaults.buttonColors(
-                containerColor = Color(0XFF20792F),
+                containerColor = Color(0XFF1565C0),
                 //containerColor = MaterialTheme.colorScheme.tertiary,
                 contentColor = MaterialTheme.colorScheme.onPrimary
             )
