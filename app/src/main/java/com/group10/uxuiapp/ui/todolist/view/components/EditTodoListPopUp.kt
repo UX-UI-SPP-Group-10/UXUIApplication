@@ -109,7 +109,7 @@ fun EditTodolistDialog(
                     }
                 }
                 is EditListPage.ColorPicker -> {
-                    ColorPicker { selectedColor = it }
+                    ColorPicker (currentColor = todoList.textColor, onColorSelect = {selectedColor = it})
                 }
                 is EditListPage.TagPicker -> {
                     Column {
