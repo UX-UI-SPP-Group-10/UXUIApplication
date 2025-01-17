@@ -57,7 +57,7 @@ fun SettingsButton(
     DropdownMenu(
         expanded = expanded.value,
         onDismissRequest = { expanded.value = false },
-        offset = DpOffset(x = (4).dp, y = 9.dp),
+        offset = DpOffset(x = (4).dp, y = 8.5.dp),
         containerColor = containerColor
     ) {
         DropdownMenuItem(
