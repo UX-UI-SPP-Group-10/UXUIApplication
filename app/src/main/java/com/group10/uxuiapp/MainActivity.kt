@@ -46,12 +46,12 @@ class MainActivity : FragmentActivity() {  //FragmentActivity
         // Schedule reset worker
         WorkManagerHelper.scheduleResetWorker(this)
 
-        val notificationHelper = NotificationHelper(this)
-        Timber.tag("NotificationTest").d("TEst")
-        notificationHelper.sendNotification(
-            title = "Test Title",
-            message = "This is a test notification."
-        )
+//        val notificationHelper = NotificationHelper(this)
+//        Timber.tag("NotificationTest").d("TEst")
+//        notificationHelper.sendNotification(
+//            title = "Test Title",
+//            message = "This is a test notification."
+//        )
 
 
 
@@ -67,4 +67,4 @@ class MainActivity : FragmentActivity() {  //FragmentActivity
             }
         }
     }
-}
+}  

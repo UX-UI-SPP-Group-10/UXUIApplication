@@ -37,7 +37,7 @@ fun OptionsPopup(
     //onColorChange: () -> Unit,
     offset: IntOffset
 ) {
-    val boxHeight = 60.dp
+    val boxHeight = 50.dp
     val boxWidth = 240.dp
 
     if (expanded) {
