@@ -83,7 +83,7 @@ fun SubTaskRow(
                     }
                 },
             colors = androidx.compose.material3.CardDefaults.cardColors(
-                containerColor = Color(0xFFE8EBFC)
+                containerColor = Color(0xFFDBEBFF)
             ),
             elevation = androidx.compose.material3.CardDefaults.cardElevation(
                 defaultElevation = 4.dp
