@@ -102,114 +102,100 @@ fun TaskRowItem(
                 defaultElevation = 4.dp
             ),
             colors = androidx.compose.material3.CardDefaults.cardColors(
-            containerColor = Color.Transparent // Set transparent for gradient layer
+                containerColor = Color(0xFFF8FCFF)
             )
         ) {
-            Box (modifier = Modifier
-                .background(    // Adds gradient background
-                    brush = Brush.verticalGradient(
-                        colorStops = arrayOf(
-                            0.0f to Color(0xFFE7EAF1), // Start color at the top
-                            0.3f to Color(0xFFF8FBFF), // Middle color starts at 30%
-                            0.7f to Color(0xFFF8FBFF), // Middle color ends at 70%
-                            1.0f to Color(0xFFDDE3EC) // End color at the bottom
-                        )
-                    ),
-                    shape = MaterialTheme.shapes.small)
-                .alpha(if (isChecked) 0.5f else 1.0f)
+            Row(
+                modifier = Modifier
+                    .padding(vertical = 0.dp, horizontal = 12.dp)   // This is the inner padding
+                    .fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                Row(
-                    modifier = Modifier
-                        .padding(vertical = 0.dp, horizontal = 12.dp)   // This is the inner padding
-                        .fillMaxWidth(),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    // 2) Checkbox
-                    Checkbox(
-                        checked = isChecked,
-                        onCheckedChange = { newChecked ->
-                            isChecked = newChecked
-                            viewModel.updateTaskItem(task, isComplete = newChecked)
-                            val taskWithSubTasks =
-                                taskItemWithSubTask.find { it.taskItem.id == task.id }
+                // 2) Checkbox
+                Checkbox(
+                    checked = isChecked,
+                    onCheckedChange = { newChecked ->
+                        isChecked = newChecked
+                        viewModel.updateTaskItem(task, isComplete = newChecked)
+                        val taskWithSubTasks =
+                            taskItemWithSubTask.find { it.taskItem.id == task.id }
 
-                            if (taskWithSubTasks != null && !task.isFolded) {
-                                taskWithSubTasks.subTasks.forEach { subTask ->
-                                    viewModel.updateSubTask(subTask, isComplete = newChecked)
-                                }
+                        if (taskWithSubTasks != null && !task.isFolded) {
+                            taskWithSubTasks.subTasks.forEach { subTask ->
+                                viewModel.updateSubTask(subTask, isComplete = newChecked)
                             }
-                        },
-                        colors = CheckboxDefaults.colors(
-                            checkedColor = Color(0xFF7d8597),
-                            uncheckedColor = MaterialTheme.colorScheme.onSurface
-                        ),
-                        modifier = Modifier.size(28.dp)
-                    )
-
-                    // 3) Editable text
-                    TextField(
-                        value = textValue,
-                        onValueChange = { newText ->
-                            if (newText.length <= 20) {
-                                textValue = newText
-
-                                debounceJob?.cancel() // Cancel the ongoing debounce job
-                                debounceJob = coroutineScope.launch {
-                                    delay(200) // 200ms debounce delay
-                                    viewModel.updateTaskItem(task, label = newText) // Update ViewModel
-                                }
-                            }
-                        },
-                        singleLine = true,
-                        textStyle = MaterialTheme.typography.bodyLarge.copy(
-                            textDecoration = if (isChecked) TextDecoration.LineThrough else null,
-                            fontWeight = FontWeight.Medium,
-                            color = if (isChecked) {
-                                MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
-                            } else {
-                                MaterialTheme.colorScheme.onSurface
-                            }
-                        ),
-                        colors = TextFieldDefaults.colors(
-                            unfocusedContainerColor = Color.Transparent, // No background
-                            focusedContainerColor = Color.Transparent,  // No background on focus
-                            unfocusedIndicatorColor = Color.Transparent, // No underline
-                            focusedIndicatorColor = Color.Transparent // No underline
-                        ),
-                        modifier = Modifier.width(225.dp),
-                        keyboardOptions = KeyboardOptions.Default.copy(
-                            imeAction = ImeAction.Done
-                        ),
-                        keyboardActions = KeyboardActions(
-                            onDone = {
-                                focusManager.clearFocus()
-                            }
-                        )
-                    )
-
-
-                    Box(
-                        modifier = Modifier.fillMaxWidth(),
-                        contentAlignment = Alignment.CenterEnd
-                    ) {
-                        Row(
-                            modifier = Modifier.width(50.dp),
-                            horizontalArrangement = Arrangement.spacedBy(6.dp, Alignment.End),
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            AddSubTaskButton(onClick = {
-                                val newSubTask = SubTask(label = "", taskItemId = task.id)
-                                viewModel.addSupTask(newSubTask)
-                            })
-
-                            TaskFolderButton(
-                                onClick = {
-                                    isFoldet = !isFoldet
-                                    viewModel.updateTaskItem(task, isFolded = isFoldet)
-                                },
-                                isFoldet = isFoldet
-                            )
                         }
+                    },
+                    colors = CheckboxDefaults.colors(
+                        checkedColor = Color(0xFF7d8597),
+                        uncheckedColor = MaterialTheme.colorScheme.onSurface
+                    ),
+                    modifier = Modifier.size(28.dp)
+                )
+
+                // 3) Editable text
+                TextField(
+                    value = textValue,
+                    onValueChange = { newText ->
+                        if (newText.length <= 20) {
+                            textValue = newText
+
+                            debounceJob?.cancel() // Cancel the ongoing debounce job
+                            debounceJob = coroutineScope.launch {
+                                delay(200) // 200ms debounce delay
+                                viewModel.updateTaskItem(task, label = newText) // Update ViewModel
+                            }
+                        }
+                    },
+                    singleLine = true,
+                    textStyle = MaterialTheme.typography.bodyLarge.copy(
+                        textDecoration = if (isChecked) TextDecoration.LineThrough else null,
+                        fontWeight = FontWeight.Medium,
+                        color = if (isChecked) {
+                            MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
+                        } else {
+                            MaterialTheme.colorScheme.onSurface
+                        }
+                    ),
+                    colors = TextFieldDefaults.colors(
+                        unfocusedContainerColor = Color.Transparent, // No background
+                        focusedContainerColor = Color.Transparent,  // No background on focus
+                        unfocusedIndicatorColor = Color.Transparent, // No underline
+                        focusedIndicatorColor = Color.Transparent // No underline
+                    ),
+                    modifier = Modifier.width(225.dp),
+                    keyboardOptions = KeyboardOptions.Default.copy(
+                        imeAction = ImeAction.Done
+                    ),
+                    keyboardActions = KeyboardActions(
+                        onDone = {
+                            focusManager.clearFocus()
+                        }
+                    )
+                )
+
+
+                Box(
+                    modifier = Modifier.fillMaxWidth(),
+                    contentAlignment = Alignment.CenterEnd
+                ) {
+                    Row(
+                        modifier = Modifier.width(50.dp),
+                        horizontalArrangement = Arrangement.spacedBy(6.dp, Alignment.End),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        AddSubTaskButton(onClick = {
+                            val newSubTask = SubTask(label = "", taskItemId = task.id)
+                            viewModel.addSupTask(newSubTask)
+                        })
+
+                        TaskFolderButton(
+                            onClick = {
+                                isFoldet = !isFoldet
+                                viewModel.updateTaskItem(task, isFolded = isFoldet)
+                            },
+                            isFoldet = isFoldet
+                        )
                     }
                 }
             }
