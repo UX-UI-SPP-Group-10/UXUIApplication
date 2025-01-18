@@ -99,7 +99,7 @@ fun TaskScreen(todoListId: Int, appNavigator: AppNavigator, viewModel: TaskViewM
         .background(
             Brush.verticalGradient(
                 colors = listOf(
-                    Color.White,
+                    Color(0xFFF8F8F8),
                     MaterialTheme.colorScheme.background
                 )
             )

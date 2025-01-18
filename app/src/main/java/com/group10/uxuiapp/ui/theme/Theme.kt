@@ -28,13 +28,13 @@ private val LightColorScheme = lightColorScheme(
     primary = Color(0xFF0D47A1),       // Blue-grey (primary)
     onPrimary = Color(0xFFFFFFFF),    // White (text on primary)
 
-    secondary = Color(0xFF90CAF9),    // Soft blue (secondary)
+    secondary = Color(0xFFD3F1FF),    // Soft blue (secondary)
     onSecondary = Color(0xFFFFFFFF), // White (text on secondary)
 
-    tertiary = Color(0xFFBBDEFB),     // Deep blue-grey (tertiary)
+    tertiary = Color(0xFFF4F5F8),     // Deep blue-grey (tertiary)
     onTertiary = Color(0xFFFFFFFF),  // White (text on tertiary)
 
-    background = Color(0xFFD5F0FF),   // White background
+    background = Color(0xFFC6DEEC),   // White background
     onBackground = Color(0xFF384959), // Deep blue-grey (text on background)
 
     surface = Color(0xFF2196F3),      // Slightly off-white surface

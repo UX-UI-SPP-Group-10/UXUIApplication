@@ -108,7 +108,7 @@ fun TodoListScreen(viewModel: TodoListViewModel, appNavigator: AppNavigator) {
         .background(
             Brush.verticalGradient(
                 colors = listOf(
-                    Color.White,
+                    Color(0xFFF8F8F8),
                     MaterialTheme.colorScheme.background
                 )
             )

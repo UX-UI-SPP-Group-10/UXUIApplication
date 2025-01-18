@@ -18,8 +18,11 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.material3.Card
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
+import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import com.group10.uxuiapp.data.data_class.SubTask
@@ -57,18 +60,17 @@ fun SubTaskRow(
     )
     {
         Box(
-            modifier = Modifier.fillMaxHeight().fillMaxWidth(),
+            modifier = Modifier
+                .fillMaxHeight()
+                .fillMaxWidth()
+                .padding(start = 1.dp, end = 1.dp),
             contentAlignment = Alignment.CenterEnd
         ) {
             Delete(onClick = { viewModel.deleteSupTask(selectedTask!!) })
         }
-        Box(
+        Card(
             modifier = Modifier
                 .then(boxWhith)
-                .background(
-                    color = MaterialTheme.colorScheme.tertiary,
-                    shape = MaterialTheme.shapes.small
-                )
                 .pointerInput(Unit) {
                     detectHorizontalDragGestures { change, dragAmount ->
                         change.consume()
@@ -79,64 +81,85 @@ fun SubTaskRow(
                             viewModel.selectTaskForChange(null, null)
                         }
                     }
-                }
+                },
+            colors = androidx.compose.material3.CardDefaults.cardColors(
+                containerColor = Color.Transparent
+            ),
+            elevation = androidx.compose.material3.CardDefaults.cardElevation(
+                defaultElevation = 4.dp
+            )
         ) {
-            Row(
-                modifier = Modifier
-                    .padding(vertical = 0.dp, horizontal = 12.dp)
-                    .fillMaxWidth(),
-                horizontalArrangement = Arrangement.Start,
-                verticalAlignment = Alignment.CenterVertically
+
+            Box (modifier = Modifier
+                .background(    // Adds gradient background
+                    brush = Brush.verticalGradient(
+                        colorStops = arrayOf(
+                            0.0f to Color(0xFFD7DAEE), // Start color at the top
+                            0.3f to Color(0xFFE8EBFC), // Middle color starts at 30%
+                            0.7f to Color(0xFFE8EBFC), // Middle color ends at 70%
+                            1.0f to Color(0xFFD3D6E8) // End color at the bottom
+                        )
+                    ),
+                    shape = MaterialTheme.shapes.small)
+                .alpha(if (isChecked) 0.5f else 1.0f)
             ) {
-                // 2) Checkbox
-                Checkbox(
-                    checked = isChecked,
-                    onCheckedChange = { newChecked ->
-                        isChecked = newChecked
-                        viewModel.updateSubTask(task, isComplete = newChecked)
-                    },
-                    colors = CheckboxDefaults.colors(
-                        checkedColor = Color(0xFF7d8597),
-                        uncheckedColor = MaterialTheme.colorScheme.onSurface
-                    ),
-                    modifier = Modifier.size(28.dp)
-                )
+                Row(
+                    modifier = Modifier
+                        .padding(vertical = 0.dp, horizontal = 12.dp)
+                        .fillMaxWidth(),
+                    horizontalArrangement = Arrangement.Start,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    // 2) Checkbox
+                    Checkbox(
+                        checked = isChecked,
+                        onCheckedChange = { newChecked ->
+                            isChecked = newChecked
+                            viewModel.updateSubTask(task, isComplete = newChecked)
+                        },
+                        colors = CheckboxDefaults.colors(
+                            checkedColor = Color(0xFF7d8597),
+                            uncheckedColor = MaterialTheme.colorScheme.onSurface
+                        ),
+                        modifier = Modifier.size(28.dp)
+                    )
 
-                // 3) Editable text
-                TextField(
-                    value = textValue,
-                    onValueChange = { newText ->
-                        if (newText.length <= 20) {
-                            textValue = newText
+                    // 3) Editable text
+                    TextField(
+                        value = textValue,
+                        onValueChange = { newText ->
+                            if (newText.length <= 20) {
+                                textValue = newText
 
-                            debounceJob?.cancel() // Cancel the ongoing debounce job
-                            debounceJob = coroutineScope.launch {
-                                delay(200) // 200ms debounce delay
-                                viewModel.updateSubTask(
-                                    task,
-                                    label = newText
-                                ) // Update ViewModel
+                                debounceJob?.cancel() // Cancel the ongoing debounce job
+                                debounceJob = coroutineScope.launch {
+                                    delay(200) // 200ms debounce delay
+                                    viewModel.updateSubTask(
+                                        task,
+                                        label = newText
+                                    ) // Update ViewModel
+                                }
                             }
-                        }
-                    },
-                    singleLine = true,
-                    textStyle = MaterialTheme.typography.bodyLarge.copy(
-                        textDecoration = if (isChecked) TextDecoration.LineThrough else null,
-                        fontWeight = FontWeight.Medium,
-                        color = if (isChecked) {
-                            MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
-                        } else {
-                            MaterialTheme.colorScheme.onSurface
-                        }
-                    ),
-                    colors = TextFieldDefaults.colors(
-                        unfocusedContainerColor = Color.Transparent, // No background
-                        focusedContainerColor = Color.Transparent,  // No background on focus
-                        unfocusedIndicatorColor = Color.Transparent, // No underline
-                        focusedIndicatorColor = Color.Transparent // No underline
-                    ),
-                    modifier = Modifier.width(225.dp)
-                )
+                        },
+                        singleLine = true,
+                        textStyle = MaterialTheme.typography.bodyLarge.copy(
+                            textDecoration = if (isChecked) TextDecoration.LineThrough else null,
+                            fontWeight = FontWeight.Medium,
+                            color = if (isChecked) {
+                                MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
+                            } else {
+                                MaterialTheme.colorScheme.onSurface
+                            }
+                        ),
+                        colors = TextFieldDefaults.colors(
+                            unfocusedContainerColor = Color.Transparent, // No background
+                            focusedContainerColor = Color.Transparent,  // No background on focus
+                            unfocusedIndicatorColor = Color.Transparent, // No underline
+                            focusedIndicatorColor = Color.Transparent // No underline
+                        ),
+                        modifier = Modifier.width(225.dp)
+                    )
+                }
             }
         }
     }
