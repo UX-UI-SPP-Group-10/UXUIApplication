@@ -39,6 +39,9 @@ private val LightColorScheme = lightColorScheme(
 
     surface = Color(0xFF2196F3),      // Slightly off-white surface
     onSurface = Color(0xFF000000),   // Deep blue-grey (text on surface)
+
+    primaryContainer = Color(0XFF1565C0),
+    onPrimaryContainer = Color(0xFFFFFFFF),
 )
 
 

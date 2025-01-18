@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.calculateEndPadding
 import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -142,11 +143,15 @@ fun TaskScreen(todoListId: Int, appNavigator: AppNavigator, viewModel: TaskViewM
                 }
             },
             floatingActionButton = {
-                AddTaskButton(onClick = {
+                AddTaskButton(
+                    onClick = {
                     // Add a new task to the TodoList
                     val newTask = TaskItem(label = "", todoListId = todoListId)
                     viewModel.addTaskToList(newTask)
-                })
+                    },
+                    modifier = Modifier
+                        .offset(x = 5.dp, y = (-30).dp)
+                )
             }
         ) { innerPadding ->
             val extraBottomPadding = 450.dp
