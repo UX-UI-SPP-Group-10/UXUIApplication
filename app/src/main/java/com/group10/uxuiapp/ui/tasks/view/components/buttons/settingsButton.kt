@@ -91,6 +91,7 @@ fun SettingsButton(
                             },
                             modifier = Modifier.padding(0.dp),
                             colors = CheckboxDefaults.colors(
+                                checkmarkColor = Color.Black,
                                 checkedColor = containerColor,
                                 uncheckedColor = containerColor,
                             )
