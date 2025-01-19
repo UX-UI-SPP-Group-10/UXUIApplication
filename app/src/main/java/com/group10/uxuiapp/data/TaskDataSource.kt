@@ -30,7 +30,18 @@ class TaskDataSource(private val taskDao: TaskDao) {
     fun getTaskListWithSubTaskById(taskItemId: Int): Flow<TaskItemWithSubTask> = taskDao.getTaskItemWithSubTaskById(taskItemId)
 
     // Update Operations
-    suspend fun updateTodoList(todoListId: Int, title: String? = null, isLiked: Boolean? = null, gifUrl: String? = null, textColor: String? = null, dueDate: Long? = null, tags: String? = null, repeatDay: Int? = null, isRepeating: Boolean? = null) {
+    suspend fun updateTodoList(
+        todoListId: Int,
+        title: String? = null,
+        isLiked: Boolean? = null,
+        gifUrl: String? = null,
+        textColor: String? = null,
+        dueDate: Long? = null,
+        tags: String? = null,
+        repeatDay: Int? = null,
+        isRepeating: Boolean? = null,
+        backgroundColor: String? = null
+    ) {
         // Pass non-nullable values to the DAO
         taskDao.updateTodoList(
             todoListId = todoListId,
@@ -41,7 +52,8 @@ class TaskDataSource(private val taskDao: TaskDao) {
             dueDate = dueDate,
             tags = tags,
             repeatDay = repeatDay,
-            isRepeating = isRepeating
+            isRepeating = isRepeating,
+            backgroundColor = backgroundColor
         )
     }
 

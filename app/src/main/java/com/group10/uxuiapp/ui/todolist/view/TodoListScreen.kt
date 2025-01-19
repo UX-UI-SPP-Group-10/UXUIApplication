@@ -229,6 +229,12 @@ fun TodoListScreen(viewModel: TodoListViewModel, appNavigator: AppNavigator) {
                     viewModel.updateTodoList(id = todoList.id, textColor = color)
                     viewModel.setNoneState()
                 },
+                onColorBackgroundSelected = { todoList, color ->
+                    viewModel.updateTodoList(id = todoList.id, backgroundColor = color)
+                    viewModel.updateTodoList(id = todoList.id, gifUrl = null)
+                    viewModel.setNoneState()
+
+                },
                 onTagsEdited = { todoList, tags ->
                     viewModel.updateTodoList(id = todoList.id, tags = tags)
                     viewModel.setNoneState()

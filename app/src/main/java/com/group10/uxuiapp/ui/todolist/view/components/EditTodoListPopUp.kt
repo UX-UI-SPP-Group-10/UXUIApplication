@@ -42,7 +42,7 @@ fun EditTodolistDialog(
     viewModel: TodoListViewModel, // Pass the ViewModel
 
     onDismiss: () -> Unit,
-    onConfirm: (String, String, String , String, Boolean, Int?) -> Unit) {
+    onConfirm: (String, String, String, String , String, Boolean, Int?) -> Unit) {
     var currentPage by remember { mutableStateOf<EditListPage>(EditListPage.NameInput) }
     var listName by remember { mutableStateOf("") }
     var selectedColor by remember { mutableStateOf("") }
@@ -50,6 +50,7 @@ fun EditTodolistDialog(
     var selectedTags by remember { mutableStateOf(todoList.tags ?: "") }
     var isRepeating by remember { mutableStateOf(false) }
     var selectedDay by remember { mutableStateOf<Int?>(null) }
+    var selectedBackgroundColor by remember { mutableStateOf(todoList.backgroundColor ?: "") }
 
     AlertDialog(
         onDismissRequest = { onDismiss() },
@@ -109,7 +110,21 @@ fun EditTodolistDialog(
                     }
                 }
                 is EditListPage.ColorPicker -> {
-                    ColorPicker (currentColor = todoList.textColor, onColorSelect = {selectedColor = it})
+                    ColorPicker (
+                        currentColor = todoList.textColor,
+                        onColorSelect = {selectedColor = it},
+                        onBackgroundColorSelect = {newBackgroundColor ->
+                            // Update the ViewModel and set gifUrl to null
+                            selectedBackgroundColor = newBackgroundColor
+                            viewModel.updateTodoList(
+                                id = todoList.id,
+                                gifUrl = null,
+                                backgroundColor = newBackgroundColor
+                            )},
+                        onResetGifUrl = {viewModel.updateTodoList(todoList.id, gifUrl = null)
+                        }
+
+                    )
                 }
                 is EditListPage.TagPicker -> {
                     Column {
@@ -224,7 +239,7 @@ fun EditTodolistDialog(
             TextButton(
                 onClick = {
                     val finalTags = if(selectedTags.isBlank()) "" else selectedTags
-                    onConfirm(listName, selectedColor, finalTags,selectedDate, isRepeating, selectedDay) // Pass the name entered to the onConfirm handler
+                    onConfirm(listName, selectedColor, selectedBackgroundColor, finalTags,selectedDate, isRepeating, selectedDay) // Pass the name entered to the onConfirm handler
                 }
             ) {
                 Text("Confirm")

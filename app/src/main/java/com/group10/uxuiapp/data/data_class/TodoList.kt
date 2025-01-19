@@ -8,10 +8,11 @@ data class TodoList(
     @PrimaryKey(autoGenerate = true) val id: Int = 0,
     var title: String,
     val isLiked: Boolean = false,
-    val gifUrl: String? = null, // Add this field to store the GIF URL
+    var gifUrl: String? = null, // Add this field to store the GIF URL
     val dueDate: Long? = null,
     var listIndex: Int = 0,
     var textColor: String = "#FFFFFF", // Default is white
+    var backgroundColor: String? = null,
     var tags: String = "", //
     val repeatDay: Int? = null,
     val isRepeating: Boolean = false

@@ -22,6 +22,7 @@ fun PopupManager(
     onRenameConfirm: (TodoList, String, String, Long?) -> Unit,
     onGifSelected: (TodoList, String) -> Unit,
     onColorSelected: (TodoList, String) -> Unit,
+    onColorBackgroundSelected: (TodoList, String) -> Unit,
     onTagsEdited: (TodoList, String) -> Unit,
     onDismiss: () -> Unit
 ) {
@@ -45,11 +46,12 @@ fun PopupManager(
                 todoList = todoList, // Pass the current TodoList
                 viewModel = viewModel, // Pass the ViewModel
                 onDismiss = onDismiss,
-                onConfirm = { newName, selectedColor, selectedTags,selectedDate, isRepeating, selectedDay ->
+                onConfirm = { newName, selectedColor, selectedBackgroundColor, selectedTags,selectedDate, isRepeating, selectedDay ->
                     val currentTodoList = popupState.todoList
 
                     val finalName = if (newName.isBlank()) currentTodoList.title else newName
                     val finalColor = if (selectedColor.isBlank()) currentTodoList.textColor else selectedColor
+                    val finalBackgroundColor = if (selectedBackgroundColor.isBlank()) currentTodoList.backgroundColor else selectedBackgroundColor
                     val finalTags = if (selectedTags.isBlank()) "" else selectedTags
                     val finalDate = if (selectedDate.isBlank()) currentTodoList.dueDate else {
                         try {
@@ -67,6 +69,7 @@ fun PopupManager(
                         id = currentTodoList.id,
                         title = finalName,
                         textColor = finalColor,
+                        backgroundColor = finalBackgroundColor,
                         tags = finalTags,
                         dueDate = finalDate,
                         isRepeating = isRepeating,
