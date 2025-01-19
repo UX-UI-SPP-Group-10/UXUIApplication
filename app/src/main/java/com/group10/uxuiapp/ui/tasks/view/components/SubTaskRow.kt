@@ -18,8 +18,11 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.material3.Card
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
+import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import com.group10.uxuiapp.data.data_class.SubTask
@@ -57,18 +60,17 @@ fun SubTaskRow(
     )
     {
         Box(
-            modifier = Modifier.fillMaxHeight().fillMaxWidth(),
+            modifier = Modifier
+                .fillMaxHeight()
+                .fillMaxWidth()
+                .padding(start = 1.dp, end = 1.dp),
             contentAlignment = Alignment.CenterEnd
         ) {
             Delete(onClick = { viewModel.deleteSupTask(selectedTask!!) })
         }
-        Box(
+        Card(
             modifier = Modifier
                 .then(boxWhith)
-                .background(
-                    color = MaterialTheme.colorScheme.onTertiary,
-                    shape = MaterialTheme.shapes.small
-                )
                 .pointerInput(Unit) {
                     detectHorizontalDragGestures { change, dragAmount ->
                         change.consume()
@@ -79,7 +81,13 @@ fun SubTaskRow(
                             viewModel.selectTaskForChange(null, null)
                         }
                     }
-                }
+                },
+            colors = androidx.compose.material3.CardDefaults.cardColors(
+                containerColor = Color(0xFFDBEBFF)
+            ),
+            elevation = androidx.compose.material3.CardDefaults.cardElevation(
+                defaultElevation = 4.dp
+            )
         ) {
             Row(
                 modifier = Modifier
@@ -96,9 +104,8 @@ fun SubTaskRow(
                         viewModel.updateSubTask(task, isComplete = newChecked)
                     },
                     colors = CheckboxDefaults.colors(
-                        checkedColor = Color(0XFF20792F),
-                        uncheckedColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
-                        checkmarkColor = MaterialTheme.colorScheme.onTertiary
+                        checkedColor = Color(0xFF7d8597),
+                        uncheckedColor = MaterialTheme.colorScheme.onSurface
                     ),
                     modifier = Modifier.size(28.dp)
                 )

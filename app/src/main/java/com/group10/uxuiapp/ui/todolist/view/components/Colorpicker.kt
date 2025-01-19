@@ -5,6 +5,7 @@ import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -41,13 +42,15 @@ import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 
 @Composable
-fun ColorPicker(onColorSelect: (String) -> Unit) {
+fun ColorPicker(currentColor: String, onColorSelect: (String) -> Unit) {
     val colors = listOf(
         "#000000", "#FFFFFF", "#FF5733", "#0000FF", "#00FF00", "#FFFF00", "#FF00FF", "#00FFFF"
     )
 
+    val windowCurrentColor = remember { mutableStateOf(currentColor) }
+
     Column(modifier = Modifier.fillMaxWidth().padding(16.dp)) {
-        Text("Pick a Color", style = MaterialTheme.typography.titleMedium)
+        Text("Pick Text Color", style = MaterialTheme.typography.titleMedium)
 
         Spacer(modifier = Modifier.height(16.dp))
 
@@ -64,7 +67,11 @@ fun ColorPicker(onColorSelect: (String) -> Unit) {
                     modifier = Modifier
                         .size(40.dp)
                         .background(color = Color(android.graphics.Color.parseColor(colorHex)), CircleShape)
-                        .clickable{ onColorSelect(colorHex)}
+                        .border(if (windowCurrentColor.value == colorHex) 4.dp else 0.dp,
+                            color = if (windowCurrentColor.value == colorHex) MaterialTheme.colorScheme.primary else Color.Transparent,
+                            shape = CircleShape)
+                        .clickable{ onColorSelect(colorHex)
+                            windowCurrentColor.value = colorHex}
                 )
 
             }

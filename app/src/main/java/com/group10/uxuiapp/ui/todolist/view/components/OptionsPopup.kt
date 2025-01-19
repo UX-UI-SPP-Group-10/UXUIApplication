@@ -17,6 +17,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.Surface
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
 import androidx.compose.runtime.Composable
@@ -58,14 +59,14 @@ fun OptionsPopup(
             alignment = Alignment.TopCenter,
             offset = offset,
         ) {
-            // The content that was previously in Box(...)
-            Box(
+            Surface(
+                shape = RoundedCornerShape(16.dp),
+                tonalElevation = 8.dp, // Elevation for depth
+                shadowElevation = 8.dp, // Shadow for a floaty effect
+                color = MaterialTheme.colorScheme.tertiary,
                 modifier = Modifier
-                    .clip(RoundedCornerShape(16.dp))
-                    .background(MaterialTheme.colorScheme.tertiary)
                     .height(boxHeight)
                     .width(boxWidth),
-                contentAlignment = Alignment.Center
             ) {
                 Row(
                     modifier = Modifier

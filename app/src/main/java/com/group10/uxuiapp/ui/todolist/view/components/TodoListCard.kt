@@ -101,7 +101,7 @@ fun TodoListCard(
         }
     }
 
-    val scale by animateFloatAsState(targetValue = if (elevation > 0.dp) 1.03f else 1f)
+    val scale by animateFloatAsState(targetValue = if (elevation > 10.dp) 1.03f else 1f)
 
     var textValue by remember(todoList.title) { mutableStateOf(todoList.title) }
     val coroutineScope = rememberCoroutineScope()
@@ -116,16 +116,16 @@ fun TodoListCard(
                 Modifier.background(Color.Transparent)
             )
 
-    } else {
+    }
+    else {
         Modifier.background(
             Brush.linearGradient(
                 colors = listOf(
-                    MaterialTheme.colorScheme.primary,
-                    MaterialTheme.colorScheme.secondary,
-                    Color(0xFFC0DCEF)
+                    MaterialTheme.colorScheme.surface,
+                    MaterialTheme.colorScheme.tertiary,
                 ),
-                start = Offset(0f, 0f),
-                end = Offset(0f, Float.POSITIVE_INFINITY)
+                start = Offset(-10f, 0f),
+                end = Offset(10f, Float.POSITIVE_INFINITY)
             )
         )
     }
@@ -192,12 +192,11 @@ fun TodoListCard(
                     .background(
                         Brush.linearGradient(
                             colors = listOf(
-                                MaterialTheme.colorScheme.primary,
-                                MaterialTheme.colorScheme.secondary,
-                                Color(0xFFC0DCEF)
+                                MaterialTheme.colorScheme.surface,
+                                MaterialTheme.colorScheme.tertiary,
                             ),
-                            start = Offset(0f, 0f),
-                            end = Offset(0f, Float.POSITIVE_INFINITY)
+                            start = Offset(-10f, 0f),
+                            end = Offset(10f, Float.POSITIVE_INFINITY)
                         )
                     )
             )

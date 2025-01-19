@@ -35,7 +35,8 @@ import androidx.compose.ui.unit.dp
 fun SettingsButton(
     context: Context,
     showLiked: MutableState<Boolean>,
-    onDeleteAllConfirmed: () -> Unit
+    onDeleteAllConfirmed: () -> Unit,
+    color : Color
 ) {
     val expanded = remember { mutableStateOf(false) }
     val showDialog = remember { mutableStateOf(false) }
@@ -43,7 +44,7 @@ fun SettingsButton(
         targetValue = if (expanded.value) 90f else 0f,
         animationSpec = tween(durationMillis = 300), label = ""
     )
-    val settingsColor = Color(0XFFE6ECE7)
+    val settingsColor = MaterialTheme.colorScheme.tertiary
     IconButton(onClick = {
         expanded.value = !expanded.value // Toggle expanded state
     }) {
@@ -52,7 +53,8 @@ fun SettingsButton(
             contentDescription = "MoreVert",
             modifier = Modifier
                 .rotate(rotationAngle) // Rotate based on expanded state
-                .animateContentSize() // smooth transition when rotating
+                .animateContentSize(), // smooth transition when rotating
+            tint = color
         )
     }
 
@@ -60,7 +62,7 @@ fun SettingsButton(
     DropdownMenu(
         expanded = expanded.value,
         onDismissRequest = { expanded.value = false },
-        offset = DpOffset(x = (0).dp, y = 0.dp),
+        offset = DpOffset(x = (.5).dp, y = 8.5.dp),
         containerColor = settingsColor,
         shape = RoundedCornerShape(12.dp)
     ) {

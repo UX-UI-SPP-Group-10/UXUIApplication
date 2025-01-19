@@ -21,6 +21,7 @@ import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material3.Card
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
@@ -33,6 +34,8 @@ import com.group10.uxuiapp.ui.tasks.view.components.buttons.Delete
 import com.group10.uxuiapp.ui.tasks.viewmodel.TaskViewModel
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
+import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.input.key.KeyEventType
 import androidx.compose.ui.input.key.onKeyEvent
 import androidx.compose.ui.input.key.type
@@ -72,18 +75,17 @@ fun TaskRowItem(
             .fillMaxWidth()
     ) {
         Box(
-            modifier = Modifier.fillMaxHeight().fillMaxWidth(),
+            modifier = Modifier
+                .fillMaxHeight()
+                .fillMaxWidth()
+                .padding(end = 1.dp),
             contentAlignment = Alignment.CenterEnd
         ) {
             Delete(onClick = { viewModel.deleteTask(task) })
         }
-        Box(
+        Card(
             modifier = Modifier
                 .then(boxWhith)
-                .background(
-                    color = MaterialTheme.colorScheme.secondary,
-                    shape = MaterialTheme.shapes.small
-                )
                 .pointerInput(Unit) {
                     detectHorizontalDragGestures { change, dragAmount ->
                         change.consume()
@@ -95,7 +97,13 @@ fun TaskRowItem(
                             viewModel.selectTaskForChange(null, null)
                         }
                     }
-                }
+                },
+            elevation = androidx.compose.material3.CardDefaults.cardElevation(
+                defaultElevation = 4.dp
+            ),
+            colors = androidx.compose.material3.CardDefaults.cardColors(
+                containerColor = Color(0xFFF8FCFF)
+            )
         ) {
             Row(
                 modifier = Modifier
@@ -119,9 +127,8 @@ fun TaskRowItem(
                         }
                     },
                     colors = CheckboxDefaults.colors(
-                        checkedColor = Color(0XFF20792F),
-                        uncheckedColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
-                        checkmarkColor = MaterialTheme.colorScheme.secondary
+                        checkedColor = Color(0xFF7d8597),
+                        uncheckedColor = MaterialTheme.colorScheme.onSurface
                     ),
                     modifier = Modifier.size(28.dp)
                 )

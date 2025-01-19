@@ -23,14 +23,15 @@
     import androidx.compose.ui.unit.dp
     import androidx.compose.ui.unit.sp
     import androidx.compose.ui.text.style.LineHeightStyle
+    import androidx.compose.ui.tooling.preview.Preview
 
-// Floating Action Button composable for adding a new list item
+    // Floating Action Button composable for adding a new list item
 @Composable
 fun AddNewTodoListButton(onClick: () -> Unit) {
     FloatingActionButton(
         onClick = onClick,
-        containerColor = Color(0XFF20792F),
-        contentColor = Color.White,
+        containerColor = MaterialTheme.colorScheme.primaryContainer,
+        contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
         shape = RoundedCornerShape(32.dp),
         modifier = Modifier
             .padding(16.dp)
@@ -47,18 +48,22 @@ fun AddNewTodoListButton(onClick: () -> Unit) {
             Icon(
                 imageVector = Icons.Default.Add,
                 contentDescription = "Add Item",
-                modifier = Modifier.size(30.dp),
-                tint = MaterialTheme.colorScheme.tertiary
+                modifier = Modifier.size(30.dp)
             )
             Spacer(modifier = Modifier.width(8.dp))
             Text(
                 text = "New List",
                 style = MaterialTheme.typography.bodyMedium.copy(
                     fontSize = 18.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.tertiary
+                    fontWeight = FontWeight.Bold
                 )
             )
         }
     }
+}
+
+@Preview
+@Composable
+fun AddNewTodoListButtonPreview() {
+    AddNewTodoListButton(onClick = {})
 }

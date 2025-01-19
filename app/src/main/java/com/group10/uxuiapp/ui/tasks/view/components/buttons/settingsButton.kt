@@ -48,7 +48,7 @@ fun SettingsButton(
         targetValue = if (expanded.value) 90f else 0f,
         animationSpec = tween(durationMillis = 300), label = ""
     )
-    val settingsColor = Color(0XFFE6ECE7)
+    val containerColor = MaterialTheme.colorScheme.background
     IconButton(onClick = {
         expanded.value = !expanded.value // Toggle expanded state
     }) {
@@ -57,7 +57,8 @@ fun SettingsButton(
             contentDescription = "MoreVert",
             modifier = Modifier
                 .rotate(rotationAngle) // Rotate based on expanded state
-                .animateContentSize() // smooth transition when rotating
+                .animateContentSize(), // smooth transition when rotating
+            tint = containerColor
         )
     }
 
@@ -65,17 +66,15 @@ fun SettingsButton(
     DropdownMenu(
         expanded = expanded.value,
         onDismissRequest = { expanded.value = false },
-        offset = DpOffset(x = (0).dp, y = 0.dp),
-        containerColor = settingsColor,
+        offset = DpOffset(x = (4).dp, y = 8.5.dp),
+        containerColor = containerColor,
         shape = RoundedCornerShape(12.dp)
-        //containerColor = Color(0xFFB7B8BE)
     ) {
         DropdownMenuItem(
             text = { Text("Delete Completed") },
             onClick = {
                 deleteCompletedClick()
                 expanded.value = false
-                //Toast.makeText(context, "Option 1 clicked", Toast.LENGTH_SHORT).show()
             },
             modifier = Modifier.fillMaxWidth()
         )
@@ -92,19 +91,15 @@ fun SettingsButton(
                             },
                             modifier = Modifier.padding(0.dp),
                             colors = CheckboxDefaults.colors(
-                                checkedColor = settingsColor,
-                                uncheckedColor = settingsColor
+                                checkedColor = containerColor,
+                                uncheckedColor = containerColor,
                             )
                         )
                     }
                 },
-                //onClick = {
-                //text = { Text("Option 2") },
                 onClick = {
                     sortCompleted()
                     expanded.value = false
-                    //sortByComplete.value = !sortByComplete.value
-                    //Toast.makeText(context, "Option 2 clicked", Toast.LENGTH_SHORT).show()
                 },
                 modifier = Modifier.fillMaxWidth(),
         )
