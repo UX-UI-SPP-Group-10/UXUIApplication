@@ -40,13 +40,17 @@ fun SubTaskRow(
 ) {
     var isChecked = task.isComplete
     val selectedTask by viewModel.selectedSubTask.collectAsState()
-    var textValue by remember { mutableStateOf(task.label) }
+    //var textValue by remember { mutableStateOf(task.label) }
     val coroutineScope = rememberCoroutineScope()
     var debounceJob by remember { mutableStateOf<Job?>(null) }
     val animatedEndPadding by animateDpAsState(
         targetValue = if (selectedTask == task) 45.dp else 0.dp,
         animationSpec = tween(durationMillis = 200), label = ""
     )
+    var textValue by remember { mutableStateOf(task.label) }
+    LaunchedEffect(task.label) {
+        textValue = task.label
+    }
 
     val boxWhith = Modifier
         .fillMaxWidth()
