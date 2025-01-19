@@ -42,7 +42,7 @@ fun EditTodolistDialog(
     viewModel: TodoListViewModel, // Pass the ViewModel
 
     onDismiss: () -> Unit,
-    onConfirm: (String, String, String , String, Boolean, Int?) -> Unit) {
+    onConfirm: (String, String, String , String, Boolean, Int?, String?) -> Unit) {
     var currentPage by remember { mutableStateOf<EditListPage>(EditListPage.NameInput) }
     var listName by remember { mutableStateOf("") }
     var selectedColor by remember { mutableStateOf("") }
@@ -50,6 +50,7 @@ fun EditTodolistDialog(
     var selectedTags by remember { mutableStateOf(todoList.tags ?: "") }
     var isRepeating by remember { mutableStateOf(false) }
     var selectedDay by remember { mutableStateOf<Int?>(null) }
+    var gifUrl by remember { mutableStateOf((todoList.gifUrl)) }
 
     AlertDialog(
         onDismissRequest = { onDismiss() },
@@ -106,6 +107,16 @@ fun EditTodolistDialog(
                             label = { Text("List Name") },
                             modifier = Modifier.fillMaxWidth()
                         )
+                        if (!gifUrl.isNullOrEmpty()) {
+                            TextButton(
+                                onClick = {
+                                    gifUrl = null
+                                },
+                                modifier = Modifier.fillMaxWidth()
+                            ) {
+                                Text(text = "Remove GIF")
+                            }
+                        }
                     }
                 }
                 is EditListPage.ColorPicker -> {
@@ -224,7 +235,7 @@ fun EditTodolistDialog(
             TextButton(
                 onClick = {
                     val finalTags = if(selectedTags.isBlank()) "" else selectedTags
-                    onConfirm(listName, selectedColor, finalTags,selectedDate, isRepeating, selectedDay) // Pass the name entered to the onConfirm handler
+                    onConfirm(listName, selectedColor, finalTags,selectedDate, isRepeating, selectedDay, gifUrl) // Pass the name entered to the onConfirm handler
                 }
             ) {
                 Text("Confirm")

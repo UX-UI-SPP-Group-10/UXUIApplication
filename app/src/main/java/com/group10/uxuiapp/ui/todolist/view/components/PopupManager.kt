@@ -19,7 +19,7 @@ fun PopupManager(
     todoList: TodoList,
     viewModel: TodoListViewModel,
     onNewListConfirm: (String) -> Unit,
-    onRenameConfirm: (TodoList, String, String, Long?) -> Unit,
+    onRenameConfirm: (TodoList, String, String, Long?, String?) -> Unit,
     onGifSelected: (TodoList, String) -> Unit,
     onColorSelected: (TodoList, String) -> Unit,
     onTagsEdited: (TodoList, String) -> Unit,
@@ -33,9 +33,15 @@ fun PopupManager(
         is TodoListState.NewList -> {
             // Show dialog for new list
             ListNameInputDialog(
+                todoList = todoList,
                 onDismiss = onDismiss,
                 onConfirm = { name ->
                     onNewListConfirm(name)
+                },
+                onRemoveGif = {
+                    todoList?.let {
+                        viewModel.updateTodoList(id = todoList.id, gifUrl = null)
+                    }
                 }
             )
         }
@@ -45,12 +51,13 @@ fun PopupManager(
                 todoList = todoList, // Pass the current TodoList
                 viewModel = viewModel, // Pass the ViewModel
                 onDismiss = onDismiss,
-                onConfirm = { newName, selectedColor, selectedTags,selectedDate, isRepeating, selectedDay ->
+                onConfirm = { newName, selectedColor, selectedTags,selectedDate, isRepeating, selectedDay, gifUrl ->
                     val currentTodoList = popupState.todoList
 
                     val finalName = if (newName.isBlank()) currentTodoList.title else newName
                     val finalColor = if (selectedColor.isBlank()) currentTodoList.textColor else selectedColor
                     val finalTags = if (selectedTags.isBlank()) "" else selectedTags
+                    val finalGifUrl = if (gifUrl.isNullOrEmpty()) null else gifUrl
                     val finalDate = if (selectedDate.isBlank()) currentTodoList.dueDate else {
                         try {
                             val formatter = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
@@ -70,7 +77,8 @@ fun PopupManager(
                         tags = finalTags,
                         dueDate = finalDate,
                         isRepeating = isRepeating,
-                        repeatDay = selectedDay
+                        repeatDay = selectedDay,
+                        gifUrl = finalGifUrl
                     )
                     onDismiss()
                 }
