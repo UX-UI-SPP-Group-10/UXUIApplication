@@ -148,9 +148,7 @@ fun TaskScreen(todoListId: Int, appNavigator: AppNavigator, viewModel: TaskViewM
                     // Add a new task to the TodoList
                     val newTask = TaskItem(label = "", todoListId = todoListId)
                     viewModel.addTaskToList(newTask)
-                    },
-                    modifier = Modifier
-                        .offset(x = 5.dp, y = (-30).dp)
+                    }
                 )
             }
         ) { innerPadding ->
