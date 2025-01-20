@@ -17,6 +17,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
@@ -42,14 +43,16 @@ fun EditTodolistDialog(
     viewModel: TodoListViewModel, // Pass the ViewModel
 
     onDismiss: () -> Unit,
-    onConfirm: (String, String, String , String, Boolean, Int?) -> Unit) {
+    onConfirm: (String, String, String , String, String, Boolean, Int?, String?) -> Unit) {
     var currentPage by remember { mutableStateOf<EditListPage>(EditListPage.NameInput) }
     var listName by remember { mutableStateOf("") }
     var selectedColor by remember { mutableStateOf("") }
     var selectedDate by remember { mutableStateOf("") }
     var selectedTags by remember { mutableStateOf(todoList.tags ?: "") }
-    var isRepeating by remember { mutableStateOf(false) }
+    var isRepeating by remember { mutableStateOf(todoList.isRepeating) }
     var selectedDay by remember { mutableStateOf<Int?>(null) }
+    var gifUrl by remember { mutableStateOf((todoList.gifUrl)) }
+    var selectedBackgroundColor by remember { mutableStateOf(todoList.backgroundColor ?: "") }
 
     AlertDialog(
         onDismissRequest = { onDismiss() },
@@ -106,11 +109,49 @@ fun EditTodolistDialog(
                             label = { Text("List Name") },
                             modifier = Modifier.fillMaxWidth()
                         )
+                        if (!gifUrl.isNullOrEmpty()) {
+                            TextButton(
+                                onClick = {
+                                    gifUrl = null
+                                },
+                                modifier = Modifier.padding(top = 16.dp, start = 0.dp)
+                            ) {
+                                Text(text = "Remove GIF")
+                            }
+                        }
                     }
                 }
                 is EditListPage.ColorPicker -> {
-                    ColorPicker (currentColor = todoList.textColor, onColorSelect = {selectedColor = it})
+                    ColorPicker (
+                        currentColor = todoList.textColor,
+                        onColorSelect = {selectedColor = it},
+                        onBackgroundColorSelect = {newBackgroundColor ->
+                            // Update the ViewModel and set gifUrl to null
+                            selectedBackgroundColor = newBackgroundColor
+                            viewModel.updateTodoList(
+                                id = todoList.id,
+                                backgroundColor = newBackgroundColor
+                            )
+                            gifUrl = null
+                        },
+                        onResetGifUrl = {viewModel.updateTodoList(todoList.id, gifUrl = null)
+                        }
+                    )
+                    TextButton(
+                        onClick = {
+                            // Reset the background color to null (default)
+                            selectedBackgroundColor = "" // Optional: Reset the local state if needed
+                            viewModel.updateTodoList(
+                                id = todoList.id,
+                                backgroundColor = null,
+                                gifUrl = null)
+                        },
+                        modifier = Modifier.padding(top = 320.dp, start = 4.dp)
+                    ) {
+                        Text("Reset Background Color to Default")
+                    }
                 }
+
                 is EditListPage.TagPicker -> {
                     Column {
                         Text("Edit Tags", style = MaterialTheme.typography.bodyLarge)
@@ -154,7 +195,9 @@ fun EditTodolistDialog(
                         ) {
                             days.subList(0, 3).forEachIndexed { index, day ->
                                 TextButton(
-                                    onClick = { selectedDay = index + 1 },
+                                    onClick = {
+                                        selectedDay = index + 1
+                                        isRepeating = true},
                                     modifier = Modifier.padding(horizontal = 8.dp),
                                     colors = androidx.compose.material3.ButtonDefaults.textButtonColors(
                                         containerColor = if (selectedDay == index + 1) MaterialTheme.colorScheme.primary
@@ -178,7 +221,9 @@ fun EditTodolistDialog(
                         ) {
                             days.subList(3, 6).forEachIndexed { index, day ->
                                 TextButton(
-                                    onClick = { selectedDay = index + 4 },
+                                    onClick = {
+                                        selectedDay = index + 4
+                                        isRepeating = true},
                                     modifier = Modifier.padding(horizontal = 8.dp),
                                     colors = androidx.compose.material3.ButtonDefaults.textButtonColors(
                                         containerColor = if (selectedDay == index + 4) MaterialTheme.colorScheme.primary
@@ -201,7 +246,9 @@ fun EditTodolistDialog(
                             horizontalArrangement = androidx.compose.foundation.layout.Arrangement.Start // Align Sun to the left
                         ) {
                             TextButton(
-                                onClick = { selectedDay = 7 },
+                                onClick = {
+                                    selectedDay = 7
+                                    isRepeating = true},
                                 modifier = Modifier.padding(start = 21.dp), // Add padding to create space from the edge
                                 colors = androidx.compose.material3.ButtonDefaults.textButtonColors(
                                     containerColor = if (selectedDay == 7) MaterialTheme.colorScheme.primary
@@ -224,7 +271,7 @@ fun EditTodolistDialog(
             TextButton(
                 onClick = {
                     val finalTags = if(selectedTags.isBlank()) "" else selectedTags
-                    onConfirm(listName, selectedColor, finalTags,selectedDate, isRepeating, selectedDay) // Pass the name entered to the onConfirm handler
+                    onConfirm(listName, selectedColor, selectedBackgroundColor, finalTags, selectedDate, isRepeating, selectedDay, gifUrl) // Pass the name entered to the onConfirm handler
                 }
             ) {
                 Text("Confirm")
@@ -234,6 +281,7 @@ fun EditTodolistDialog(
             TextButton(onClick = onDismiss) {
                 Text("Dismiss")
             }
-        }
+        },
+        containerColor = MaterialTheme.colorScheme.tertiary
     )
 }

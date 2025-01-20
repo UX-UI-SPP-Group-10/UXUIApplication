@@ -24,21 +24,17 @@ import androidx.compose.ui.unit.sp
 @Composable
 fun AddTaskButton(
     onClick: () -> Unit,
-    modifier: Modifier
 ) {
-    Box(
-        modifier = modifier.fillMaxWidth(),
-        contentAlignment = Alignment.BottomEnd
-    ) {
         FloatingActionButton(
             onClick = onClick,
-            containerColor = MaterialTheme.colorScheme.primaryContainer, // Background color
-            contentColor = MaterialTheme.colorScheme.onPrimaryContainer, // Content color
-            shape = RoundedCornerShape(32.dp), // Rounded rectangle for FAB
-            modifier = modifier
+            containerColor = MaterialTheme.colorScheme.primaryContainer,
+            contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
+            shape = RoundedCornerShape(32.dp),
+            modifier = Modifier
                 .padding(16.dp)
                 .width(150.dp)
                 .height(60.dp)
+                .offset(x = 15.dp, y = (-10).dp)
         ) {
             Row(
                 verticalAlignment = Alignment.CenterVertically,
@@ -60,11 +56,10 @@ fun AddTaskButton(
             }
         }
     }
-}
 
 @Preview
 @Composable
 fun AddTaskButtonPreview() {
-    AddTaskButton(onClick = {}, modifier = Modifier)
+    AddTaskButton(onClick = {})
 }
 

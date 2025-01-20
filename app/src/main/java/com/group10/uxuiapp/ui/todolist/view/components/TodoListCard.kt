@@ -108,6 +108,18 @@ fun TodoListCard(
     val coroutineScope = rememberCoroutineScope()
     var debounceJob by remember { mutableStateOf<Job?>(null) }
 
+    val backgroundColor = remember(todoList.backgroundColor) {
+        todoList.backgroundColor?.let { Color(android.graphics.Color.parseColor(it)) }
+    }
+
+    val effectiveBackgroundColor = when {
+        !todoList.gifUrl.isNullOrEmpty() -> Color.Transparent
+        backgroundColor != null -> backgroundColor
+        else -> MaterialTheme.colorScheme.surface
+    }
+
+
+
     // Remember the background based on gifUrl
     if (!todoList.gifUrl.isNullOrEmpty()) {
 
@@ -170,7 +182,7 @@ fun TodoListCard(
         },
         shape = RoundedCornerShape(20.dp),
         shadowElevation = elevation,
-        color = MaterialTheme.colorScheme.surface
+        color = effectiveBackgroundColor
 
     ) {
         // GIF as background (placed first to be behind everything else)
@@ -187,7 +199,7 @@ fun TodoListCard(
                 modifier = Modifier.fillMaxSize(),
                 contentScale = ContentScale.Crop // Ensures the GIF fills the box area
             )
-        } else {
+        } else if (backgroundColor == null) {
             // Default gradient background if no GIF is provided
             Box(
                 modifier = Modifier
@@ -204,6 +216,7 @@ fun TodoListCard(
                     )
             )
         }
+
         Row(
             modifier = Modifier
                 .fillMaxSize()
@@ -318,7 +331,8 @@ fun TodoListCard(
                     Icon(
                         painter = painterResource(id = R.drawable.repeat), // Replace with your repeat icon
                         contentDescription = "Repeat",
-                        tint = MaterialTheme.colorScheme.primary,
+                        tint = Color(android.graphics.Color.parseColor(todoList.textColor)),
+                        modifier = Modifier.padding(end = 8.dp) // Add some spacing
                     )
                 }
 

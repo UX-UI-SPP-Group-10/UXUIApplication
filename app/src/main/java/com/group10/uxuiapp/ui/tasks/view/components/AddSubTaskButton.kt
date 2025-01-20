@@ -20,10 +20,16 @@ import androidx.compose.ui.graphics.Color
 @Composable
 fun AddSubTaskButton(onClick: () -> Unit) {
 
-    Icon(
-        imageVector = Icons.Filled.Add,
-        contentDescription = "Add sub Task",
-        modifier = Modifier.size(20.dp)
-            .clickable { onClick() }
-    )
+    Box(modifier = Modifier
+        .fillMaxHeight()
+        .width(25.dp)
+        .clickable { onClick() },
+        contentAlignment = Alignment.Center)
+    {
+        Icon(
+            imageVector = Icons.Filled.Add,
+            contentDescription = "Add sub Task",
+            modifier = Modifier.size(20.dp)
+        )
+    }
 }

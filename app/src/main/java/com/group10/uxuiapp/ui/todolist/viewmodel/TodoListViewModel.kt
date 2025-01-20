@@ -195,6 +195,7 @@ class TodoListViewModel(private val taskDataSource: TaskDataSource) : ViewModel(
         isLiked: Boolean? = null,
         gifUrl: String? = null,
         textColor: String? = null,
+        backgroundColor: String? = null,
         tags: String? = null,
         dueDate: Long? = null,
         newIndex: Int? = null,  // unused for now, updating all indexes instead when moving
@@ -203,7 +204,7 @@ class TodoListViewModel(private val taskDataSource: TaskDataSource) : ViewModel(
     ) {
         viewModelScope.launch {
             try {
-
+                Log.d("NullGif", "updateTodoList called with id: $id, gifUrl: $gifUrl, backgroundColor: $backgroundColor")
                 // Update other fields in the database
                 taskDataSource.updateTodoList(
                     todoListId = id,
@@ -211,6 +212,7 @@ class TodoListViewModel(private val taskDataSource: TaskDataSource) : ViewModel(
                     isLiked = isLiked,
                     gifUrl = gifUrl,
                     textColor = textColor,
+                    backgroundColor = backgroundColor,
                     tags = tags,
                     dueDate = dueDate,
                     isRepeating = isRepeating,
@@ -222,6 +224,7 @@ class TodoListViewModel(private val taskDataSource: TaskDataSource) : ViewModel(
             }
         }
     }
+
 
     fun updateTodoListDueDate(todoListId: Int, dueDate: Long?, context: Context, todoListTitle: String) {
         Log.d("NotificationTest","updateTodoListDueDate called with ID: $todoListId and dueDate: $dueDate")
@@ -262,9 +265,4 @@ class TodoListViewModel(private val taskDataSource: TaskDataSource) : ViewModel(
     fun getTaskDueBefore(timestamp: Long): LiveData<List<TodoList>> {
         return taskDataSource.getTodoListsDueBefore(timestamp).asLiveData()
     }
-
-
-
-
-
 }
