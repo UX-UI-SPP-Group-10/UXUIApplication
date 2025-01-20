@@ -51,7 +51,7 @@ interface TaskDao {
     SET 
         title = CASE WHEN :title IS NOT NULL THEN :title ELSE title END,  
         isLiked = CASE WHEN :isLiked IS NOT NULL THEN :isLiked ELSE isLiked END,
-        gifUrl = CASE WHEN :gifUrl IS NOT NULL THEN :gifUrl ELSE gifUrl END,
+        gifUrl = :gifUrl,
         textColor = CASE WHEN :textColor IS NOT NULL THEN :textColor ELSE textColor END,
         dueDate = CASE WHEN :dueDate IS NOT NULL THEN :dueDate ELSE dueDate END,
         tags = CASE WHEN :tags IS NOT NULL THEN :tags WHEN :tags = "" THEN "" ELSE tags END,
