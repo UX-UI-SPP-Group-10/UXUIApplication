@@ -125,7 +125,16 @@ fun EditTodolistDialog(
                         }
 
                     )
-                }
+                    TextButton(
+                        onClick = {
+                            // Reset the background color to null (default)
+                            selectedBackgroundColor // Optional: Reset the local state if needed
+                            viewModel.updateTodoList(todoList.id)
+                        },
+                        modifier = Modifier.padding(top = 16.dp)
+                    ) {
+                        Text("Reset Background Color to Default")
+                    }                }
                 is EditListPage.TagPicker -> {
                     Column {
                         Text("Edit Tags", style = MaterialTheme.typography.bodyLarge)
