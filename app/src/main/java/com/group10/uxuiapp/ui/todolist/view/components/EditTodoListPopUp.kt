@@ -48,7 +48,7 @@ fun EditTodolistDialog(
     var selectedColor by remember { mutableStateOf("") }
     var selectedDate by remember { mutableStateOf("") }
     var selectedTags by remember { mutableStateOf(todoList.tags ?: "") }
-    var isRepeating by remember { mutableStateOf(false) }
+    var isRepeating by remember { mutableStateOf(todoList.isRepeating) }
     var selectedDay by remember { mutableStateOf<Int?>(null) }
     var gifUrl by remember { mutableStateOf((todoList.gifUrl)) }
     var selectedBackgroundColor by remember { mutableStateOf(todoList.backgroundColor ?: "") }
@@ -194,7 +194,9 @@ fun EditTodolistDialog(
                         ) {
                             days.subList(0, 3).forEachIndexed { index, day ->
                                 TextButton(
-                                    onClick = { selectedDay = index + 1 },
+                                    onClick = {
+                                        selectedDay = index + 1
+                                        isRepeating = true},
                                     modifier = Modifier.padding(horizontal = 8.dp),
                                     colors = androidx.compose.material3.ButtonDefaults.textButtonColors(
                                         containerColor = if (selectedDay == index + 1) MaterialTheme.colorScheme.primary
@@ -218,7 +220,9 @@ fun EditTodolistDialog(
                         ) {
                             days.subList(3, 6).forEachIndexed { index, day ->
                                 TextButton(
-                                    onClick = { selectedDay = index + 4 },
+                                    onClick = {
+                                        selectedDay = index + 4
+                                        isRepeating = true},
                                     modifier = Modifier.padding(horizontal = 8.dp),
                                     colors = androidx.compose.material3.ButtonDefaults.textButtonColors(
                                         containerColor = if (selectedDay == index + 4) MaterialTheme.colorScheme.primary
@@ -241,7 +245,9 @@ fun EditTodolistDialog(
                             horizontalArrangement = androidx.compose.foundation.layout.Arrangement.Start // Align Sun to the left
                         ) {
                             TextButton(
-                                onClick = { selectedDay = 7 },
+                                onClick = {
+                                    selectedDay = 7
+                                    isRepeating = true},
                                 modifier = Modifier.padding(start = 21.dp), // Add padding to create space from the edge
                                 colors = androidx.compose.material3.ButtonDefaults.textButtonColors(
                                     containerColor = if (selectedDay == 7) MaterialTheme.colorScheme.primary

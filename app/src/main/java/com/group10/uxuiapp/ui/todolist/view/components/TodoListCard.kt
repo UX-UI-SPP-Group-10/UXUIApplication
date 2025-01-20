@@ -296,7 +296,7 @@ fun TodoListCard(
                     Icon(
                         painter = painterResource(id = R.drawable.repeat), // Replace with your repeat icon
                         contentDescription = "Repeat",
-                        tint = MaterialTheme.colorScheme.primary,
+                        tint = Color(android.graphics.Color.parseColor(todoList.textColor)),
                         modifier = Modifier.padding(end = 8.dp) // Add some spacing
                     )
                 }
