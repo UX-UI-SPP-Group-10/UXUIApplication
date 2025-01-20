@@ -10,9 +10,15 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import com.group10.uxuiapp.data.data_class.TodoList
 
 @Composable
-fun ListNameInputDialog(onDismiss: () -> Unit, onConfirm: (String) -> Unit) {
+fun ListNameInputDialog(
+    todoList: TodoList?,
+    onRemoveGif: () -> Unit,
+    onDismiss: () -> Unit,
+    onConfirm: (String) -> Unit
+) {
     val listName = remember { mutableStateOf("") }
 
     AlertDialog(
@@ -26,6 +32,14 @@ fun ListNameInputDialog(onDismiss: () -> Unit, onConfirm: (String) -> Unit) {
                     label = { Text("List Name") },
                     modifier = Modifier.fillMaxWidth()
                 )
+                if (!todoList?.gifUrl.isNullOrEmpty()) {
+                    TextButton(
+                        onClick = onRemoveGif,
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text("Remove Gif")
+                    }
+                }
             }
         },
         confirmButton = {

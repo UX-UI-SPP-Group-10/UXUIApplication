@@ -43,7 +43,7 @@ fun EditTodolistDialog(
     viewModel: TodoListViewModel, // Pass the ViewModel
 
     onDismiss: () -> Unit,
-    onConfirm: (String, String, String, String , String, Boolean, Int?) -> Unit) {
+    onConfirm: (String, String, String , String, String, Boolean, Int?, String?) -> Unit) {
     var currentPage by remember { mutableStateOf<EditListPage>(EditListPage.NameInput) }
     var listName by remember { mutableStateOf("") }
     var selectedColor by remember { mutableStateOf("") }
@@ -51,6 +51,7 @@ fun EditTodolistDialog(
     var selectedTags by remember { mutableStateOf(todoList.tags ?: "") }
     var isRepeating by remember { mutableStateOf(false) }
     var selectedDay by remember { mutableStateOf<Int?>(null) }
+    var gifUrl by remember { mutableStateOf((todoList.gifUrl)) }
     var selectedBackgroundColor by remember { mutableStateOf(todoList.backgroundColor ?: "") }
 
     AlertDialog(
@@ -108,6 +109,16 @@ fun EditTodolistDialog(
                             label = { Text("List Name") },
                             modifier = Modifier.fillMaxWidth()
                         )
+                        if (!gifUrl.isNullOrEmpty()) {
+                            TextButton(
+                                onClick = {
+                                    gifUrl = null
+                                },
+                                modifier = Modifier.padding(top = 16.dp, start = 0.dp)
+                            ) {
+                                Text(text = "Remove GIF")
+                            }
+                        }
                     }
                 }
                 is EditListPage.ColorPicker -> {
@@ -119,14 +130,28 @@ fun EditTodolistDialog(
                             selectedBackgroundColor = newBackgroundColor
                             viewModel.updateTodoList(
                                 id = todoList.id,
-                                gifUrl = null,
                                 backgroundColor = newBackgroundColor
-                            )},
+                            )
+                            gifUrl = null
+                        },
                         onResetGifUrl = {viewModel.updateTodoList(todoList.id, gifUrl = null)
                         }
-
                     )
+                    TextButton(
+                        onClick = {
+                            // Reset the background color to null (default)
+                            selectedBackgroundColor = "" // Optional: Reset the local state if needed
+                            viewModel.updateTodoList(
+                                id = todoList.id,
+                                backgroundColor = null,
+                                gifUrl = null)
+                        },
+                        modifier = Modifier.padding(top = 320.dp, start = 4.dp)
+                    ) {
+                        Text("Reset Background Color to Default")
+                    }
                 }
+
                 is EditListPage.TagPicker -> {
                     Column {
                         Text("Edit Tags", style = MaterialTheme.typography.bodyLarge)
@@ -240,7 +265,7 @@ fun EditTodolistDialog(
             TextButton(
                 onClick = {
                     val finalTags = if(selectedTags.isBlank()) "" else selectedTags
-                    onConfirm(listName, selectedColor, selectedBackgroundColor, finalTags,selectedDate, isRepeating, selectedDay) // Pass the name entered to the onConfirm handler
+                    onConfirm(listName, selectedColor, selectedBackgroundColor, finalTags, selectedDate, isRepeating, selectedDay, gifUrl) // Pass the name entered to the onConfirm handler
                 }
             ) {
                 Text("Confirm")

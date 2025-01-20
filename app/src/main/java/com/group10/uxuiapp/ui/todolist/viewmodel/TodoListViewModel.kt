@@ -225,6 +225,7 @@ class TodoListViewModel(private val taskDataSource: TaskDataSource) : ViewModel(
         }
     }
 
+
     fun updateTodoListDueDate(todoListId: Int, dueDate: Long?, context: Context, todoListTitle: String) {
         Log.d("NotificationTest","updateTodoListDueDate called with ID: $todoListId and dueDate: $dueDate")
 
@@ -264,9 +265,4 @@ class TodoListViewModel(private val taskDataSource: TaskDataSource) : ViewModel(
     fun getTaskDueBefore(timestamp: Long): LiveData<List<TodoList>> {
         return taskDataSource.getTodoListsDueBefore(timestamp).asLiveData()
     }
-
-
-
-
-
 }
