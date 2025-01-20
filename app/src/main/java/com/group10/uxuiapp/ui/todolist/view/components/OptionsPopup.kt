@@ -135,14 +135,15 @@ fun OptionsPopup(
             },
             dismissButton = {
                 Button(onClick = { showDialog.value = false },
-                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF268036))
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFB4B4B4))
                 ) {
                     Text(
                         text = "Cancel",
-                        color = MaterialTheme.colorScheme.onTertiary
+                        color = Color.Black //MaterialTheme.colorScheme.onTertiary
                     )
                 }
-            }
+            },
+            containerColor = MaterialTheme.colorScheme.tertiary
         )
     }
 }
