@@ -1,5 +1,6 @@
 package com.group10.uxuiapp.ui.todolist.view.components
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -8,6 +9,7 @@ import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -268,17 +270,21 @@ fun EditTodolistDialog(
             }
        },
         confirmButton = {
-            TextButton(
+            OutlinedButton (
                 onClick = {
                     val finalTags = if(selectedTags.isBlank()) "" else selectedTags
                     onConfirm(listName, selectedColor, selectedBackgroundColor, finalTags, selectedDate, isRepeating, selectedDay, gifUrl) // Pass the name entered to the onConfirm handler
-                }
+                },
+                border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary)
             ) {
                 Text("Confirm")
             }
         },
         dismissButton = {
-            TextButton(onClick = onDismiss) {
+            OutlinedButton (
+                onClick = onDismiss,
+                border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary))
+            {
                 Text("Dismiss")
             }
         },
