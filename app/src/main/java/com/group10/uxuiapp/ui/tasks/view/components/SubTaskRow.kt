@@ -48,6 +48,10 @@ fun SubTaskRow(
         animationSpec = tween(durationMillis = 200), label = ""
     )
 
+    LaunchedEffect(task.label) {
+        textValue = task.label
+    }
+
     val boxWhith = Modifier
         .fillMaxWidth()
         .padding(end = animatedEndPadding)
