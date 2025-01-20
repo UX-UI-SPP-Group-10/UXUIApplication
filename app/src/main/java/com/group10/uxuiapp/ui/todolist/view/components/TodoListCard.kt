@@ -97,7 +97,7 @@ fun TodoListCard(
 
     val focusRequester = remember { FocusRequester() }
 
-    val newTodoListId by viewModel.newTodoListId.collectAsState()   // track if new todolist for text input
+    val newTodoListId by viewModel.newTodoListId.collectAsState()
     LaunchedEffect(newTodoListId) {
         if (newTodoListId == todoList.id) {
             focusRequester.requestFocus()
