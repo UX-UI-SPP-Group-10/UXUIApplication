@@ -42,7 +42,7 @@ fun EditTodolistDialog(
     viewModel: TodoListViewModel, // Pass the ViewModel
 
     onDismiss: () -> Unit,
-    onConfirm: (String, String, String , String, Boolean, Int?, String?) -> Unit) {
+    onConfirm: (String, String, String , String, String, Boolean, Int?, String?) -> Unit) {
     var currentPage by remember { mutableStateOf<EditListPage>(EditListPage.NameInput) }
     var listName by remember { mutableStateOf("") }
     var selectedColor by remember { mutableStateOf("") }
@@ -51,6 +51,7 @@ fun EditTodolistDialog(
     var isRepeating by remember { mutableStateOf(false) }
     var selectedDay by remember { mutableStateOf<Int?>(null) }
     var gifUrl by remember { mutableStateOf((todoList.gifUrl)) }
+    var selectedBackgroundColor by remember { mutableStateOf(todoList.backgroundColor ?: "") }
 
     AlertDialog(
         onDismissRequest = { onDismiss() },
@@ -120,7 +121,21 @@ fun EditTodolistDialog(
                     }
                 }
                 is EditListPage.ColorPicker -> {
-                    ColorPicker { selectedColor = it }
+                    ColorPicker (
+                        currentColor = todoList.textColor,
+                        onColorSelect = {selectedColor = it},
+                        onBackgroundColorSelect = {newBackgroundColor ->
+                            // Update the ViewModel and set gifUrl to null
+                            selectedBackgroundColor = newBackgroundColor
+                            viewModel.updateTodoList(
+                                id = todoList.id,
+                                gifUrl = null,
+                                backgroundColor = newBackgroundColor
+                            )},
+                        onResetGifUrl = {viewModel.updateTodoList(todoList.id, gifUrl = null)
+                        }
+
+                    )
                 }
                 is EditListPage.TagPicker -> {
                     Column {
@@ -235,7 +250,7 @@ fun EditTodolistDialog(
             TextButton(
                 onClick = {
                     val finalTags = if(selectedTags.isBlank()) "" else selectedTags
-                    onConfirm(listName, selectedColor, finalTags,selectedDate, isRepeating, selectedDay, gifUrl) // Pass the name entered to the onConfirm handler
+                    onConfirm(listName, selectedColor, finalTags,selectedDate, selectedBackgroundColor, isRepeating, selectedDay, gifUrl) // Pass the name entered to the onConfirm handler
                 }
             ) {
                 Text("Confirm")

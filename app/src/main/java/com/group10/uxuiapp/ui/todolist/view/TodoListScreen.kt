@@ -11,6 +11,7 @@ import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.gestures.animateScrollBy
 import androidx.compose.foundation.layout.Arrangement
@@ -19,9 +20,13 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.calculateEndPadding
 import androidx.compose.foundation.layout.calculateStartPadding
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.safeContentPadding
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
@@ -45,10 +50,12 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -62,6 +69,9 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import sh.calvin.reorderable.ReorderableItem
 import sh.calvin.reorderable.rememberReorderableLazyListState
+import androidx.compose.material3.TextField
+import androidx.compose.material3.TextFieldDefaults
+
 
 // Main TodoListScreen with Scaffold and LazyColumn
 @OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class)
@@ -93,7 +103,17 @@ fun TodoListScreen(viewModel: TodoListViewModel, appNavigator: AppNavigator) {
 
     val coroutineScope = rememberCoroutineScope()
 
-    Box(modifier = Modifier.fillMaxSize()) {
+    Box(modifier = Modifier
+        .fillMaxSize()
+        .background(
+            Brush.verticalGradient(
+                colors = listOf(
+                    Color(0xFFF8F8F8),
+                    MaterialTheme.colorScheme.background
+                )
+            )
+        )
+    ) {
         Scaffold(
             topBar = { TopAppBarWithMenu(showLiked, viewModel) },
             floatingActionButton = {
@@ -106,7 +126,8 @@ fun TodoListScreen(viewModel: TodoListViewModel, appNavigator: AppNavigator) {
                         }
                     }
                 }
-            }
+            },
+            containerColor = Color.Transparent
         ) { innerPadding  ->
             val extraBottomPadding = 300.dp // Change this for more bottom padding
             LazyColumn(
@@ -116,7 +137,7 @@ fun TodoListScreen(viewModel: TodoListViewModel, appNavigator: AppNavigator) {
                     .fillMaxSize(),
                 contentPadding = PaddingValues(
                     start = innerPadding.calculateStartPadding(LocalLayoutDirection.current) + 12.dp,
-                    top = innerPadding.calculateTopPadding(),
+                    top = innerPadding.calculateTopPadding() + 12.dp,
                     end = innerPadding.calculateEndPadding(LocalLayoutDirection.current) + 12.dp,
                     bottom = innerPadding.calculateBottomPadding() + extraBottomPadding
                 )
@@ -127,7 +148,7 @@ fun TodoListScreen(viewModel: TodoListViewModel, appNavigator: AppNavigator) {
                         key = item.todoList.id,
                         animateItemModifier = Modifier.animateItem()
                     ) { isDragging ->
-                        val elevation by animateDpAsState(if (isDragging) 12.dp else 0.dp)
+                        val elevation by animateDpAsState(if (isDragging) 12.dp else 4.dp)
                         LaunchedEffect(isDragging) {
                             viewModel.setDraggingState(isDragging)
                             if (!isDragging) {
@@ -175,10 +196,7 @@ fun TodoListScreen(viewModel: TodoListViewModel, appNavigator: AppNavigator) {
             onGifSelect = {
                 viewModel.setSelectGifState(selectedTodoList!!)
             },
-            offset = popupOffset.value,
-////            onColorChange = {
-////                viewModel.setColorPickState(selectedTodoList!!)
-////            }
+            offset = IntOffset(popupOffset.value.x, popupOffset.value.y + 26),
             onTagsEdit = {
                 viewModel.setTagEditState(selectedTodoList!!)
             }
@@ -211,6 +229,12 @@ fun TodoListScreen(viewModel: TodoListViewModel, appNavigator: AppNavigator) {
                 onColorSelected = { todoList, color ->
                     viewModel.updateTodoList(id = todoList.id, textColor = color)
                     viewModel.setNoneState()
+                },
+                onColorBackgroundSelected = { todoList, color ->
+                    viewModel.updateTodoList(id = todoList.id, backgroundColor = color)
+                    viewModel.updateTodoList(id = todoList.id, gifUrl = null)
+                    viewModel.setNoneState()
+
                 },
                 onTagsEdited = { todoList, tags ->
                     viewModel.updateTodoList(id = todoList.id, tags = tags)
@@ -249,49 +273,66 @@ private fun TopAppBarWithMenu(showLiked: MutableState<Boolean>, viewModel: TodoL
                 enter = fadeIn(),
                 exit = fadeOut()
             ) {
-                OutlinedTextField(
+                TextField(
                     value = searchQuery,
                     onValueChange = { viewModel.onSearchQueryChange(it) },
-                    placeholder = { Text(text = "Search...") },
-                    singleLine = true,
+                    placeholder = {
+                        Text(
+                            text = "Search...",
+                            style = TextStyle(fontSize = 16.sp, lineHeight = 20.sp),
+                            maxLines = 1
+                        )
+                    },
+                            singleLine = true,
                     shape = RoundedCornerShape(12.dp),
                     modifier = Modifier
                         .focusRequester(focusRequester)
                         .fillMaxWidth()
-                        .height(56.dp)
+                        .wrapContentHeight()
+                        .padding(8.dp)
                         .border(
-                            width = 2.dp,
-                            color = Color.Black, // Set your custom outline color here
+                            width = 1.dp,
+                            color = MaterialTheme.colorScheme.secondary,  // border color
                             shape = RoundedCornerShape(12.dp)
                         ),
-                    textStyle = TextStyle(fontSize = 16.sp, color = MaterialTheme.colorScheme.onPrimary),
+                    textStyle = TextStyle(fontSize = 16.sp, lineHeight = 20.sp),
                     trailingIcon = {
                         if (searchQuery.isNotEmpty()) {
                             IconButton(onClick = { viewModel.onSearchQueryChange("") }) {
-                                Icon(Icons.Filled.Close, contentDescription = "Clear")
+                                Icon(Icons.Filled.Close, contentDescription = "Clear", tint = MaterialTheme.colorScheme.onSurface)
                             }
                         }
-                    }
-
+                    },
+                    colors = TextFieldDefaults.colors(
+                        unfocusedIndicatorColor = Color.Transparent,
+                        focusedIndicatorColor = Color.Transparent,
+                        unfocusedContainerColor = MaterialTheme.colorScheme.onPrimary,
+                        focusedContainerColor = MaterialTheme.colorScheme.onPrimary,
+                    )
                 )
+
             }
         },
-        modifier = Modifier,
+        modifier = Modifier
+            .fillMaxWidth(),
         navigationIcon = {
             IconButton(onClick = {
                 textFieldVisible.value = !textFieldVisible.value
             }) {
-                Icon(Icons.Filled.Search, contentDescription = "Search")
+                Icon(Icons.Filled.Search, contentDescription = "Search", tint = MaterialTheme.colorScheme.onPrimary)
             }
         },
         actions = {
             SettingsButton(
                 context = context,
                 showLiked = showLiked,
-                onDeleteAllConfirmed = { viewModel.deleteAllTodoLists() }
+                onDeleteAllConfirmed = { viewModel.deleteAllTodoLists() },
+                color = MaterialTheme.colorScheme.onPrimary
             )
         },
-        colors = TopAppBarDefaults.topAppBarColors(),
+        colors = TopAppBarDefaults.topAppBarColors(
+            containerColor = Color(0xFF0D47A1),
+        ),
         scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
     )
 }

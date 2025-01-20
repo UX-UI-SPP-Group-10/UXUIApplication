@@ -1,5 +1,7 @@
 package com.group10.uxuiapp.ui.tasks.view.components
 
+import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectHorizontalDragGestures
 import androidx.compose.foundation.layout.*
@@ -16,8 +18,11 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.material3.Card
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
+import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import com.group10.uxuiapp.data.data_class.SubTask
@@ -38,106 +43,112 @@ fun SubTaskRow(
     var textValue by remember { mutableStateOf(task.label) }
     val coroutineScope = rememberCoroutineScope()
     var debounceJob by remember { mutableStateOf<Job?>(null) }
-    val boxWhith =
-        if(selectedTask == task){
-            Modifier.width(295.dp)
-        }
-        else{
-            Modifier.fillMaxWidth()
-        }
+    val animatedEndPadding by animateDpAsState(
+        targetValue = if (selectedTask == task) 45.dp else 0.dp,
+        animationSpec = tween(durationMillis = 200), label = ""
+    )
 
-    Row(
-        modifier = Modifier.fillMaxWidth().padding(top = 7.dp).height(50.dp),
-        horizontalArrangement = Arrangement.End
-    ) {
+    LaunchedEffect(task.label) {
+        textValue = task.label
+    }
+
+    val boxWhith = Modifier
+        .fillMaxWidth()
+        .padding(end = animatedEndPadding)
+
+    Box(
+        modifier = Modifier
+            .padding(top = 7.dp, start = 40.dp)
+            .fillMaxWidth()
+            .height(50.dp)
+    )
+    {
         Box(
             modifier = Modifier
-                .width(340.dp)
-        )
-        {
-            Box(
-                modifier = Modifier.fillMaxHeight().fillMaxWidth(),
-                contentAlignment = Alignment.CenterEnd
-            ) {
-                Delete(onClick = { viewModel.deleteSupTask(selectedTask!!) })
-            }
-            Box(
-                modifier = Modifier
-                    .then(boxWhith)
-                    .background(
-                        color = MaterialTheme.colorScheme.onTertiary,
-                        shape = MaterialTheme.shapes.small
-                    )
-                    .pointerInput(Unit) {
-                        detectHorizontalDragGestures { change, dragAmount ->
-                            change.consume()
+                .fillMaxHeight()
+                .fillMaxWidth()
+                .padding(start = 1.dp, end = 1.dp),
+            contentAlignment = Alignment.CenterEnd
+        ) {
+            Delete(onClick = { viewModel.deleteSupTask(selectedTask!!) })
+        }
+        Card(
+            modifier = Modifier
+                .then(boxWhith)
+                .pointerInput(Unit) {
+                    detectHorizontalDragGestures { change, dragAmount ->
+                        change.consume()
 
-                            if (dragAmount < -30) {
-                                viewModel.selectTaskForChange(subTask = task)
-                            } else if (dragAmount > 30) {
-                                viewModel.selectTaskForChange(null, null)
-                            }
+                        if (dragAmount < -30) {
+                            viewModel.selectTaskForChange(subTask = task)
+                        } else if (dragAmount > 30) {
+                            viewModel.selectTaskForChange(null, null)
                         }
                     }
+                },
+            colors = androidx.compose.material3.CardDefaults.cardColors(
+                containerColor = Color(0xFFDBEBFF)
+            ),
+            elevation = androidx.compose.material3.CardDefaults.cardElevation(
+                defaultElevation = 4.dp
+            )
+        ) {
+            Row(
+                modifier = Modifier
+                    .padding(vertical = 0.dp, horizontal = 12.dp)
+                    .fillMaxWidth(),
+                horizontalArrangement = Arrangement.Start,
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                Row(
-                    modifier = Modifier
-                        .padding(vertical = 0.dp, horizontal = 12.dp)
-                        .fillMaxWidth(),
-                    horizontalArrangement = Arrangement.Start,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    // 2) Checkbox
-                    Checkbox(
-                        checked = isChecked,
-                        onCheckedChange = { newChecked ->
-                            isChecked = newChecked
-                            viewModel.updateSubTask(task, isComplete = newChecked)
-                        },
-                        colors = CheckboxDefaults.colors(
-                            checkedColor = Color(0XFF20792F),
-                            uncheckedColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
-                            checkmarkColor = MaterialTheme.colorScheme.onTertiary
-                        ),
-                        modifier = Modifier.size(28.dp)
-                    )
+                // 2) Checkbox
+                Checkbox(
+                    checked = isChecked,
+                    onCheckedChange = { newChecked ->
+                        isChecked = newChecked
+                        viewModel.updateSubTask(task, isComplete = newChecked)
+                    },
+                    colors = CheckboxDefaults.colors(
+                        checkedColor = Color(0xFF7d8597),
+                        uncheckedColor = MaterialTheme.colorScheme.onSurface
+                    ),
+                    modifier = Modifier.size(28.dp)
+                )
 
-                    // 3) Editable text
-                    TextField(
-                        value = textValue,
-                        onValueChange = { newText ->
-                            if (newText.length <= 20) {
-                                textValue = newText
+                // 3) Editable text
+                TextField(
+                    value = textValue,
+                    onValueChange = { newText ->
+                        if (newText.length <= 20) {
+                            textValue = newText
 
-                                debounceJob?.cancel() // Cancel the ongoing debounce job
-                                debounceJob = coroutineScope.launch {
-                                    delay(200) // 200ms debounce delay
-                                    viewModel.updateSubTask(
-                                        task,
-                                        label = newText
-                                    ) // Update ViewModel
-                                }
+                            debounceJob?.cancel() // Cancel the ongoing debounce job
+                            debounceJob = coroutineScope.launch {
+                                delay(200) // 200ms debounce delay
+                                viewModel.updateSubTask(
+                                    task,
+                                    label = newText
+                                ) // Update ViewModel
                             }
-                        },
-                        singleLine = true,
-                        textStyle = MaterialTheme.typography.bodyLarge.copy(
-                            textDecoration = if (isChecked) TextDecoration.LineThrough else null,
-                            fontWeight = FontWeight.Medium,
-                            color = if (isChecked) {
-                                MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
-                            } else {
-                                MaterialTheme.colorScheme.onSurface
-                            }
-                        ),
-                        colors = TextFieldDefaults.colors(
-                            unfocusedContainerColor = Color.Transparent, // No background
-                            focusedContainerColor = Color.Transparent,  // No background on focus
-                            unfocusedIndicatorColor = Color.Transparent, // No underline
-                            focusedIndicatorColor = Color.Transparent // No underline
-                        ),
-                        modifier = Modifier.width(225.dp)
-                    )
-                }
+                        }
+                    },
+                    singleLine = true,
+                    textStyle = MaterialTheme.typography.bodyLarge.copy(
+                        textDecoration = if (isChecked) TextDecoration.LineThrough else null,
+                        fontWeight = FontWeight.Medium,
+                        color = if (isChecked) {
+                            MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
+                        } else {
+                            MaterialTheme.colorScheme.onSurface
+                        }
+                    ),
+                    colors = TextFieldDefaults.colors(
+                        unfocusedContainerColor = Color.Transparent, // No background
+                        focusedContainerColor = Color.Transparent,  // No background on focus
+                        unfocusedIndicatorColor = Color.Transparent, // No underline
+                        focusedIndicatorColor = Color.Transparent // No underline
+                    ),
+                    modifier = Modifier.width(225.dp)
+                )
             }
         }
     }

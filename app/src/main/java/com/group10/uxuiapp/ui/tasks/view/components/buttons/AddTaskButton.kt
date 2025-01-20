@@ -14,44 +14,57 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.outlined.AddCircle
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.ElevatedButton
+import androidx.compose.material3.FloatingActionButton
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.sp
 
 @Composable
-fun AddTaskButton(onClick: () -> Unit) {
+fun AddTaskButton(
+    onClick: () -> Unit,
+    modifier: Modifier
+) {
     Box(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = modifier.fillMaxWidth(),
         contentAlignment = Alignment.BottomEnd
     ) {
-        Button(
+        FloatingActionButton(
             onClick = onClick,
-            shape = RoundedCornerShape(50),
-            modifier = Modifier
-                .padding(end = 9.dp)
-                .height(48.dp),
-            colors = ButtonDefaults.buttonColors(
-                containerColor = Color(0XFF20792F),
-                //containerColor = MaterialTheme.colorScheme.tertiary,
-                contentColor = MaterialTheme.colorScheme.onPrimary
-            )
+            containerColor = MaterialTheme.colorScheme.primaryContainer, // Background color
+            contentColor = MaterialTheme.colorScheme.onPrimaryContainer, // Content color
+            shape = RoundedCornerShape(32.dp), // Rounded rectangle for FAB
+            modifier = modifier
+                .padding(16.dp)
+                .width(150.dp)
+                .height(60.dp)
         ) {
             Row(
-                verticalAlignment = Alignment.CenterVertically
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.Center
             ) {
                 Icon(
                     imageVector = Icons.Default.Add,
                     contentDescription = "Add Task",
-                    modifier = Modifier.size(25.dp)
-                        .offset(x = -5.dp),
-                    tint = MaterialTheme.colorScheme.tertiary
+                    modifier = Modifier.size(30.dp) // Icon size
                 )
-                Spacer(modifier = Modifier.width(1.dp))
+                Spacer(modifier = Modifier.width(8.dp)) // Space between icon and text
                 Text(
                     text = "Add Task",
-                    style = MaterialTheme.typography.headlineMedium,
-                    color = MaterialTheme.colorScheme.tertiary
+                    style = MaterialTheme.typography.bodyMedium.copy(
+                        fontSize = 18.sp,
+                        fontWeight = FontWeight.Bold
+                    )
                 )
             }
         }
     }
+}
+
+@Preview
+@Composable
+fun AddTaskButtonPreview() {
+    AddTaskButton(onClick = {}, modifier = Modifier)
 }
 

@@ -101,12 +101,24 @@ fun TodoListCard(
         }
     }
 
-    val scale by animateFloatAsState(targetValue = if (elevation > 0.dp) 1.03f else 1f)
+    val scale by animateFloatAsState(targetValue = if (elevation > 10.dp) 1.03f else 1f)
 
     var textValue by remember(todoList.title) { mutableStateOf(todoList.title) }
     val coroutineScope = rememberCoroutineScope()
     var debounceJob by remember { mutableStateOf<Job?>(null) }
     var isEditing by remember { mutableStateOf(todoList.id == newTodoListId) }
+
+    val backgroundColor = remember(todoList.backgroundColor) {
+        todoList.backgroundColor?.let { Color(android.graphics.Color.parseColor(it)) }
+    }
+
+    val effectiveBackgroundColor = when {
+        !todoList.gifUrl.isNullOrEmpty() -> Color.Transparent
+        backgroundColor != null -> backgroundColor
+        else -> MaterialTheme.colorScheme.surface
+    }
+
+
 
     // Remember the background based on gifUrl
     if (!todoList.gifUrl.isNullOrEmpty()) {
@@ -116,16 +128,16 @@ fun TodoListCard(
                 Modifier.background(Color.Transparent)
             )
 
-    } else {
+    }
+    else {
         Modifier.background(
             Brush.linearGradient(
                 colors = listOf(
-                    MaterialTheme.colorScheme.primary,
-                    MaterialTheme.colorScheme.secondary,
-                    Color(0xFFC0DCEF)
+                    MaterialTheme.colorScheme.surface,
+                    MaterialTheme.colorScheme.tertiary,
                 ),
-                start = Offset(0f, 0f),
-                end = Offset(0f, Float.POSITIVE_INFINITY)
+                start = Offset(-10f, 0f),
+                end = Offset(10f, Float.POSITIVE_INFINITY)
             )
         )
     }
@@ -167,7 +179,7 @@ fun TodoListCard(
         },
         shape = RoundedCornerShape(20.dp),
         shadowElevation = elevation,
-        color = MaterialTheme.colorScheme.surface
+        color = effectiveBackgroundColor
 
     ) {
         // GIF as background (placed first to be behind everything else)
@@ -184,7 +196,7 @@ fun TodoListCard(
                 modifier = Modifier.fillMaxSize(),
                 contentScale = ContentScale.Crop // Ensures the GIF fills the box area
             )
-        } else {
+        } else if (backgroundColor == null) {
             // Default gradient background if no GIF is provided
             Box(
                 modifier = Modifier
@@ -192,16 +204,16 @@ fun TodoListCard(
                     .background(
                         Brush.linearGradient(
                             colors = listOf(
-                                MaterialTheme.colorScheme.primary,
-                                MaterialTheme.colorScheme.secondary,
-                                Color(0xFFC0DCEF)
+                                MaterialTheme.colorScheme.surface,
+                                MaterialTheme.colorScheme.tertiary,
                             ),
-                            start = Offset(0f, 0f),
-                            end = Offset(0f, Float.POSITIVE_INFINITY)
+                            start = Offset(-10f, 0f),
+                            end = Offset(10f, Float.POSITIVE_INFINITY)
                         )
                     )
             )
         }
+
         Row(
             modifier = Modifier
                 .fillMaxSize()

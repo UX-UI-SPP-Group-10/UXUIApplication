@@ -51,12 +51,13 @@ interface TaskDao {
     SET 
         title = CASE WHEN :title IS NOT NULL THEN :title ELSE title END,  
         isLiked = CASE WHEN :isLiked IS NOT NULL THEN :isLiked ELSE isLiked END,
-        gifUrl = :gifUrl,
+        gifUrl =  :gifUrl,  -- Update directly, even if null
         textColor = CASE WHEN :textColor IS NOT NULL THEN :textColor ELSE textColor END,
         dueDate = CASE WHEN :dueDate IS NOT NULL THEN :dueDate ELSE dueDate END,
         tags = CASE WHEN :tags IS NOT NULL THEN :tags WHEN :tags = "" THEN "" ELSE tags END,
         repeatDay = CASE WHEN :repeatDay IS NOT NULL THEN :repeatDay ELSE repeatDay END,
-        isRepeating = CASE WHEN :isRepeating IS NOT NULL THEN :isRepeating ELSE isRepeating END
+        isRepeating = CASE WHEN :isRepeating IS NOT NULL THEN :isRepeating ELSE isRepeating END,
+        backgroundColor = CASE WHEN :backgroundColor IS NOT NULL THEN :backgroundColor ELSE backgroundColor END
     WHERE id = :todoListId
 """
     )
@@ -70,6 +71,7 @@ interface TaskDao {
         tags: String? = null,
         repeatDay: Int? = null,
         isRepeating: Boolean? = null,
+        backgroundColor: String? = null
     )
 
 

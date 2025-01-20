@@ -195,6 +195,7 @@ class TodoListViewModel(private val taskDataSource: TaskDataSource) : ViewModel(
         isLiked: Boolean? = null,
         gifUrl: String? = null,
         textColor: String? = null,
+        backgroundColor: String? = null,
         tags: String? = null,
         dueDate: Long? = null,
         newIndex: Int? = null,  // unused for now, updating all indexes instead when moving
@@ -203,7 +204,7 @@ class TodoListViewModel(private val taskDataSource: TaskDataSource) : ViewModel(
     ) {
         viewModelScope.launch {
             try {
-
+                Log.d("NullGif", "updateTodoList called with id: $id, gifUrl: $gifUrl, backgroundColor: $backgroundColor")
                 // Update other fields in the database
                 taskDataSource.updateTodoList(
                     todoListId = id,
@@ -211,6 +212,7 @@ class TodoListViewModel(private val taskDataSource: TaskDataSource) : ViewModel(
                     isLiked = isLiked,
                     gifUrl = gifUrl,
                     textColor = textColor,
+                    backgroundColor = backgroundColor,
                     tags = tags,
                     dueDate = dueDate,
                     isRepeating = isRepeating,
