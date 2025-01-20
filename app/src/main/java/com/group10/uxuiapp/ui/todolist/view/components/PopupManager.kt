@@ -51,7 +51,7 @@ fun PopupManager(
 
                     val finalName = if (newName.isBlank()) currentTodoList.title else newName
                     val finalColor = if (selectedColor.isBlank()) currentTodoList.textColor else selectedColor
-                    val finalBackgroundColor = if (selectedBackgroundColor.isBlank()) currentTodoList.backgroundColor else selectedBackgroundColor
+                    val finalBackgroundColor = if (selectedBackgroundColor.isBlank()) null else selectedBackgroundColor
                     val finalTags = if (selectedTags.isBlank()) "" else selectedTags
                     val finalDate = if (selectedDate.isBlank()) currentTodoList.dueDate else {
                         try {

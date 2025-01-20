@@ -57,7 +57,7 @@ interface TaskDao {
         tags = CASE WHEN :tags IS NOT NULL THEN :tags WHEN :tags = "" THEN "" ELSE tags END,
         repeatDay = CASE WHEN :repeatDay IS NOT NULL THEN :repeatDay ELSE repeatDay END,
         isRepeating = CASE WHEN :isRepeating IS NOT NULL THEN :isRepeating ELSE isRepeating END,
-        backgroundColor = CASE WHEN :backgroundColor IS NOT NULL THEN :backgroundColor ELSE backgroundColor END
+        backgroundColor = :backgroundColor
     WHERE id = :todoListId
 """
     )

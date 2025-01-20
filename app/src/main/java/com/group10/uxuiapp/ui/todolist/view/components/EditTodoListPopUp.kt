@@ -123,18 +123,22 @@ fun EditTodolistDialog(
                             )},
                         onResetGifUrl = {viewModel.updateTodoList(todoList.id, gifUrl = null)
                         }
-
                     )
                     TextButton(
                         onClick = {
                             // Reset the background color to null (default)
-                            selectedBackgroundColor // Optional: Reset the local state if needed
-                            viewModel.updateTodoList(todoList.id)
+                            selectedBackgroundColor = "" // Optional: Reset the local state if needed
+                            viewModel.updateTodoList(
+                                id = todoList.id,
+                                backgroundColor = null,
+                                gifUrl = null)
                         },
-                        modifier = Modifier.padding(top = 16.dp)
+                        modifier = Modifier.padding(top = 320.dp, start = 4.dp)
                     ) {
                         Text("Reset Background Color to Default")
-                    }                }
+                    }
+                }
+
                 is EditListPage.TagPicker -> {
                     Column {
                         Text("Edit Tags", style = MaterialTheme.typography.bodyLarge)

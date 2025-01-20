@@ -264,25 +264,4 @@ class TodoListViewModel(private val taskDataSource: TaskDataSource) : ViewModel(
     fun getTaskDueBefore(timestamp: Long): LiveData<List<TodoList>> {
         return taskDataSource.getTodoListsDueBefore(timestamp).asLiveData()
     }
-
-    fun resetBackgroundColor(todoListId: Int) {
-        viewModelScope.launch {
-            try {
-                taskDataSource.updateTodoList(todoListId, backgroundColor = null)
-                Log.d("ResetBackground", "Background color reset for todoListId=$todoListId")
-
-                // Refresh the state
-                val updatedLists = taskDataSource.getTodoListsWithItems().firstOrNull() ?: emptyList()
-                _lists.value = updatedLists
-            } catch (e: Exception) {
-                Log.e("ResetBackgroundError", "Error resetting background color: ${e.message}")
-            }
-        }
-    }
-
-
-
-
-
-
 }
