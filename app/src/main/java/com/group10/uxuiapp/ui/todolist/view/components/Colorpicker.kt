@@ -45,7 +45,8 @@ import androidx.compose.ui.unit.dp
 
 @Composable
 fun ColorPicker(
-    currentColor: String,
+    currentTextColor: String,
+    currentBackgroundColor: String,
     onColorSelect: (String) -> Unit,
     onBackgroundColorSelect: (String) -> Unit,
     onResetGifUrl:()-> Unit) {
@@ -54,8 +55,8 @@ fun ColorPicker(
     )
 
 
-    val windowCurrentColor = remember { mutableStateOf(currentColor) }
-    val windowCurrentBackgroundColor = remember { mutableStateOf(currentColor) }
+    val windowCurrentColor = remember { mutableStateOf(currentTextColor) }
+    val windowCurrentBackgroundColor = remember { mutableStateOf(currentBackgroundColor) }
 
     Column(
         modifier = Modifier

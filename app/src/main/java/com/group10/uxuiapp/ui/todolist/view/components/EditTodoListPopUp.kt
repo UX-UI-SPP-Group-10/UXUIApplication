@@ -38,28 +38,28 @@ sealed class EditListPage {
 
 @Composable
 fun EditTodolistDialog(
-    todoList: TodoList, // Pass the current TodoList
-    viewModel: TodoListViewModel, // Pass the ViewModel
-
+    todoList: TodoList,
+    viewModel: TodoListViewModel,
     onDismiss: () -> Unit,
-    onConfirm: (String, String, String , String, String, Boolean, Int?, String?) -> Unit) {
+    onConfirm: (String, String, String, String, String, Boolean, Int?, String?) -> Unit
+) {
     var currentPage by remember { mutableStateOf<EditListPage>(EditListPage.NameInput) }
-    var listName by remember { mutableStateOf("") }
-    var selectedColor by remember { mutableStateOf("") }
-    var selectedDate by remember { mutableStateOf("") }
-    var selectedTags by remember { mutableStateOf(todoList.tags ?: "") }
-    var isRepeating by remember { mutableStateOf(false) }
-    var selectedDay by remember { mutableStateOf<Int?>(null) }
-    var gifUrl by remember { mutableStateOf((todoList.gifUrl)) }
+    var listName by remember { mutableStateOf(todoList.title) }
+    var selectedColor by remember { mutableStateOf(todoList.textColor ?: "") }
     var selectedBackgroundColor by remember { mutableStateOf(todoList.backgroundColor ?: "") }
+    var selectedTags by remember { mutableStateOf(todoList.tags ?: "") }
+    var selectedDate by remember { mutableStateOf(todoList.dueDate?.let { SimpleDateFormat("dd/MM/yyyy", Locale.getDefault()).format(it) } ?: "") }
+    var isRepeating by remember { mutableStateOf(todoList.isRepeating) }
+    var selectedDay by remember { mutableStateOf(todoList.repeatDay) }
+    var gifUrl by remember { mutableStateOf(todoList.gifUrl) }
 
     AlertDialog(
         onDismissRequest = { onDismiss() },
         title = {
             Row(
-               modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = androidx.compose.foundation.layout.Arrangement.SpaceEvenly
-            ){
+            ) {
                 IconButton(onClick = { currentPage = EditListPage.NameInput }) {
                     Icon(
                         painter = painterResource(id = R.drawable.edit),
@@ -97,7 +97,6 @@ fun EditTodolistDialog(
                 }
             }
         },
-
         text = {
             when (currentPage) {
                 is EditListPage.NameInput -> {
@@ -112,8 +111,9 @@ fun EditTodolistDialog(
                             TextButton(
                                 onClick = {
                                     gifUrl = null
+                                    viewModel.updateTodoList(todoList.id, gifUrl = null)
                                 },
-                                modifier = Modifier.padding(top = 16.dp, start = 0.dp)
+                                modifier = Modifier.padding(top = 16.dp)
                             ) {
                                 Text(text = "Remove GIF")
                             }
@@ -121,60 +121,49 @@ fun EditTodolistDialog(
                     }
                 }
                 is EditListPage.ColorPicker -> {
-                    ColorPicker (
-                        currentColor = todoList.textColor,
-                        onColorSelect = {selectedColor = it},
-                        onBackgroundColorSelect = {newBackgroundColor ->
-                            // Update the ViewModel and set gifUrl to null
-                            selectedBackgroundColor = newBackgroundColor
-                            viewModel.updateTodoList(
-                                id = todoList.id,
-                                backgroundColor = newBackgroundColor
-                            )
-                            gifUrl = null
+                    ColorPicker(
+                        currentTextColor = selectedColor,
+                        currentBackgroundColor = selectedBackgroundColor,
+                        onColorSelect = { color ->
+                            selectedColor = color
+                            viewModel.updateTodoList(todoList.id, textColor = color)
                         },
-                        onResetGifUrl = {viewModel.updateTodoList(todoList.id, gifUrl = null)
+                        onBackgroundColorSelect = { color ->
+                            selectedBackgroundColor = color
+                            viewModel.updateTodoList(todoList.id, backgroundColor = color)
+                        },
+                        onResetGifUrl = {
+                            gifUrl = null
+                            viewModel.updateTodoList(todoList.id, gifUrl = null)
                         }
                     )
-                    TextButton(
-                        onClick = {
-                            // Reset the background color to null (default)
-                            selectedBackgroundColor = "" // Optional: Reset the local state if needed
-                            viewModel.updateTodoList(
-                                id = todoList.id,
-                                backgroundColor = null,
-                                gifUrl = null)
-                        },
-                        modifier = Modifier.padding(top = 320.dp, start = 4.dp)
-                    ) {
-                        Text("Reset Background Color to Default")
-                    }
                 }
-
                 is EditListPage.TagPicker -> {
                     Column {
                         Text("Edit Tags", style = MaterialTheme.typography.bodyLarge)
                         OutlinedTextField(
                             value = selectedTags,
-                            onValueChange = { selectedTags = it },
+                            onValueChange = {
+                                selectedTags = it
+                                viewModel.updateTodoList(todoList.id, tags = it)
+                            },
                             label = { Text("Enter tags, separated by commas") },
                             modifier = Modifier.fillMaxWidth()
                         )
                     }
                 }
-
                 is EditListPage.DueDatePicker -> {
-                    val context = LocalContext.current
                     DatePickerComponent(
-                        context = context,
-                        todoList = todoList, // Pass the current TodoList
+                        context = LocalContext.current,
+                        todoList = todoList,
                         viewModel = viewModel,
                         onDateSelected = { date ->
+                            selectedDate = date
                             val formatter = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
                             val parsedDate = formatter.parse(date)
-                            selectedDate = date
-                            currentPage = EditListPage.NameInput // Navigate back to NameInput after selecting the date
-                            currentPage = EditListPage.NameInput
+                            parsedDate?.let {
+                                viewModel.updateTodoList(todoList.id, dueDate = it.time)
+                            }
                         }
                     )
                 }
@@ -259,12 +248,20 @@ fun EditTodolistDialog(
                     }
                 }
             }
-       },
+        },
         confirmButton = {
             TextButton(
                 onClick = {
-                    val finalTags = if(selectedTags.isBlank()) "" else selectedTags
-                    onConfirm(listName, selectedColor, selectedBackgroundColor, finalTags, selectedDate, isRepeating, selectedDay, gifUrl) // Pass the name entered to the onConfirm handler
+                    onConfirm(
+                        listName,
+                        selectedColor,
+                        selectedBackgroundColor,
+                        selectedTags,
+                        selectedDate,
+                        isRepeating,
+                        selectedDay,
+                        gifUrl
+                    )
                 }
             ) {
                 Text("Confirm")
