@@ -10,15 +10,22 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
+import androidx.compose.ui.Alignment
 
 @Composable
 fun TaskFolderButton(onClick: () -> Unit, isFoldet: Boolean) {
 
-    Icon(
-        imageVector = if (isFoldet) Icons.Filled.KeyboardArrowDown else Icons.Filled.KeyboardArrowUp,
-        contentDescription = "fold in or out",
-        modifier = Modifier.size(20.dp)
-            .clickable { onClick() }
-    )
+    Box(modifier = Modifier
+        .fillMaxHeight()
+        .width(25.dp)
+        .clickable { onClick() },
+        contentAlignment = Alignment.Center)
+    {
+        Icon(
+            imageVector = if (isFoldet) Icons.Filled.KeyboardArrowDown else Icons.Filled.KeyboardArrowUp,
+            contentDescription = "fold in or out",
+            modifier = Modifier.size(20.dp)
+        )
+    }
 }
 

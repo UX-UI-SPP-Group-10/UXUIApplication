@@ -120,10 +120,8 @@ fun TaskRowItem(
                         val taskWithSubTasks =
                             taskItemWithSubTask.find { it.taskItem.id == task.id }
 
-                        if (taskWithSubTasks != null && !task.isFolded) {
-                            taskWithSubTasks.subTasks.forEach { subTask ->
-                                viewModel.updateSubTask(subTask, isComplete = newChecked)
-                            }
+                        taskWithSubTasks?.subTasks?.forEach { subTask ->
+                            viewModel.updateSubTask(subTask, isComplete = newChecked)
                         }
                     },
                     colors = CheckboxDefaults.colors(
@@ -180,13 +178,16 @@ fun TaskRowItem(
                     contentAlignment = Alignment.CenterEnd
                 ) {
                     Row(
-                        modifier = Modifier.width(50.dp),
+                        modifier = Modifier.width(56.dp),
                         horizontalArrangement = Arrangement.spacedBy(6.dp, Alignment.End),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         AddSubTaskButton(onClick = {
                             val newSubTask = SubTask(label = "", taskItemId = task.id)
                             viewModel.addSupTask(newSubTask)
+                            if(isFoldet) {
+                                viewModel.updateTaskItem(task, isFolded = false)
+                            }
                         })
 
                         TaskFolderButton(
