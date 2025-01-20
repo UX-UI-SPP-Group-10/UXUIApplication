@@ -211,12 +211,13 @@ fun TodoListScreen(viewModel: TodoListViewModel, appNavigator: AppNavigator) {
                     viewModel.addTodoList(name)
                     viewModel.setNoneState()
                 },
-                onRenameConfirm = { todoList, newName, selectedColor, selectedDate ->
+                onRenameConfirm = { todoList, newName, selectedColor, selectedDate, updatedGifUrl  ->
                     viewModel.updateTodoList(
                         id = todoList.id,
                         title = newName,
                         textColor = selectedColor,
-                        dueDate = selectedDate
+                        dueDate = selectedDate,
+                        gifUrl = updatedGifUrl
                         // Handle selectedDate if applicable
                     )
                     viewModel.setNoneState()
