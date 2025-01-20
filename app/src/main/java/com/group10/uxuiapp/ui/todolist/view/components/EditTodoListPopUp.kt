@@ -129,9 +129,10 @@ fun EditTodolistDialog(
                             selectedBackgroundColor = newBackgroundColor
                             viewModel.updateTodoList(
                                 id = todoList.id,
-                                gifUrl = null,
                                 backgroundColor = newBackgroundColor
-                            )},
+                            )
+                            gifUrl = null
+                        },
                         onResetGifUrl = {viewModel.updateTodoList(todoList.id, gifUrl = null)
                         }
                     )
@@ -263,7 +264,7 @@ fun EditTodolistDialog(
             TextButton(
                 onClick = {
                     val finalTags = if(selectedTags.isBlank()) "" else selectedTags
-                    onConfirm(listName, selectedColor, finalTags,selectedDate, selectedBackgroundColor, isRepeating, selectedDay, gifUrl) // Pass the name entered to the onConfirm handler
+                    onConfirm(listName, selectedColor, selectedBackgroundColor, finalTags, selectedDate, isRepeating, selectedDay, gifUrl) // Pass the name entered to the onConfirm handler
                 }
             ) {
                 Text("Confirm")
