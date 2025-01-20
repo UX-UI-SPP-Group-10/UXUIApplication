@@ -113,7 +113,7 @@ fun EditTodolistDialog(
                                 onClick = {
                                     gifUrl = null
                                 },
-                                modifier = Modifier.fillMaxWidth()
+                                modifier = Modifier.padding(top = 16.dp, start = 0.dp)
                             ) {
                                 Text(text = "Remove GIF")
                             }
