@@ -22,6 +22,7 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import timber.log.Timber
 import java.sql.Date
+import kotlinx.coroutines.flow.first
 
 class TodoListViewModel(private val taskDataSource: TaskDataSource) : ViewModel() {
     private val TAG = "TodoListViewModel" // Debug tag for logs
@@ -237,6 +238,11 @@ class TodoListViewModel(private val taskDataSource: TaskDataSource) : ViewModel(
                     repeatDay = repeatDay,
 
                 )
+                val updatedTodoList = taskDataSource.getTodoListById(id).first() // Correctly get the first emitted value
+
+                // Update the _selectedTodoList state
+                _selectedTodoList.value = updatedTodoList
+
                 Log.d(TAG, "Updated TodoList with id: ${id}")
             } catch (e: Exception) {
                 Log.e(TAG, "Error updating TodoList: ${e.message}", e)
