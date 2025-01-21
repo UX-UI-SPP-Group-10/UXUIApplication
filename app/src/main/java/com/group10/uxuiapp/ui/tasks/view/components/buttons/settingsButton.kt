@@ -87,7 +87,7 @@ fun SettingsButton(
                         Checkbox(
                             checked = sortByCompleted,
                             onCheckedChange = {
-                                sortCompleted() // Call your sorting function
+                                sortCompleted()
                             },
                             modifier = Modifier.padding(0.dp),
                             colors = CheckboxDefaults.colors(
