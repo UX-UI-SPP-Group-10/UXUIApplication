@@ -178,19 +178,19 @@ fun EditTodolistDialog(
                 is EditListPage.DueDatePicker -> {
                     val context = LocalContext.current
                     DatePickerComponent(
-                        context = LocalContext.current,
-                        todoList = todoList,
+                        context = context,
+                        todoList = todoList, // Pass the current TodoList
                         viewModel = viewModel,
                         onDateSelected = { date ->
-                            selectedDate = date
                             val formatter = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
                             val parsedDate = formatter.parse(date)
-                            parsedDate?.let {
-                                viewModel.updateTodoList(todoList.id, dueDate = it.time)
-                            }
+                            selectedDate = date
+                            currentPage = EditListPage.NameInput // Navigate back to NameInput after selecting the date
+                            currentPage = EditListPage.NameInput
                         }
                     )
                 }
+
                 is EditListPage.RepeatPicker -> {
                     Column(
                         modifier = Modifier
