@@ -4,6 +4,7 @@ import android.util.Log
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
@@ -11,14 +12,15 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
@@ -28,8 +30,6 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
-import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -40,8 +40,10 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusManager
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.focus.onFocusEvent
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
@@ -57,13 +59,13 @@ import coil.compose.rememberAsyncImagePainter
 import coil.decode.GifDecoder
 import coil.request.ImageRequest
 import com.group10.uxuiapp.data.data_class.TodoList
-import com.group10.uxuiapp.data.data_class.TodoListWithTaskItem
 import com.group10.uxuiapp.ui.navigation.AppNavigator
 import com.group10.uxuiapp.ui.todolist.view.components.buttons.IsLikedButton
 import com.group10.uxuiapp.ui.todolist.viewmodel.TodoListViewModel
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.unit.sp
 import androidx.core.view.HapticFeedbackConstantsCompat
 import androidx.core.view.ViewCompat
 import com.group10.uxuiapp.R
@@ -81,7 +83,8 @@ fun TodoListCard(
     appNavigator: AppNavigator,
     onPositionChange: (IntOffset, TodoList) -> Unit,
     scope: ReorderableCollectionItemScope,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    focusManager: FocusManager
     ) {
     var cardGlobalOffset by remember { mutableStateOf(Offset.Zero) }
     var cardHeight by remember { mutableStateOf(0) }
@@ -94,7 +97,8 @@ fun TodoListCard(
     val interactionSource = remember { MutableInteractionSource() }
 
     val focusRequester = remember { FocusRequester() }
-    val newTodoListId by viewModel.newTodoListId.collectAsState()   // track if new todolist for text input
+
+    val newTodoListId by viewModel.newTodoListId.collectAsState()
     LaunchedEffect(newTodoListId) {
         if (newTodoListId == todoList.id) {
             focusRequester.requestFocus()
@@ -106,7 +110,6 @@ fun TodoListCard(
     var textValue by remember(todoList.title) { mutableStateOf(todoList.title) }
     val coroutineScope = rememberCoroutineScope()
     var debounceJob by remember { mutableStateOf<Job?>(null) }
-    var isEditing by remember { mutableStateOf(todoList.id == newTodoListId) }
 
     val backgroundColor = remember(todoList.backgroundColor) {
         todoList.backgroundColor?.let { Color(android.graphics.Color.parseColor(it)) }
@@ -123,11 +126,11 @@ fun TodoListCard(
     // Remember the background based on gifUrl
     if (!todoList.gifUrl.isNullOrEmpty()) {
 
-        Modifier.fillMaxSize()
+        Modifier
+            .fillMaxSize()
             .then(
                 Modifier.background(Color.Transparent)
             )
-
     }
     else {
         Modifier.background(
@@ -169,13 +172,15 @@ fun TodoListCard(
                     },
                     interactionSource = interactionSource
                 )
-            .pointerInput(Unit) {
-                detectTapGestures(
-                    onTap = {
-                        appNavigator.navigateToTask(todoList.id)
-                    }
-                )
-            }
+                .pointerInput(Unit) {
+                    detectTapGestures(
+                        onTap = {
+                            viewModel.resetNewTodoList()
+                            focusManager.clearFocus() // Only clear focus if not read-only
+                            appNavigator.navigateToTask(todoList.id)
+                        }
+                    )
+                }
         },
         shape = RoundedCornerShape(20.dp),
         shadowElevation = elevation,
@@ -217,113 +222,107 @@ fun TodoListCard(
         Row(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(16.dp),
+                .padding(14.dp),
             horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.Top
         ) {
             // Title and Due Date Column
             Column(
-                modifier = Modifier.weight(1f) // This allows the column to take remaining space
+                modifier = Modifier.fillMaxHeight()    //fillMaxSize(0.7f)
             ) {
-                if (isEditing) {
-                    // Show TextField only during initial creation
-                    TextField(
-                        value = textValue,
-                        onValueChange = { newText ->
-                            if (newText.length <= 25) {
-                                textValue = newText
 
-                                debounceJob?.cancel()
-                                debounceJob = coroutineScope.launch {
-                                    delay(200)
-                                    viewModel.updateTodoList(id = todoList.id, title = newText)
-                                }
-                            }
-                        },
-                        placeholder = {
-                            Text(text = "New List")
-                        },
-                        singleLine = true,
-                        textStyle = MaterialTheme.typography.displaySmall.copy(
-                            color = Color(android.graphics.Color.parseColor(todoList.textColor))
-                        ),
-                        colors = TextFieldDefaults.colors(
-                            unfocusedContainerColor = Color.Transparent,
-                            focusedContainerColor = Color.Transparent,
-                            unfocusedIndicatorColor = Color.Transparent,
-                            focusedIndicatorColor = Color.Transparent
-                        ),
-                        modifier = Modifier
-                            .focusRequester(focusRequester)
-                            .fillMaxWidth(),
-                        keyboardOptions = KeyboardOptions.Default.copy(
-                            imeAction = ImeAction.Done // Specify that the Enter key performs the "Done" action
-                        ),
-                        keyboardActions = KeyboardActions(
-                            onDone = {
-                                isEditing = false // Stop editing when Enter (Done) is pressed
-                                viewModel.resetNewTodoList()
-                            }
-                        )
-                    )
+                BasicTextField(
+                    value = textValue,
+                    onValueChange = { newText ->
+                        if (newText.length <= 20) {
+                            textValue = newText
 
-                } else {
-                    // Display read-only Text after the name is set
-                    Text(
-                        text = textValue,
-                        style = MaterialTheme.typography.displaySmall,
-                        modifier = Modifier.fillMaxWidth(),
+                            debounceJob?.cancel()
+                            debounceJob = coroutineScope.launch {
+                                delay(200)
+                                viewModel.updateTodoList(id = todoList.id, title = newText)
+                            }
+                        }
+                    },
+                    textStyle = MaterialTheme.typography.labelMedium.copy(
+                        fontSize = 22.sp,
                         color = Color(android.graphics.Color.parseColor(todoList.textColor)),
-                    )
-                }
-
-
+                    ),
+                    singleLine = true,
+                    modifier = modifier
+                        .focusRequester(focusRequester)
+                        ,
+                    keyboardOptions = KeyboardOptions.Default.copy(
+                        imeAction = ImeAction.Done
+                    ),
+                    keyboardActions = KeyboardActions(
+                        onDone = {
+                            focusManager.clearFocus()
+                            viewModel.resetNewTodoList()
+                        }
+                    ),
+                    decorationBox = { innerTextField ->
+                            // Display placeholder when text is empty
+                            if (textValue.isEmpty()) {
+                                Text(
+                                    text = "New List",  // Your placeholder text
+                                    style = MaterialTheme.typography.labelMedium.copy(
+                                        fontSize = 22.sp,
+                                        color = Color.Gray.copy(alpha = 0.5f),
+                                    ),
+                                )
+                            }
+                            // Display the actual text field (where text is typed)
+                            innerTextField()
+                    }
+                )
 
                 DueByDate(todoList = todoList)
-                TagsDisplay(tags = todoList.tags, color = Color(android.graphics.Color.parseColor(todoList.textColor)))
 
+                TagsDisplay(tags = todoList.tags, color = Color(android.graphics.Color.parseColor(todoList.textColor)))
             }
 
-            // Spacing between content and buttons
-            Spacer(modifier = Modifier.width(16.dp))
-
-            // More Options and Like Buttons
             Row(
-                verticalAlignment = Alignment.Top,
-                horizontalArrangement = Arrangement.End
+                horizontalArrangement = Arrangement.spacedBy(4.dp, Alignment.End),
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                if (todoList.isRepeating) { // Check if the list is repeatable
-                    Icon(
-                        painter = painterResource(id = R.drawable.repeat), // Replace with your repeat icon
-                        contentDescription = "Repeat",
-                        tint = MaterialTheme.colorScheme.primary,
-                        modifier = Modifier.padding(end = 8.dp) // Add some spacing
-                    )
+
+                Box(
+                    modifier = Modifier.size(30.dp),
+                ) {
+                    if (todoList.isRepeating) { // Check if the list is repeatable
+                        Icon(
+                            painter = painterResource(id = R.drawable.repeat),
+                            contentDescription = "Repeat",
+                            tint = Color(android.graphics.Color.parseColor(todoList.textColor)),
+                            modifier = Modifier.align(Alignment.Center)
+                        )
+                    }
                 }
 
-                IconButton(onClick = {
+                Box(modifier = Modifier
+                    .size(30.dp)
+                    .clickable {
                     val finalOffset = IntOffset(
                         x = 0,
                         y = (cardGlobalOffset.y + cardHeight).toInt() - extraYOffsetPx
                     )
                     onPositionChange(finalOffset, todoList)
-                },
-                    modifier = Modifier.offset(x = 5.dp, y = -11.dp)
+                    },
                 ) {
                     Icon(
                         imageVector = Icons.Default.MoreVert,
                         contentDescription = "Options",
                         modifier = Modifier
-                            .size(25.dp),
+                            .size(27.dp)
+                            .align(Alignment.Center),
                         tint = Color(android.graphics.Color.parseColor(todoList.textColor))
                     )
                 }
 
-                Spacer(modifier = Modifier.width(0.dp)) // Space between buttons
-
                 IsLikedButton(todoList, onClick = {
                     viewModel.updateTodoList(todoList.id, isLiked = !todoList.isLiked)
-                })
+                    }
+                )
             }
         }
 

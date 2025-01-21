@@ -92,4 +92,7 @@ dependencies {
     implementation ("androidx.fragment:fragment-ktx:1.5.7")
 
     implementation ("androidx.work:work-runtime-ktx:2.8.1")
+
+    implementation("androidx.compose.foundation:foundation:1.7.6")
+
 }

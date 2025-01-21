@@ -44,7 +44,7 @@ fun SettingsButton(
         targetValue = if (expanded.value) 90f else 0f,
         animationSpec = tween(durationMillis = 300), label = ""
     )
-    val settingsColor = MaterialTheme.colorScheme.background
+    val settingsColor = Color(0xFFEEF6FE)
     IconButton(onClick = {
         expanded.value = !expanded.value // Toggle expanded state
     }) {
@@ -105,14 +105,15 @@ fun SettingsButton(
             },
             dismissButton = {
                 Button(onClick = { showDialog.value = false },
-                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF268036))
-                    ) {
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFB4B4B4))
+                ) {
                     Text(
                         text = "Cancel",
-                        color = MaterialTheme.colorScheme.onTertiary
+                        color = Color.Black //MaterialTheme.colorScheme.onTertiary
                     )
                 }
-            }
+            },
+            containerColor = MaterialTheme.colorScheme.tertiary
         )
     }
 }

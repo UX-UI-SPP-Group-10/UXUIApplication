@@ -7,6 +7,8 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.gestures.snapping.snapFlingBehavior
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -46,14 +48,20 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.rememberSwipeToDismissBoxState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.focus.FocusDirection
+import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.unit.dp
 import com.group10.uxuiapp.ui.tasks.view.components.buttons.SettingsButton
 import com.group10.uxuiapp.ui.tasks.view.components.SubTaskRow
-
-
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -74,7 +82,9 @@ fun TaskScreen(todoListId: Int, appNavigator: AppNavigator, viewModel: TaskViewM
     val lazyListState = rememberLazyListState()
     val topBarVisible = lazyListState.firstVisibleItemIndex == 0 && lazyListState.firstVisibleItemScrollOffset < 150
     val sortByComplete = remember { mutableStateOf(false) }
-
+    val focusManager = LocalFocusManager.current
+    val focusRequester = remember { FocusRequester() }
+    val coroutineScope = rememberCoroutineScope()
 
     if (taskListWithItems == null) {
         // Loading state
@@ -104,6 +114,13 @@ fun TaskScreen(todoListId: Int, appNavigator: AppNavigator, viewModel: TaskViewM
                 )
             )
         )
+        .pointerInput(Unit) {
+            detectTapGestures(
+                onTap = {
+                    focusManager.clearFocus()
+                }
+            )
+        }
     ) {
         Scaffold(
             containerColor = Color.Transparent,
@@ -145,9 +162,13 @@ fun TaskScreen(todoListId: Int, appNavigator: AppNavigator, viewModel: TaskViewM
             floatingActionButton = {
                 AddTaskButton(
                     onClick = {
-                    // Add a new task to the TodoList
-                    val newTask = TaskItem(label = "", todoListId = todoListId)
-                    viewModel.addTaskToList(newTask)
+                        // Add a new task to the TodoList
+                        val newTask = TaskItem(label = "", todoListId = todoListId)
+                        viewModel.addTaskToList(newTask)
+                        coroutineScope.launch {
+                            delay(100) // Delay for 100ms
+                            focusRequester.requestFocus() // Request focus after the delay
+                        }
                     }
                 )
             }
@@ -185,7 +206,7 @@ fun TaskScreen(todoListId: Int, appNavigator: AppNavigator, viewModel: TaskViewM
                             items = sortedTasks,
                             key = { task -> task.id }
                         ) { task ->
-                            TaskRowItem(task = task, viewModel = viewModel)
+                            TaskRowItem(task = task, viewModel = viewModel, focusManager = focusManager, focusRequester = focusRequester)
                             val taskWithSubTasks =
                                 taskItemWithSubTask.find { it.taskItem.id == task.id }
 
@@ -199,7 +220,7 @@ fun TaskScreen(todoListId: Int, appNavigator: AppNavigator, viewModel: TaskViewM
                                         }
                                     }
                                 sortedSubTasks.forEach { subTask ->
-                                    SubTaskRow(subTask, viewModel)
+                                    SubTaskRow(task = subTask, viewModel = viewModel, focusManager = focusManager, focusRequester = focusRequester)
                                 }
                             }
                         }

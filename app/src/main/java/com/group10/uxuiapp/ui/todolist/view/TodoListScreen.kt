@@ -14,6 +14,7 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.gestures.animateScrollBy
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
@@ -71,6 +72,8 @@ import sh.calvin.reorderable.ReorderableItem
 import sh.calvin.reorderable.rememberReorderableLazyListState
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalFocusManager
 
 
 // Main TodoListScreen with Scaffold and LazyColumn
@@ -102,9 +105,19 @@ fun TodoListScreen(viewModel: TodoListViewModel, appNavigator: AppNavigator) {
     }
 
     val coroutineScope = rememberCoroutineScope()
+    val focusManager = LocalFocusManager.current
 
     Box(modifier = Modifier
         .fillMaxSize()
+        .pointerInput(Unit) {
+            // Detect tap gestures on the whole screen
+            detectTapGestures(
+                onTap = {
+                    focusManager.clearFocus() // Clear focus when tapping anywhere outside the focused TextField
+                    viewModel.resetNewTodoList()
+                }
+            )
+        }
         .background(
             Brush.verticalGradient(
                 colors = listOf(
@@ -165,7 +178,8 @@ fun TodoListScreen(viewModel: TodoListViewModel, appNavigator: AppNavigator) {
                             },
                             viewModel = viewModel,
                             appNavigator = appNavigator,
-                            scope = this
+                            scope = this,
+                            focusManager = focusManager
                         )
                     }
                     if (selectedTodoList == item.todoList) {

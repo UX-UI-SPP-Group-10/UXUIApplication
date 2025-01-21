@@ -35,6 +35,7 @@ import com.group10.uxuiapp.ui.tasks.viewmodel.TaskViewModel
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.focus.FocusManager
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.input.key.KeyEventType
 import androidx.compose.ui.input.key.onKeyEvent
@@ -48,7 +49,9 @@ import kotlinx.coroutines.launch
 @Composable
 fun TaskRowItem(
     task: TaskItem,
-    viewModel: TaskViewModel
+    viewModel: TaskViewModel,
+    focusManager: FocusManager,
+    focusRequester: FocusRequester
 ) {
     val taskItemWithSubTask by viewModel.lists.collectAsState()
     val selectedTask by viewModel.selectedTaskItem.collectAsState()
@@ -66,8 +69,6 @@ fun TaskRowItem(
     val boxWhith = Modifier
         .fillMaxWidth()
         .padding(end = animatedEndPadding)
-
-    val focusManager = LocalFocusManager.current
 
     Box(
         modifier = Modifier
@@ -161,7 +162,9 @@ fun TaskRowItem(
                         unfocusedIndicatorColor = Color.Transparent, // No underline
                         focusedIndicatorColor = Color.Transparent // No underline
                     ),
-                    modifier = Modifier.width(225.dp),
+                    modifier = Modifier
+                        .width(225.dp)
+                        .focusRequester(focusRequester),
                     keyboardOptions = KeyboardOptions.Default.copy(
                         imeAction = ImeAction.Done
                     ),
@@ -187,6 +190,10 @@ fun TaskRowItem(
                             viewModel.addSupTask(newSubTask)
                             if(isFoldet) {
                                 viewModel.updateTaskItem(task, isFolded = false)
+                            }
+                            coroutineScope.launch {
+                                delay(100) // Delay for 100ms
+                                focusRequester.requestFocus() // Request focus after the delay
                             }
                         })
 

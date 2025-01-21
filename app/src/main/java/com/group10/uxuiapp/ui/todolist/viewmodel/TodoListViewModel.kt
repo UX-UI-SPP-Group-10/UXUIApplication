@@ -188,7 +188,6 @@ class TodoListViewModel(private val taskDataSource: TaskDataSource) : ViewModel(
         }
     }
 
-
     fun updateTodoList(
         id: Int,
         title: String? = null,
@@ -200,23 +199,43 @@ class TodoListViewModel(private val taskDataSource: TaskDataSource) : ViewModel(
         dueDate: Long? = null,
         newIndex: Int? = null,  // unused for now, updating all indexes instead when moving
         isRepeating: Boolean? = null,
-        repeatDay: Int? = null
+        repeatDay: Int? = null,
+        resetGif: Boolean = false,
+        resetBackgroundColor: Boolean = false
+
     ) {
+
         viewModelScope.launch {
+            val existingTodoList = taskDataSource.getTodoListById(id).firstOrNull() ?: return@launch
+
             try {
+                // Handle gifUrl and backgroundColor based on reset flags or passed values
+                val finalGifUrl = when {
+                    resetGif -> null // Explicit reset
+                    gifUrl != null -> gifUrl // Update to new value
+                    else -> existingTodoList.gifUrl // Preserve existing
+                }
+
+                val finalBackgroundColor = when {
+                    resetBackgroundColor -> null // Explicit reset
+                    backgroundColor != null -> backgroundColor // Update to new value
+                    else -> existingTodoList.backgroundColor // Preserve existing
+                }
+
                 Log.d("NullGif", "updateTodoList called with id: $id, gifUrl: $gifUrl, backgroundColor: $backgroundColor")
                 // Update other fields in the database
                 taskDataSource.updateTodoList(
                     todoListId = id,
                     title = title,
                     isLiked = isLiked,
-                    gifUrl = gifUrl,
+                    gifUrl = finalGifUrl,
                     textColor = textColor,
-                    backgroundColor = backgroundColor,
+                    backgroundColor = finalBackgroundColor,
                     tags = tags,
                     dueDate = dueDate,
                     isRepeating = isRepeating,
-                    repeatDay = repeatDay
+                    repeatDay = repeatDay,
+
                 )
                 Log.d(TAG, "Updated TodoList with id: ${id}")
             } catch (e: Exception) {

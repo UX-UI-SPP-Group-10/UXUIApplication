@@ -18,13 +18,19 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Card
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.focus.FocusManager
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.text.input.ImeAction
 import com.group10.uxuiapp.data.data_class.SubTask
 import com.group10.uxuiapp.ui.tasks.view.components.buttons.Delete
 import com.group10.uxuiapp.ui.tasks.viewmodel.TaskViewModel
@@ -36,7 +42,9 @@ import kotlinx.coroutines.launch
 @Composable
 fun SubTaskRow(
     task: SubTask,
-    viewModel: TaskViewModel
+    viewModel: TaskViewModel,
+    focusManager: FocusManager,
+    focusRequester: FocusRequester
 ) {
     var isChecked = task.isComplete
     val selectedTask by viewModel.selectedSubTask.collectAsState()
@@ -147,7 +155,17 @@ fun SubTaskRow(
                         unfocusedIndicatorColor = Color.Transparent, // No underline
                         focusedIndicatorColor = Color.Transparent // No underline
                     ),
-                    modifier = Modifier.width(225.dp)
+                    modifier = Modifier
+                        .width(225.dp)
+                        .focusRequester(focusRequester),
+                    keyboardOptions = KeyboardOptions.Default.copy(
+                        imeAction = ImeAction.Done
+                    ),
+                    keyboardActions = KeyboardActions(
+                        onDone = {
+                            focusManager.clearFocus()
+                        }
+                    )
                 )
             }
         }
