@@ -122,22 +122,6 @@ class TodoListViewModel(private val taskDataSource: TaskDataSource) : ViewModel(
         _selectedTodoList.value = todoList
     }
 
-    fun lickTodolist(id: Int, isLiked: Boolean) {
-        viewModelScope.launch {
-            val existingTodoList = taskDataSource.getTodoListById(id).firstOrNull() ?: return@launch
-
-            try {
-
-                taskDataSource.updateTodoList(
-                    todoListId = id,
-                    isLiked = isLiked,
-                )
-            } catch (e: Exception) {
-                Log.e(TAG, "Error liking TodoList: ${e.message}", e)
-            }
-        }
-    }
-
         fun addTodoList(title: String) {
             viewModelScope.launch {
                 Log.d(TAG, "addTodoList() called with title=$title")
@@ -258,13 +242,15 @@ class TodoListViewModel(private val taskDataSource: TaskDataSource) : ViewModel(
                         repeatDay = repeatDay,
 
                         )
-                    val updatedTodoList = taskDataSource.getTodoListById(id)
-                        .first() // Correctly get the first emitted value
+                    if (isLiked == null) {
+                        val updatedTodoList = taskDataSource.getTodoListById(id)
+                            .first() // Correctly get the first emitted value
 
-                    // Update the _selectedTodoList state
-                    _selectedTodoList.value = updatedTodoList
+                        // Update the _selectedTodoList state
+                        _selectedTodoList.value = updatedTodoList
 
-                    Log.d(TAG, "Updated TodoList with id: ${id}")
+                        Log.d(TAG, "Updated TodoList with id: ${id}")
+                    }
                 } catch (e: Exception) {
                     Log.e(TAG, "Error updating TodoList: ${e.message}", e)
                 }
