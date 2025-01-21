@@ -320,7 +320,7 @@ fun TodoListCard(
                 }
 
                 IsLikedButton(todoList, onClick = {
-                    viewModel.updateTodoList(todoList.id, isLiked = !todoList.isLiked)
+                    viewModel.lickTodolist(todoList.id, isLiked = !todoList.isLiked)
                     }
                 )
             }
