@@ -15,7 +15,6 @@ import com.group10.uxuiapp.data.data_class.TodoList
 @Composable
 fun ListNameInputDialog(
     todoList: TodoList?,
-    onRemoveGif: () -> Unit,
     onDismiss: () -> Unit,
     onConfirm: (String) -> Unit
 ) {
@@ -32,14 +31,6 @@ fun ListNameInputDialog(
                     label = { Text("List Name") },
                     modifier = Modifier.fillMaxWidth()
                 )
-                if (!todoList?.gifUrl.isNullOrEmpty()) {
-                    TextButton(
-                        onClick = onRemoveGif,
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-                        Text("Remove Gif")
-                    }
-                }
             }
         },
         confirmButton = {

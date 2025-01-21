@@ -41,11 +41,6 @@ fun PopupManager(
                 onDismiss = onDismiss,
                 onConfirm = { name ->
                     onNewListConfirm(name)
-                },
-                onRemoveGif = {
-                    todoList.let {
-                        viewModel.updateTodoList(id = todoList.id, gifUrl = null)
-                    }
                 }
             )
         }
