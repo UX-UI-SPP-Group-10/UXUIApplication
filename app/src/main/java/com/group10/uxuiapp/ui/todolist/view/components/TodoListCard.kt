@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -130,7 +131,6 @@ fun TodoListCard(
             .then(
                 Modifier.background(Color.Transparent)
             )
-
     }
     else {
         Modifier.background(
@@ -227,7 +227,7 @@ fun TodoListCard(
         ) {
             // Title and Due Date Column
             Column(
-                modifier = Modifier.fillMaxSize(0.7f)
+                modifier = Modifier.fillMaxHeight()    //fillMaxSize(0.7f)
             ) {
 
                 BasicTextField(
@@ -277,6 +277,7 @@ fun TodoListCard(
                 )
 
                 DueByDate(todoList = todoList)
+
                 TagsDisplay(tags = todoList.tags, color = Color(android.graphics.Color.parseColor(todoList.textColor)))
             }
 

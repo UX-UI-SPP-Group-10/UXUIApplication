@@ -115,6 +115,10 @@ fun EditTodolistDialog(
                             TextButton(
                                 onClick = {
                                     gifUrl = null
+                                    viewModel.updateTodoList(
+                                        id = todoList.id,
+                                        resetGif = true // Explicit reset
+                                    )
                                 },
                                 modifier = Modifier.padding(top = 16.dp, start = 0.dp)
                             ) {
@@ -132,11 +136,12 @@ fun EditTodolistDialog(
                             selectedBackgroundColor = newBackgroundColor
                             viewModel.updateTodoList(
                                 id = todoList.id,
-                                backgroundColor = newBackgroundColor
+                                backgroundColor = newBackgroundColor,
+                                resetGif = true
                             )
                             gifUrl = null
                         },
-                        onResetGifUrl = {viewModel.updateTodoList(todoList.id, gifUrl = null)
+                        onResetGifUrl = {viewModel.updateTodoList(todoList.id, gifUrl = null, resetGif = true)
                         }
                     )
                     TextButton(
@@ -145,8 +150,10 @@ fun EditTodolistDialog(
                             selectedBackgroundColor = "" // Optional: Reset the local state if needed
                             viewModel.updateTodoList(
                                 id = todoList.id,
-                                backgroundColor = null,
-                                gifUrl = null)
+                                resetBackgroundColor = true, // Explicit reset
+                                resetGif = true
+                            )
+                            gifUrl = null
                         },
                         modifier = Modifier.padding(top = 320.dp, start = 4.dp)
                     ) {
