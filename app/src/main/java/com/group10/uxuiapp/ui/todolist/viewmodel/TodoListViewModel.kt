@@ -242,9 +242,8 @@ class TodoListViewModel(private val taskDataSource: TaskDataSource) : ViewModel(
                         repeatDay = repeatDay,
 
                         )
-                    if (isLiked == null) {
-                        val updatedTodoList = taskDataSource.getTodoListById(id)
-                            .first() // Correctly get the first emitted value
+                    if (isLiked == null || (gifUrl == null && (title != null || textColor != null || tags != null || dueDate != null ))) {
+                        val updatedTodoList = taskDataSource.getTodoListById(id).first() // Correctly get the first emitted value
 
                         // Update the _selectedTodoList state
                         _selectedTodoList.value = updatedTodoList
