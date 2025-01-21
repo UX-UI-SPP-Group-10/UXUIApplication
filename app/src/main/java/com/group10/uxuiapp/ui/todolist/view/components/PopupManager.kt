@@ -37,7 +37,6 @@ fun PopupManager(
         is TodoListState.NewList -> {
             // Show dialog for new list
             ListNameInputDialog(
-                todoList = todoList,
                 onDismiss = onDismiss,
                 onConfirm = { name ->
                     onNewListConfirm(name)

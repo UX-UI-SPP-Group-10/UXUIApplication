@@ -14,7 +14,6 @@ import com.group10.uxuiapp.data.data_class.TodoList
 
 @Composable
 fun ListNameInputDialog(
-    todoList: TodoList?,
     onDismiss: () -> Unit,
     onConfirm: (String) -> Unit
 ) {

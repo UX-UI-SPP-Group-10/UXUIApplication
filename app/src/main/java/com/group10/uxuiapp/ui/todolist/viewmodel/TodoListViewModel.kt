@@ -189,6 +189,29 @@ class TodoListViewModel(private val taskDataSource: TaskDataSource) : ViewModel(
             }
         }
 
+    fun updateTitle(id: Int, title: String?){
+        try {
+            viewModelScope.launch {
+                taskDataSource.updateTodoList(
+                    todoListId = id,
+                    title = title,
+                    isLiked = null,
+                    gifUrl = null,
+                    textColor = null,
+                    dueDate = null,
+                    tags = null,
+                    repeatDay = null,
+                    isRepeating = null,
+                    backgroundColor = null
+                )
+            }
+        }
+        catch (e: Exception) {
+            Log.e(TAG, "Error updating TodoList: ${e.message}", e)
+        }
+
+    }
+
         fun updateTodoList(
             id: Int,
             title: String? = null,
@@ -242,7 +265,7 @@ class TodoListViewModel(private val taskDataSource: TaskDataSource) : ViewModel(
                         repeatDay = repeatDay,
 
                         )
-                    if (isLiked == null || (gifUrl == null && (title != null || textColor != null || tags != null || dueDate != null ))) {
+                    if (isLiked == null) {
                         val updatedTodoList = taskDataSource.getTodoListById(id).first() // Correctly get the first emitted value
 
                         // Update the _selectedTodoList state
@@ -308,4 +331,4 @@ class TodoListViewModel(private val taskDataSource: TaskDataSource) : ViewModel(
         fun getTaskDueBefore(timestamp: Long): LiveData<List<TodoList>> {
             return taskDataSource.getTodoListsDueBefore(timestamp).asLiveData()
         }
-    }
+}

@@ -239,7 +239,7 @@ fun TodoListCard(
                             debounceJob?.cancel()
                             debounceJob = coroutineScope.launch {
                                 delay(200)
-                                viewModel.updateTodoList(id = todoList.id, title = newText)
+                                viewModel.updateTitle(id = todoList.id, title = newText)
                             }
                         }
                     },
