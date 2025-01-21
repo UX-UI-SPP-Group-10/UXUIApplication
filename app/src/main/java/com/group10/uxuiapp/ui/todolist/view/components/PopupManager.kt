@@ -3,6 +3,8 @@ package com.group10.uxuiapp.ui.todolist.view.components
 import GiphyDialog
 import android.util.Log
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.platform.LocalContext
 import com.group10.uxuiapp.data.data_class.TodoList
 import com.group10.uxuiapp.ui.todolist.viewmodel.TodoListState
@@ -26,6 +28,7 @@ fun PopupManager(
     onTagsEdited: (TodoList, String) -> Unit,
     onDismiss: () -> Unit
 ) {
+
     when (popupState) {
         is TodoListState.None -> {
             // No dialog to show
@@ -40,7 +43,7 @@ fun PopupManager(
                     onNewListConfirm(name)
                 },
                 onRemoveGif = {
-                    todoList?.let {
+                    todoList.let {
                         viewModel.updateTodoList(id = todoList.id, gifUrl = null)
                     }
                 }
