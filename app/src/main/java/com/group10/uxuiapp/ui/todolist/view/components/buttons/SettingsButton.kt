@@ -44,7 +44,7 @@ fun SettingsButton(
         targetValue = if (expanded.value) 90f else 0f,
         animationSpec = tween(durationMillis = 300), label = ""
     )
-    val settingsColor = MaterialTheme.colorScheme.background
+    val settingsColor = Color(0xFFEEF6FE)
     IconButton(onClick = {
         expanded.value = !expanded.value // Toggle expanded state
     }) {
