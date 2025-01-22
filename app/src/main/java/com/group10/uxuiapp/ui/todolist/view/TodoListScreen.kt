@@ -346,39 +346,9 @@ private fun TopAppBarWithMenu(showLiked: MutableState<Boolean>, viewModel: TodoL
                                     )
                                 }
                             }
-                    }   }
+                        }
+                    }
                 )
-//                TextField(
-//                    value = searchQuery,
-//                    onValueChange = { viewModel.onSearchQueryChange(it) },
-//                    singleLine = true,
-//                    shape = RoundedCornerShape(12.dp),
-//                    modifier = Modifier
-//                        .focusRequester(focusRequester)
-//                        .fillMaxWidth()
-//                        .wrapContentHeight()
-//                        .padding(8.dp)
-//                        .border(
-//                            width = 1.dp,
-//                            color = MaterialTheme.colorScheme.secondary,  // border color
-//                            shape = RoundedCornerShape(12.dp)
-//                        ),
-//                    textStyle = TextStyle(fontSize = 16.sp, lineHeight = 20.sp),
-//                    trailingIcon = {
-//                        if (searchQuery.isNotEmpty()) {
-//                            IconButton(onClick = { viewModel.onSearchQueryChange("") }) {
-//                                Icon(Icons.Filled.Close, contentDescription = "Clear", tint = MaterialTheme.colorScheme.onSurface)
-//                            }
-//                        }
-//                    },
-//                    colors = TextFieldDefaults.colors(
-//                        unfocusedIndicatorColor = Color.Transparent,
-//                        focusedIndicatorColor = Color.Transparent,
-//                        unfocusedContainerColor = MaterialTheme.colorScheme.onPrimary,
-//                        focusedContainerColor = MaterialTheme.colorScheme.onPrimary,
-//                    )
-//                )
-
             }
         },
         modifier = Modifier
