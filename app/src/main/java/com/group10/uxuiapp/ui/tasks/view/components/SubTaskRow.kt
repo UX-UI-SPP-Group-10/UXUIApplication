@@ -78,7 +78,11 @@ fun SubTaskRow(
                 .padding(start = 1.dp, end = 1.dp),
             contentAlignment = Alignment.CenterEnd
         ) {
-            Delete(onClick = { viewModel.deleteSupTask(selectedTask!!) })
+            Delete(onClick = {
+                viewModel.deleteSupTask(selectedTask!!)
+                viewModel.selectTaskForChange(null, null)
+            }
+            )
         }
         Card(
             modifier = Modifier
