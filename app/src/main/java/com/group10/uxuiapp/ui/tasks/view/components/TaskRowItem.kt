@@ -1,10 +1,10 @@
 package com.group10.uxuiapp.ui.tasks.view.components
 
+import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
+import androidx.compose.foundation.gestures.detectHorizontalDragGestures
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.text.BasicTextField
-import androidx.compose.foundation.text.KeyboardActions
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CheckboxDefaults
 import androidx.compose.material3.MaterialTheme
@@ -17,87 +17,196 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.group10.uxuiapp.data.data_class.TaskItem
-import com.group10.uxuiapp.ui.todolist.viewmodel.TodoListViewModel
 import androidx.compose.foundation.gestures.detectTapGestures
-import androidx.compose.runtime.remember
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material3.Card
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalFocusManager
+import com.group10.uxuiapp.data.data_class.SubTask
+import com.group10.uxuiapp.ui.tasks.view.components.buttons.AddTaskButton
+import com.group10.uxuiapp.ui.tasks.view.components.buttons.Delete
 import com.group10.uxuiapp.ui.tasks.viewmodel.TaskViewModel
-
+import androidx.compose.material3.TextField
+import androidx.compose.material3.TextFieldDefaults
+import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.focus.FocusManager
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.input.key.KeyEventType
+import androidx.compose.ui.input.key.onKeyEvent
+import androidx.compose.ui.input.key.type
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.tooling.preview.Preview
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 @Composable
 fun TaskRowItem(
     task: TaskItem,
-    viewModel: TaskViewModel
+    viewModel: TaskViewModel,
+    focusManager: FocusManager,
+    focusRequester: FocusRequester
 ) {
+    val taskItemWithSubTask by viewModel.lists.collectAsState()
+    val selectedTask by viewModel.selectedTaskItem.collectAsState()
     var isChecked = task.isComplete
+    var isFoldet = task.isFolded
+    var textValue by remember { mutableStateOf(task.label) }
+
+    val coroutineScope = rememberCoroutineScope()
+    var debounceJob by remember { mutableStateOf<Job?>(null) }
+    val animatedEndPadding by animateDpAsState(
+        targetValue = if (selectedTask == task) 45.dp else 0.dp,
+        animationSpec = tween(durationMillis = 200), label = "" // Adjust duration for smoothness
+    )
+
+    val boxWhith = Modifier
+        .fillMaxWidth()
+        .padding(end = animatedEndPadding)
 
     Box(
         modifier = Modifier
-            .padding(vertical = 6.dp, horizontal = 12.dp)
-            .height(40.dp)
+            .height(50.dp)
             .fillMaxWidth()
-            .background(
-                color = MaterialTheme.colorScheme.surfaceVariant,
-                shape = MaterialTheme.shapes.small
-            )
     ) {
-        Row(
+        Box(
             modifier = Modifier
+                .fillMaxHeight()
                 .fillMaxWidth()
-                .height(56.dp)
-                .pointerInput(Unit) {
-                    // detectTapGestures only for the "empty space"
-                    detectTapGestures(onLongPress = { viewModel.selectTask(task) })
-                },
-            verticalAlignment = Alignment.CenterVertically
+                .padding(end = 1.dp),
+            contentAlignment = Alignment.CenterEnd
         ) {
-            Spacer(modifier = Modifier.width(16.dp))
-            // 2) Checkbox
-            Checkbox(
-                checked = isChecked,
-                onCheckedChange = { newChecked ->
-                    isChecked = newChecked
-                    viewModel.updateTaskItem(task, isComplete = newChecked)
-                },
-                colors = CheckboxDefaults.colors(
-                    checkedColor = MaterialTheme.colorScheme.primary,
-                    uncheckedColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
-                    checkmarkColor = MaterialTheme.colorScheme.onPrimary
-                ),
-                modifier = Modifier.size(28.dp)
-            )
+            Delete(onClick = { viewModel.deleteTask(task) })
+        }
+        Card(
+            modifier = Modifier
+                .then(boxWhith)
+                .pointerInput(Unit) {
+                    detectHorizontalDragGestures { change, dragAmount ->
+                        change.consume()
 
-            // 3) Editable text
-            BasicTextField(
-                value = task.label,
-                onValueChange = { newText ->
-                    viewModel.updateTaskItem(task, label = newText)
-                },
-                textStyle = MaterialTheme.typography.bodyLarge.copy(
-                    textDecoration = if (isChecked) TextDecoration.LineThrough else null,
-                    fontWeight = FontWeight.Medium,
-                    color = if (isChecked) {
-                        MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
-                    } else {
-                        MaterialTheme.colorScheme.onSurface
+                        if (dragAmount < -30) {
+                            viewModel.selectTaskForChange(task)
+                        }
+                        else if (dragAmount > 30) {
+                            viewModel.selectTaskForChange(null, null)
+                        }
                     }
-                ),
-                singleLine = true,
+                },
+            elevation = androidx.compose.material3.CardDefaults.cardElevation(
+                defaultElevation = 4.dp
+            ),
+            colors = androidx.compose.material3.CardDefaults.cardColors(
+                containerColor = Color(0xFFF8FCFF)
+            )
+        ) {
+            Row(
                 modifier = Modifier
-                    .widthIn(max = 200.dp)
-                    .padding(start = 4.dp)
+                    .padding(vertical = 0.dp, horizontal = 12.dp)   // This is the inner padding
+                    .fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                // Placeholder if you want one
-                if (task.label.isEmpty()) {
-                    Text(
-                        text = "new Task",
-                        fontSize = 16.sp,
-                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.4f)
+                // 2) Checkbox
+                Checkbox(
+                    checked = isChecked,
+                    onCheckedChange = { newChecked ->
+                        isChecked = newChecked
+                        viewModel.updateTaskItem(task, isComplete = newChecked)
+                        val taskWithSubTasks =
+                            taskItemWithSubTask.find { it.taskItem.id == task.id }
+
+                        taskWithSubTasks?.subTasks?.forEach { subTask ->
+                            viewModel.updateSubTask(subTask, isComplete = newChecked)
+                        }
+                    },
+                    colors = CheckboxDefaults.colors(
+                        checkedColor = Color(0xFF7d8597),
+                        uncheckedColor = MaterialTheme.colorScheme.onSurface
+                    ),
+                    modifier = Modifier.size(28.dp)
+                )
+
+                // 3) Editable text
+                TextField(
+                    value = textValue,
+                    onValueChange = { newText ->
+                        if (newText.length <= 20) {
+                            textValue = newText
+
+                            debounceJob?.cancel() // Cancel the ongoing debounce job
+                            debounceJob = coroutineScope.launch {
+                                delay(200) // 200ms debounce delay
+                                viewModel.updateTaskItem(task, label = newText) // Update ViewModel
+                            }
+                        }
+                    },
+                    singleLine = true,
+                    textStyle = MaterialTheme.typography.bodyLarge.copy(
+                        textDecoration = if (isChecked) TextDecoration.LineThrough else null,
+                        fontWeight = FontWeight.Medium,
+                        color = if (isChecked) {
+                            MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
+                        } else {
+                            MaterialTheme.colorScheme.onSurface
+                        }
+                    ),
+                    colors = TextFieldDefaults.colors(
+                        unfocusedContainerColor = Color.Transparent, // No background
+                        focusedContainerColor = Color.Transparent,  // No background on focus
+                        unfocusedIndicatorColor = Color.Transparent, // No underline
+                        focusedIndicatorColor = Color.Transparent // No underline
+                    ),
+                    modifier = Modifier
+                        .width(225.dp)
+                        .focusRequester(focusRequester),
+                    keyboardOptions = KeyboardOptions.Default.copy(
+                        imeAction = ImeAction.Done
+                    ),
+                    keyboardActions = KeyboardActions(
+                        onDone = {
+                            focusManager.clearFocus()
+                        }
                     )
+                )
+
+
+                Box(
+                    modifier = Modifier.fillMaxWidth(),
+                    contentAlignment = Alignment.CenterEnd
+                ) {
+                    Row(
+                        modifier = Modifier.width(56.dp),
+                        horizontalArrangement = Arrangement.spacedBy(6.dp, Alignment.End),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        AddSubTaskButton(onClick = {
+                            val newSubTask = SubTask(label = "", taskItemId = task.id)
+                            viewModel.addSupTask(newSubTask)
+                            if(isFoldet) {
+                                viewModel.updateTaskItem(task, isFolded = false)
+                            }
+                            coroutineScope.launch {
+                                delay(100) // Delay for 100ms
+                                focusRequester.requestFocus() // Request focus after the delay
+                            }
+                        })
+
+                        TaskFolderButton(
+                            onClick = {
+                                isFoldet = !isFoldet
+                                viewModel.updateTaskItem(task, isFolded = isFoldet)
+                            },
+                            isFoldet = isFoldet
+                        )
+                    }
                 }
-                it()
             }
-            Spacer(modifier = Modifier.weight(1f))
         }
     }
 }

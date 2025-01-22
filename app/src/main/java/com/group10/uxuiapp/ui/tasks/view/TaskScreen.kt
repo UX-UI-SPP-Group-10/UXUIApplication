@@ -1,13 +1,24 @@
 package com.group10.uxuiapp.ui.tasks.view
 
 import android.util.Log
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.gestures.snapping.snapFlingBehavior
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.calculateEndPadding
+import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -24,21 +35,33 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import com.group10.uxuiapp.data.data_class.TaskItem
-import com.group10.uxuiapp.ui.todolist.view.components.SettingsButton
 import com.group10.uxuiapp.ui.tasks.view.components.TaskRowItem
-import com.group10.uxuiapp.ui.tasks.view.components.AddTaskButton
+import com.group10.uxuiapp.ui.tasks.view.components.buttons.AddTaskButton
 import com.group10.uxuiapp.ui.navigation.AppNavigator
 import com.group10.uxuiapp.ui.tasks.view.components.EditTaskPopup
 import com.group10.uxuiapp.ui.tasks.viewmodel.TaskViewModel
-import com.group10.uxuiapp.ui.todolist.viewmodel.TodoListViewModel
-import okhttp3.internal.concurrent.Task
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.setValue
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.rememberSwipeToDismissBoxState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.focus.FocusDirection
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.unit.dp
+import com.group10.uxuiapp.ui.tasks.view.components.buttons.SettingsButton
+import com.group10.uxuiapp.ui.tasks.view.components.SubTaskRow
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -54,6 +77,14 @@ fun TaskScreen(todoListId: Int, appNavigator: AppNavigator, viewModel: TaskViewM
     // Observe the current TodoList and its tasks
     val taskListWithItems by viewModel.currentTodoList.collectAsState()
     val selectedTask by viewModel.selectedTaskItem.collectAsState()
+    val selectedSubTask by viewModel.selectedSubTask.collectAsState()
+    val taskItemWithSubTask by viewModel.lists.collectAsState()
+    val lazyListState = rememberLazyListState()
+    val topBarVisible = lazyListState.firstVisibleItemIndex == 0 && lazyListState.firstVisibleItemScrollOffset < 150
+    val sortByComplete = remember { mutableStateOf(false) }
+    val focusManager = LocalFocusManager.current
+    val focusRequester = remember { FocusRequester() }
+    val coroutineScope = rememberCoroutineScope()
 
     if (taskListWithItems == null) {
         // Loading state
@@ -66,80 +97,136 @@ fun TaskScreen(todoListId: Int, appNavigator: AppNavigator, viewModel: TaskViewM
         return
     }
 
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = { Text(taskListWithItems!!.todoList.title) },
-                navigationIcon = {
-                    IconButton(onClick = { appNavigator.popBackStack() }) {
-                        Icon(
-                            painter = painterResource(id = R.drawable.arrow_left),
-                            contentDescription = "Back"
-                        )
-                    }
-                },
-                actions = {
-                    IconButton(onClick = { Log.d("TaskPage", "Search clicked") }) {
-                        Icon(Icons.Filled.Search, contentDescription = "Search")
-                    }
-                    SettingsButton(context = context)
-                },
-                colors = TopAppBarDefaults.topAppBarColors(),
-                scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
+    val sortedTasks = remember(taskListWithItems?.taskItems, sortByComplete.value) {
+        taskListWithItems?.taskItems?.let {
+            if (sortByComplete.value) it.sortedBy { task ->  task.isComplete } else it
+        } ?: emptyList()
+    }
+
+    val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
+    Box(modifier = Modifier
+        .fillMaxSize()
+        .background(
+            Brush.verticalGradient(
+                colors = listOf(
+                    Color(0xFFF8F8F8),
+                    MaterialTheme.colorScheme.background
+                )
             )
-        },
-        bottomBar = {
-            AddTaskButton(onClick = {
-                // Add a new task to the TodoList
-                val newTask = TaskItem(label = "", todoListId = todoListId)
-                viewModel.addTaskToList(newTask)
-            })
-        }
-    ) { innerPadding ->
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(innerPadding),
-            contentAlignment = Alignment.TopCenter
-        ) {
-            if (taskListWithItems!!.taskItems.isEmpty()) {
-                // Empty state
-                Box(
-                    modifier = Modifier.fillMaxSize(),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text("No tasks yet. Add some!")
+        )
+        .pointerInput(Unit) {
+            detectTapGestures(
+                onTap = {
+                    focusManager.clearFocus()
                 }
-            } else {
-                // Display task list
-                LazyColumn {
-                    items(
-                        items = taskListWithItems!!.taskItems,
-                        key = { task -> task.id }
-                    ) { task ->
-                        TaskRowItem(task = task, viewModel = viewModel)
+            )
+        }
+    ) {
+        Scaffold(
+            containerColor = Color.Transparent,
+            topBar = {
+                AnimatedVisibility(
+                    visible = topBarVisible
+                )
+                {
+                    TopAppBar(
+                        title = { Text(text = taskListWithItems!!.todoList.title,
+                            color = MaterialTheme.colorScheme.onPrimary) },
+                        navigationIcon = {
+                            IconButton(onClick = { appNavigator.popBackStack() }) {
+                                Icon(
+                                    painter = painterResource(id = R.drawable.arrow_left),
+                                    contentDescription = "Back",
+                                    tint = MaterialTheme.colorScheme.onPrimary
+                                )
+                            }
+                        },
+                        actions = {
+                            SettingsButton(
+                                context = context,
+                                //sortByComplete = sortByComplete
+                                deleteCompletedClick = { viewModel.deleteCompletedTasks(todoListId) },
+                                sortCompleted = {
+                                    sortByComplete.value = !sortByComplete.value
+                                },
+                                sortByCompleted = sortByComplete.value
+                            )
+                        },
+                        colors = TopAppBarDefaults.topAppBarColors(
+                            containerColor = MaterialTheme.colorScheme.primary,
+                        ),
+                        scrollBehavior = scrollBehavior,
+                    )
+                }
+            },
+            floatingActionButton = {
+                AddTaskButton(
+                    onClick = {
+                        // Add a new task to the TodoList
+                        val newTask = TaskItem(label = "", todoListId = todoListId)
+                        viewModel.addTaskToList(newTask)
+                        coroutineScope.launch {
+                            delay(100) // Delay for 100ms
+                            focusRequester.requestFocus() // Request focus after the delay
+                        }
+                    }
+                )
+            }
+        ) { innerPadding ->
+            val extraBottomPadding = 450.dp
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(innerPadding),
+                contentAlignment = Alignment.TopCenter
+            ) {
+                if (sortedTasks.isEmpty()) {
+                    // Empty state
+                    Box(
+                        modifier = Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text("No tasks yet. Add some!")
+                    }
+                } else {
+                    // Display task list
+                    LazyColumn(
+                        state = lazyListState,
+                        modifier = Modifier
+                            .fillMaxSize(),
+                        contentPadding = PaddingValues(
+                            end = innerPadding.calculateEndPadding(LocalLayoutDirection.current) + 12.dp,
+                            start = innerPadding.calculateStartPadding(LocalLayoutDirection.current) + 12.dp,
+                            top = 12.dp,
+                            bottom = innerPadding.calculateBottomPadding() + extraBottomPadding
+                        ),
+                        verticalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        items(
+                            items = sortedTasks,
+                            key = { task -> task.id }
+                        ) { task ->
+                            TaskRowItem(task = task, viewModel = viewModel, focusManager = focusManager, focusRequester = focusRequester)
+                            val taskWithSubTasks =
+                                taskItemWithSubTask.find { it.taskItem.id == task.id }
+
+                            if (taskWithSubTasks != null && !task.isFolded) {
+                                val sortedSubTasks =
+                                    remember(taskWithSubTasks.subTasks, sortByComplete.value) {
+                                        if (sortByComplete.value) {
+                                            taskWithSubTasks.subTasks.sortedBy { subTask -> subTask.isComplete }
+                                        } else {
+                                            taskWithSubTasks.subTasks
+                                        }
+                                    }
+                                sortedSubTasks.forEach { subTask ->
+                                    SubTaskRow(task = subTask, viewModel = viewModel, focusManager = focusManager, focusRequester = focusRequester)
+                                }
+                            }
+                        }
                     }
                 }
-
             }
         }
     }
-
-    if (selectedTask != null) {
-        EditTaskPopup(
-            taskName = selectedTask!!.label,
-            onSaveTask = { newName ->
-                viewModel.updateTaskItem(taskItem = selectedTask!!, label = newName)
-                viewModel.selectTask(null)
-            },
-            onDeleteTask = {
-                viewModel.deleteTask(selectedTask!!)
-                viewModel.selectTask(null)
-            },
-            onDismiss = {
-                viewModel.selectTask(null)
-            }
-        )
-    }
-
 }

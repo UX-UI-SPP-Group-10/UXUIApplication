@@ -10,9 +10,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import com.group10.uxuiapp.data.data_class.TodoList
 
 @Composable
-fun ListNameInputDialog(onDismiss: () -> Unit, onConfirm: (String) -> Unit) {
+fun ListNameInputDialog(
+    onDismiss: () -> Unit,
+    onConfirm: (String) -> Unit
+) {
     val listName = remember { mutableStateOf("") }
 
     AlertDialog(

@@ -1,41 +1,45 @@
 package com.group10.uxuiapp.ui.todolist.view
 
-import GiphyDialog
-import android.content.Intent
+import android.R
 import android.util.Log
-import android.widget.Toast
-import androidx.compose.foundation.Image
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutHorizontally
+import androidx.compose.animation.slideOutVertically
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.border
+import androidx.compose.foundation.gestures.animateScrollBy
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.calculateEndPadding
 import androidx.compose.foundation.layout.calculateStartPadding
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.safeContentPadding
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Favorite
-import androidx.compose.material.icons.filled.FavoriteBorder
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.*
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
@@ -44,190 +48,214 @@ import androidx.compose.runtime.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLayoutDirection
-import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.zIndex
-import coil.compose.rememberAsyncImagePainter
-import coil.decode.GifDecoder
-import coil.request.ImageRequest
-import com.example.uxuiapplication.ChangeButton
-import com.group10.uxuiapp.data.data_class.TodoList
-import com.group10.uxuiapp.ui.navigation.AppNavigator
-import com.group10.uxuiapp.data.GiphyActivity
 import com.group10.uxuiapp.data.data_class.TodoListWithTaskItem
-import com.group10.uxuiapp.ui.todolist.view.components.ListNameInputDialog
-import com.group10.uxuiapp.ui.todolist.view.components.SettingsButton
+import com.group10.uxuiapp.ui.navigation.AppNavigator
+import com.group10.uxuiapp.ui.todolist.view.components.*
+import com.group10.uxuiapp.ui.todolist.view.components.buttons.AddNewTodoListButton
+import com.group10.uxuiapp.ui.todolist.view.components.buttons.SettingsButton
 import com.group10.uxuiapp.ui.todolist.viewmodel.TodoListViewModel
-import kotlin.collections.find
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import sh.calvin.reorderable.ReorderableItem
+import sh.calvin.reorderable.rememberReorderableLazyListState
+import androidx.compose.material3.TextField
+import androidx.compose.material3.TextFieldDefaults
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalFocusManager
+
 
 // Main TodoListScreen with Scaffold and LazyColumn
+@OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class)
 @Composable
 fun TodoListScreen(viewModel: TodoListViewModel, appNavigator: AppNavigator) {
-    val showDialog = remember { mutableStateOf(false) }
-    val showGiphyDialog = remember { mutableStateOf(false) } // Add this state
-    val listNameState = remember { mutableStateOf("") }
-    val context = LocalContext.current
-    val query = remember { mutableStateOf("") }
-    val changeButtonAnchor = remember { mutableStateOf<Offset?>(null) }
-    val selectedIndex = remember { mutableStateOf<Int?>(null) }
+    val popupOffset = remember { mutableStateOf(IntOffset.Zero) }
+    val showLiked = remember { mutableStateOf(false) }
 
     // Collect the lists from the ViewModel's Flow
-    val todoListsWithItems by viewModel.lists.collectAsState(emptyList())
     val selectedTodoList by viewModel.selectedTodoList.collectAsState()
+    val popupState by viewModel.todoListState.collectAsState()
+    val searchList by viewModel.searchList.collectAsState()
 
-    // Use LaunchedEffect to reset selectedIndex if list size changes
-    LaunchedEffect(todoListsWithItems) {
-        if (selectedTodoList != null &&
-            todoListsWithItems.none { it.todoList == selectedTodoList }
-        ) {
-            viewModel.selectTodoList(null)
-        }
+    val todoLists = remember { mutableStateOf(emptyList<TodoListWithTaskItem>()) }      // temporary list while dragging. Need optimization
+    todoLists.value = searchList
+    todoLists.value = if (showLiked.value) {
+        searchList.filter { it.todoList.isLiked }
+    } else {
+        searchList
     }
 
-    // Filter the lists whenever query.value changes
-    val filteredLists = remember(query.value, todoListsWithItems) {
-        todoListsWithItems.filter {
-            it.todoList.title.contains(query.value, ignoreCase = true)
+    val lazyListState = rememberLazyListState()
+    val reorderableLazyListState = rememberReorderableLazyListState(lazyListState) { from, to ->
+        val updatedList = todoLists.value.toMutableList().apply {
+            add(to.index, removeAt(from.index))
         }
+        todoLists.value = updatedList // Update the MutableState
     }
 
-    // Decide which list to show: full or filtered
-    val listsToShow = if (query.value.isBlank()) todoListsWithItems else filteredLists
+    val coroutineScope = rememberCoroutineScope()
+    val focusManager = LocalFocusManager.current
 
-    Box(modifier = Modifier.fillMaxSize()) {
-        Scaffold(
-            topBar = { TopAppBarWithMenu(query) },
-            floatingActionButton = {
-                AddNewListButton {
-                    showDialog.value = true
+    Box(modifier = Modifier
+        .fillMaxSize()
+        .pointerInput(Unit) {
+            // Detect tap gestures on the whole screen
+            detectTapGestures(
+                onTap = {
+                    focusManager.clearFocus() // Clear focus when tapping anywhere outside the focused TextField
+                    viewModel.resetNewTodoList()
                 }
-            }
-        ) { innerPadding  ->
-
-            LazyColumn (
-                contentPadding = PaddingValues(
-                start = innerPadding.calculateStartPadding(LocalLayoutDirection.current),
-                top = innerPadding.calculateTopPadding(),
-                end = innerPadding.calculateEndPadding(LocalLayoutDirection.current),
-                bottom = innerPadding.calculateBottomPadding()
-            )){
-                items(
-                    items = listsToShow,
-                    key = { it.todoList.id }
-                ) { taskListWithItems ->
-                    val isSelected = (selectedTodoList?.id == taskListWithItems.todoList.id)
-
-                    ListItem(
-                        todoList = taskListWithItems.todoList,
-                        isSelected = isSelected,
-                        onPositionChange = { offset, todoList ->
-                            changeButtonAnchor.value = offset
-                            viewModel.selectTodoList(todoList)
-                        },
-                        viewModel = viewModel,
-                        appNavigator = appNavigator,
-                        taskListsWithItems = todoListsWithItems
-                    )
-                }
-            }
+            )
         }
-
-        // Render ChangeButton
-        if (selectedTodoList != null && changeButtonAnchor.value != null) {
-            Box(
-                modifier = Modifier
-                    .offset(
-                        x = changeButtonAnchor.value!!.x.dp,
-                        y = 24.dp + changeButtonAnchor.value!!.y.dp
-                    )
-                    .zIndex(1f) // Ensure ChangeButton is on top
-            ) {
-                ChangeButton(
-                    onClose = {
-                        viewModel.selectTodoList(null)
-                    },
-                    onDelete = {
-                        selectedTodoList?.let { todoList ->
-                            viewModel.removeTodoList(todoList)
-                        }
-                        viewModel.selectTodoList(null)
-                    },
-                    onOpdate = { showDialog.value = true },
-                    onGifSelect = {
-                        showGiphyDialog.value = true
-                    }
+        .background(
+            Brush.verticalGradient(
+                colors = listOf(
+                    Color(0xFFF8F8F8),
+                    MaterialTheme.colorScheme.background
                 )
+            )
+        )
+    ) {
+        Scaffold(
+            topBar = { TopAppBarWithMenu(showLiked, viewModel) },
+            floatingActionButton = {
+                AddNewTodoListButton {
+                    viewModel.addTodoList("")
+                    coroutineScope.launch {
+                        val lastIndex = todoLists.value.size - 1
+                        if (lastIndex >= 0) {
+                            lazyListState.animateScrollToItem(index = lastIndex)
+                        }
+                    }
+                }
+            },
+            containerColor = Color.Transparent
+        ) { innerPadding  ->
+            val extraBottomPadding = 300.dp // Change this for more bottom padding
+            LazyColumn(
+                state = lazyListState,
+                verticalArrangement = Arrangement.spacedBy(16.dp),
+                modifier = Modifier
+                    .fillMaxSize(),
+                contentPadding = PaddingValues(
+                    start = innerPadding.calculateStartPadding(LocalLayoutDirection.current) + 12.dp,
+                    top = innerPadding.calculateTopPadding() + 12.dp,
+                    end = innerPadding.calculateEndPadding(LocalLayoutDirection.current) + 12.dp,
+                    bottom = innerPadding.calculateBottomPadding() + extraBottomPadding
+                )
+            ) {
+                items(todoLists.value, key = { it.todoList.id }) { item ->
+                    ReorderableItem(
+                        reorderableLazyListState,
+                        key = item.todoList.id,
+                        animateItemModifier = Modifier.animateItem()
+                    ) { isDragging ->
+                        val elevation by animateDpAsState(if (isDragging) 12.dp else 4.dp)
+                        LaunchedEffect(isDragging) {
+                            viewModel.setDraggingState(isDragging)
+                            if (!isDragging) {
+                                // Save the updated order when dragging stops
+                                viewModel.updateAllListIndexes(todoLists.value)
+                            }
+                        }
+                        TodoListCard(
+                            elevation = elevation,
+                            todoList = item.todoList,
+                            onPositionChange = { offset, list ->
+                                popupOffset.value = offset
+                                viewModel.selectTodoList(list)
+                            },
+                            viewModel = viewModel,
+                            appNavigator = appNavigator,
+                            scope = this,
+                            focusManager = focusManager
+                        )
+                    }
+                    if (selectedTodoList == item.todoList) {
+                        Spacer(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(10.dp) // spacer when active
+                        )
+                        Log.d("LazyColumn", "Adding Spacer below TodoList: ${item.todoList.title}")
+                    }
+                }
             }
         }
 
-        // Full-screen overlay to detect taps
-        if (selectedTodoList != null) {
-            Box(
-                Modifier
-                    .fillMaxSize()
-                    .background(Color.Black.copy(alpha = 0.3f))
-                    .pointerInput(Unit) {
-                        detectTapGestures(onTap = { viewModel.selectTodoList(null) })
-                    }
-            )
-        }
+        OptionsPopup(
+            expanded = selectedTodoList != null,
+            onDismissRequest = { viewModel.selectTodoList(null) },
+            onClose = {
+                viewModel.selectTodoList(null)
+            },
+            onDelete = {
+                viewModel.removeTodoList(selectedTodoList!!)
+                viewModel.selectTodoList(null)
+            },
+            onUpdate = {
+                viewModel.setRenameState(selectedTodoList!!)
+            },
+            onGifSelect = {
+                viewModel.setSelectGifState(selectedTodoList!!)
+            },
+            offset = IntOffset(popupOffset.value.x, popupOffset.value.y + 26),
+            onTagsEdit = {
+                viewModel.setTagEditState(selectedTodoList!!)
+            }
+        )
 
-        if(showDialog.value && selectedTodoList != null) {
-            Log.d("TodoListScreen", "showDialog.value && currentTaskList.value != null")
-            ListNameInputDialog(
-                onDismiss = { showDialog.value = false },
-                onConfirm = { newName ->
-                    selectedTodoList?.let { taskList ->
-                        viewModel.updateTodoList(taskList, newName)
-                    }
-                    showDialog.value = false
-                    Toast.makeText(context, "List '$newName' created", Toast.LENGTH_SHORT).show()
-                    viewModel.selectTodoList(null)
-                }
-            )
-        }
-        else if (showDialog.value){
-            Log.d("TodoListScreen", "showDialog.value")
-            ListNameInputDialog(
-                onDismiss = { showDialog.value = false },
-                onConfirm = { name ->
-                    if (true) {  // Can add a check for valid name here
-                        viewModel.addTodoList(name)
-                        listNameState.value = name
-                        showDialog.value = false
-                        Toast.makeText(context, "List '$name' created", Toast.LENGTH_SHORT).show()
-                    } else {
-                        Toast.makeText(context, "Please enter a valid name", Toast.LENGTH_SHORT)
-                            .show()
-                    }
-                }
-            )
-        }
-        // Show GiphyDialog when needed
-        if (showGiphyDialog.value) {
-            GiphyDialog(
-                context = context,
-                onGifSelected = { gifUrl ->
-                    // Update the GIF URL in ViewModel
-                    selectedTodoList?.let { todoList ->
-                        viewModel.updateGifUrl(todoList.id, gifUrl)
-                    }
-                    showGiphyDialog.value = false
+        selectedTodoList?.let {
+            PopupManager(
+                popupState = popupState,
+                todoList = it,
+                viewModel = viewModel,
+                onNewListConfirm = { name ->
+                    viewModel.addTodoList(name)
+                    viewModel.setNoneState()
                 },
-                onDismissed = {
-                    showGiphyDialog.value = false
+                onRenameConfirm = { todoList, newName, selectedColor, selectedDate, updatedGifUrl  ->
+                    viewModel.updateTodoList(
+                        id = todoList.id,
+                        title = newName,
+                        textColor = selectedColor,
+                        dueDate = selectedDate,
+                        gifUrl = updatedGifUrl
+                        // Handle selectedDate if applicable
+                    )
+                    viewModel.setNoneState()
+                },
+                onGifSelected = { todoList, gifUrl ->
+                    viewModel.updateTodoList(id = todoList.id, gifUrl = gifUrl)
+                    viewModel.setNoneState()
+                },
+                onColorSelected = { todoList, color ->
+                    viewModel.updateTodoList(id = todoList.id, textColor = color)
+                    viewModel.setNoneState()
+                },
+                onColorBackgroundSelected = { todoList, color ->
+                    viewModel.updateTodoList(id = todoList.id, backgroundColor = color)
+                    viewModel.updateTodoList(id = todoList.id, gifUrl = null)
+                    viewModel.setNoneState()
+
+                },
+                onTagsEdited = { todoList, tags ->
+                    viewModel.updateTodoList(id = todoList.id, tags = tags)
+                    viewModel.setNoneState()
+                },
+                onDismiss = {
+                    viewModel.setNoneState()
                 }
             )
         }
@@ -238,215 +266,87 @@ fun TodoListScreen(viewModel: TodoListViewModel, appNavigator: AppNavigator) {
 // Top app bar with search and settings icons and dropdown menu
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun TopAppBarWithMenu(query: MutableState<String>) {
+private fun TopAppBarWithMenu(showLiked: MutableState<Boolean>, viewModel: TodoListViewModel) {
     val context = LocalContext.current
     val textFieldVisible = remember { mutableStateOf(false) }
 
+    val searchQuery by viewModel.searchQuery.collectAsState()
+
+    // Focus the search field when it becomes visible
+    val focusRequester = remember { FocusRequester() }
+    LaunchedEffect(textFieldVisible.value) {
+        if (textFieldVisible.value) {
+            focusRequester.requestFocus()
+        }
+    }
+
     TopAppBar(
         title = {
-
-            if (textFieldVisible.value) {
+            AnimatedVisibility(
+                visible = textFieldVisible.value,
+                enter = fadeIn(),
+                exit = fadeOut()
+            ) {
                 TextField(
-                    value = query.value,
-                    onValueChange = { query.value = it }, // Update the query state
-                    placeholder = { Text("Search...") },
-                    singleLine = true,
+                    value = searchQuery,
+                    onValueChange = { viewModel.onSearchQueryChange(it) },
+                    placeholder = {
+                        Text(
+                            text = "Search...",
+                            style = TextStyle(fontSize = 16.sp, lineHeight = 20.sp),
+                            maxLines = 1
+                        )
+                    },
+                            singleLine = true,
+                    shape = RoundedCornerShape(12.dp),
                     modifier = Modifier
+                        .focusRequester(focusRequester)
                         .fillMaxWidth()
-                        .height(45.dp)
-                        .clip(RoundedCornerShape(20.dp)),
-
+                        .wrapContentHeight()
+                        .padding(8.dp)
+                        .border(
+                            width = 1.dp,
+                            color = MaterialTheme.colorScheme.secondary,  // border color
+                            shape = RoundedCornerShape(12.dp)
+                        ),
+                    textStyle = TextStyle(fontSize = 16.sp, lineHeight = 20.sp),
+                    trailingIcon = {
+                        if (searchQuery.isNotEmpty()) {
+                            IconButton(onClick = { viewModel.onSearchQueryChange("") }) {
+                                Icon(Icons.Filled.Close, contentDescription = "Clear", tint = MaterialTheme.colorScheme.onSurface)
+                            }
+                        }
+                    },
+                    colors = TextFieldDefaults.colors(
+                        unfocusedIndicatorColor = Color.Transparent,
+                        focusedIndicatorColor = Color.Transparent,
+                        unfocusedContainerColor = MaterialTheme.colorScheme.onPrimary,
+                        focusedContainerColor = MaterialTheme.colorScheme.onPrimary,
+                    )
                 )
-            } else {
-                Text(text = "")
+
             }
         },
-        modifier = Modifier,
+        modifier = Modifier
+            .fillMaxWidth(),
         navigationIcon = {
             IconButton(onClick = {
                 textFieldVisible.value = !textFieldVisible.value
             }) {
-                Icon(Icons.Filled.Search, contentDescription = "Search")
+                Icon(Icons.Filled.Search, contentDescription = "Search", tint = MaterialTheme.colorScheme.onPrimary)
             }
         },
         actions = {
-            SettingsButton(context = context)
+            SettingsButton(
+                context = context,
+                showLiked = showLiked,
+                onDeleteAllConfirmed = { viewModel.deleteAllTodoLists() },
+                color = MaterialTheme.colorScheme.onPrimary
+            )
         },
-        colors = TopAppBarDefaults.topAppBarColors(),
+        colors = TopAppBarDefaults.topAppBarColors(
+            containerColor = Color(0xFF0D47A1),
+        ),
         scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
     )
-}
-
-@Composable
-private fun ListItem(
-    todoList: TodoList,
-    isSelected: Boolean,
-    viewModel: TodoListViewModel,
-    appNavigator: AppNavigator,
-    onPositionChange: (Offset, TodoList) -> Unit,
-    taskListsWithItems: List<TodoListWithTaskItem>
-) {
-    val context = LocalContext.current
-    val listNameState = remember { mutableStateOf(todoList.title) }
-    val showDialog = remember { mutableStateOf(false) }
-    val density = LocalDensity.current
-    var itemPosition by remember { mutableStateOf(Offset.Zero) }
-
-    // Remember the background based on gifUrl
-    if (!todoList.gifUrl.isNullOrEmpty()) {
-
-        Modifier.fillMaxSize()
-            .then(
-                Modifier.background(Color.Transparent)
-            )
-
-    } else {
-        Modifier.background(
-            Brush.linearGradient(
-                colors = listOf(
-                    MaterialTheme.colorScheme.primary,
-                    MaterialTheme.colorScheme.secondary,
-                    Color(0xFFC0DCEF)
-                ),
-                start = Offset(0f, 0f),
-                end = Offset(0f, Float.POSITIVE_INFINITY)
-            )
-        )
-    }
-
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 10.dp)
-    ) {
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(100.dp)
-                .clip(RoundedCornerShape(20.dp))
-                .pointerInput(Unit) {
-                    detectTapGestures(
-                        onTap = {
-                            val refreshedTaskList = taskListsWithItems.find { it.todoList.id == todoList.id }
-                            Log.d("ListItem", "Tapped Item Index: Task ID: ${todoList.id}, Refreshed Task: ${refreshedTaskList?.todoList?.id}")
-                            if (refreshedTaskList != null) {
-                                appNavigator.navigateToTask(refreshedTaskList.todoList.id)
-                            } else {
-                                Log.e("ListItem", "No valid list to navigate to.")
-                            }
-                        },
-                        onLongPress = {
-                            val yOffset = with(density) { itemPosition.y * ( + 1) + 4.dp.toPx() }
-                            onPositionChange(Offset(98f, yOffset), todoList)
-                        }
-                    )
-                }
-        ) {
-            // GIF as background (placed first to be behind everything else)
-            if (!todoList.gifUrl.isNullOrEmpty()) {
-                val gifPainter = rememberAsyncImagePainter(
-                    model = ImageRequest.Builder(LocalContext.current)
-                        .data(todoList.gifUrl)
-                        .decoderFactory(GifDecoder.Factory())
-                        .build()
-                )
-                Image(
-                    painter = gifPainter,
-                    contentDescription = "GIF Background",
-                    modifier = Modifier.fillMaxSize(),
-                    contentScale = ContentScale.Crop // Ensures the GIF fills the box area
-                )
-            } else {
-                // Default gradient background if no GIF is provided
-                Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .background(
-                            Brush.linearGradient(
-                                colors = listOf(
-                                    MaterialTheme.colorScheme.primary,
-                                    MaterialTheme.colorScheme.secondary,
-                                    Color(0xFFC0DCEF)
-                                ),
-                                start = Offset(0f, 0f),
-                                end = Offset(0f, Float.POSITIVE_INFINITY)
-                            )
-                        )
-                )
-            }
-            Row(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(16.dp),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.Top
-            ) {
-                Text(
-                    text = todoList.title,
-                    color = MaterialTheme.colorScheme.background,
-                    modifier = Modifier.width(320.dp)
-                )
-                LikedButton(todoList, onClick = {
-                    viewModel.updateTodoList(todoList, isLiked = !todoList.isLiked)
-                })
-            }
-        }
-    }
-
-    if (isSelected) {
-        Spacer(modifier = Modifier.height(24.dp))
-    }
-}
-
-@Composable
-private fun LikedButton(todoList: TodoList, onClick: () -> Unit) {
-    val isLiked = todoList.isLiked
-
-    Icon(
-        imageVector = if (isLiked) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
-        contentDescription = if (isLiked) "Liked" else "Add Favorite",
-        modifier = Modifier
-            .size(25.dp)
-            .clickable { onClick() }, // Use the passed lambda here
-        tint = if (isLiked) Color.Red else Color.White
-    )
-}
-
-
-
-
-// Floating Action Button composable for adding a new list item
-@Composable
-private fun AddNewListButton(onClick: () -> Unit) {
-    FloatingActionButton(
-        onClick = onClick,
-        containerColor = Color(0xFF4658FF),
-        contentColor = Color.White,
-        shape = RoundedCornerShape(32.dp),
-        modifier = Modifier
-            .padding(16.dp)
-            .width(135.dp)
-            .height(60.dp)
-            .offset(x = 15.dp, y = (-10).dp)
-    ) {
-        // Row to position icon and text horizontally
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.padding(horizontal = 8.dp)
-        ) {
-            Icon(
-                imageVector = Icons.Default.Add,
-                contentDescription = "Add Item",
-                modifier = Modifier.size(30.dp)
-            )
-            Spacer(modifier = Modifier.width(8.dp))
-            Text(
-                text = "NEW LIST",
-                style = MaterialTheme.typography.bodyMedium.copy(
-                    fontSize = 14.sp,
-                    fontWeight = FontWeight.Bold
-                )
-            )
-        }
-    }
 }

@@ -49,6 +49,7 @@ dependencies {
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
+    implementation(libs.androidx.espresso.core)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
@@ -57,6 +58,7 @@ dependencies {
     androidTestImplementation(libs.androidx.ui.test.junit4)
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
+
 
 
     // Jetpack Compose Navigation
@@ -70,6 +72,8 @@ dependencies {
 
     // Compose Animation
     implementation(libs.androidx.compose.animation)
+
+    implementation("sh.calvin.reorderable:reorderable:2.4.2")
 
     implementation("androidx.datastore:datastore-preferences:1.1.1")
 
@@ -87,6 +91,8 @@ dependencies {
     implementation ("androidx.appcompat:appcompat:1.6.1")
     implementation ("androidx.fragment:fragment-ktx:1.5.7")
 
+    implementation ("androidx.work:work-runtime-ktx:2.8.1")
 
+    implementation("androidx.compose.foundation:foundation:1.7.6")
 
 }

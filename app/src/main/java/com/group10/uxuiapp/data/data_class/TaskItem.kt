@@ -18,5 +18,6 @@ data class TaskItem(
     @PrimaryKey(autoGenerate = true) val id: Int = 0,
     val label: String,
     val isComplete: Boolean = false,
+    val isFolded: Boolean = false,
     val todoListId: Int // Foreign key to TodoList
 )
