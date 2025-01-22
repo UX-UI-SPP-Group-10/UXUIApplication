@@ -19,6 +19,7 @@ import androidx.compose.ui.unit.sp
 import com.group10.uxuiapp.data.data_class.TaskItem
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Card
@@ -132,8 +133,7 @@ fun TaskRowItem(
                     modifier = Modifier.size(28.dp)
                 )
 
-                // 3) Editable text
-                TextField(
+                BasicTextField(
                     value = textValue,
                     onValueChange = { newText ->
                         if (newText.length <= 20) {
@@ -156,15 +156,10 @@ fun TaskRowItem(
                             MaterialTheme.colorScheme.onSurface
                         }
                     ),
-                    colors = TextFieldDefaults.colors(
-                        unfocusedContainerColor = Color.Transparent, // No background
-                        focusedContainerColor = Color.Transparent,  // No background on focus
-                        unfocusedIndicatorColor = Color.Transparent, // No underline
-                        focusedIndicatorColor = Color.Transparent // No underline
-                    ),
                     modifier = Modifier
                         .width(225.dp)
-                        .focusRequester(focusRequester),
+                        .focusRequester(focusRequester)
+                        .padding(start = 8.dp),
                     keyboardOptions = KeyboardOptions.Default.copy(
                         imeAction = ImeAction.Done
                     ),
@@ -174,7 +169,6 @@ fun TaskRowItem(
                         }
                     )
                 )
-
 
                 Box(
                     modifier = Modifier.fillMaxWidth(),
