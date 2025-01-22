@@ -52,7 +52,7 @@ fun SubTaskRow(
     val coroutineScope = rememberCoroutineScope()
     var debounceJob by remember { mutableStateOf<Job?>(null) }
     val animatedEndPadding by animateDpAsState(
-        targetValue = if (selectedTask == task) 45.dp else 0.dp,
+        targetValue = if (selectedTask?.id == task.id) 45.dp else 0.dp,
         animationSpec = tween(durationMillis = 200), label = ""
     )
 

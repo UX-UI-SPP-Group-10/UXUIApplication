@@ -1,5 +1,6 @@
 package com.group10.uxuiapp.ui.tasks.view.components
 
+import android.util.Log
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
@@ -41,11 +42,13 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.input.key.KeyEventType
 import androidx.compose.ui.input.key.onKeyEvent
 import androidx.compose.ui.input.key.type
+import androidx.compose.ui.semantics.SemanticsProperties.Selected
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.tooling.preview.Preview
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import okhttp3.internal.concurrent.Task
 
 @Composable
 fun TaskRowItem(
@@ -63,8 +66,9 @@ fun TaskRowItem(
     val coroutineScope = rememberCoroutineScope()
     var debounceJob by remember { mutableStateOf<Job?>(null) }
     val animatedEndPadding by animateDpAsState(
-        targetValue = if (selectedTask == task) 45.dp else 0.dp,
-        animationSpec = tween(durationMillis = 200), label = "" // Adjust duration for smoothness
+        targetValue = if (selectedTask?.id == task.id) 45.dp else 0.dp,
+        animationSpec = tween(durationMillis = 300),
+        label = ""
     )
 
     val boxWhith = Modifier
