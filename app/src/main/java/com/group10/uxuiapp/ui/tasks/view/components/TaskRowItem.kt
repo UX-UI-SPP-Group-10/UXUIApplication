@@ -56,8 +56,8 @@ fun TaskRowItem(
 ) {
     val taskItemWithSubTask by viewModel.lists.collectAsState()
     val selectedTask by viewModel.selectedTaskItem.collectAsState()
-    var isChecked = task.isComplete
-    var isFoldet = task.isFolded
+    var isChecked by remember { mutableStateOf(task.isComplete) }  // Mutable state for checkbox
+    var isFoldet by remember { mutableStateOf(task.isFolded) }
     var textValue by remember { mutableStateOf(task.label) }
 
     val coroutineScope = rememberCoroutineScope()
