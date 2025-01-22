@@ -103,7 +103,7 @@ fun SubTaskRow(
         ) {
             Row(
                 modifier = Modifier
-                    .padding(vertical = 0.dp, horizontal = 12.dp)
+                    .padding(12.dp)
                     .fillMaxWidth(),
                 horizontalArrangement = Arrangement.Start,
                 verticalAlignment = Alignment.CenterVertically
@@ -122,8 +122,7 @@ fun SubTaskRow(
                     modifier = Modifier.size(28.dp)
                 )
 
-                // 3) Editable text
-                TextField(
+                BasicTextField(
                     value = textValue,
                     onValueChange = { newText ->
                         if (newText.length <= 20) {
@@ -149,15 +148,10 @@ fun SubTaskRow(
                             MaterialTheme.colorScheme.onSurface
                         }
                     ),
-                    colors = TextFieldDefaults.colors(
-                        unfocusedContainerColor = Color.Transparent, // No background
-                        focusedContainerColor = Color.Transparent,  // No background on focus
-                        unfocusedIndicatorColor = Color.Transparent, // No underline
-                        focusedIndicatorColor = Color.Transparent // No underline
-                    ),
                     modifier = Modifier
                         .width(225.dp)
-                        .focusRequester(focusRequester),
+                        .focusRequester(focusRequester)
+                        .padding(start = 8.dp),
                     keyboardOptions = KeyboardOptions.Default.copy(
                         imeAction = ImeAction.Done
                     ),
