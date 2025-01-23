@@ -71,6 +71,9 @@ fun TaskRowItem(
         label = ""
     )
 
+    // Check if this task has subtasks
+    val hasSubTasks = taskItemWithSubTask.find { it.taskItem.id == task.id }?.subTasks?.isNotEmpty() == true
+
     val boxWhith = Modifier
         .fillMaxWidth()
         .padding(end = animatedEndPadding)
@@ -183,6 +186,16 @@ fun TaskRowItem(
                         horizontalArrangement = Arrangement.spacedBy(6.dp, Alignment.End),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
+                        if (hasSubTasks) {
+                            TaskFolderButton(
+                                onClick = {
+                                    isFoldet = !isFoldet
+                                    viewModel.updateTaskItem(task, isFolded = isFoldet)
+                                },
+                                isFoldet = isFoldet
+                            )
+                        }
+
                         AddSubTaskButton(onClick = {
                             val newSubTask = SubTask(label = "", taskItemId = task.id)
                             viewModel.addSupTask(newSubTask)
@@ -195,13 +208,6 @@ fun TaskRowItem(
                             }
                         })
 
-                        TaskFolderButton(
-                            onClick = {
-                                isFoldet = !isFoldet
-                                viewModel.updateTaskItem(task, isFolded = isFoldet)
-                            },
-                            isFoldet = isFoldet
-                        )
                     }
                 }
             }
