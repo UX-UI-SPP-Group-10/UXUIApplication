@@ -1,6 +1,9 @@
 package com.group10.uxuiapp.ui.todolist.view
 
 import android.R
+import android.R.attr.navigationIcon
+import android.R.attr.singleLine
+import android.R.attr.textStyle
 import android.util.Log
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateDpAsState
@@ -13,11 +16,13 @@ import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.animateScrollBy
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.calculateEndPadding
 import androidx.compose.foundation.layout.calculateStartPadding
@@ -25,6 +30,7 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeContentPadding
 import androidx.compose.foundation.layout.wrapContentHeight
@@ -33,6 +39,7 @@ import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Search
@@ -72,8 +79,11 @@ import sh.calvin.reorderable.ReorderableItem
 import sh.calvin.reorderable.rememberReorderableLazyListState
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.giphy.sdk.analytics.GiphyPingbacks.context
 
 
 // Main TodoListScreen with Scaffold and LazyColumn
@@ -284,44 +294,58 @@ private fun TopAppBarWithMenu(showLiked: MutableState<Boolean>, viewModel: TodoL
                 enter = fadeIn(),
                 exit = fadeOut()
             ) {
-                TextField(
+                val textFieldHeight = 48.dp
+                BasicTextField(
                     value = searchQuery,
                     onValueChange = { viewModel.onSearchQueryChange(it) },
-                    placeholder = {
-                        Text(
-                            text = "Search...",
-                            style = TextStyle(fontSize = 16.sp, lineHeight = 20.sp),
-                            maxLines = 1
-                        )
-                    },
-                            singleLine = true,
-                    shape = RoundedCornerShape(12.dp),
+                    textStyle = TextStyle(fontSize = 16.sp, color = MaterialTheme.colorScheme.onSurface),
+                    singleLine = true,
                     modifier = Modifier
                         .focusRequester(focusRequester)
                         .fillMaxWidth()
-                        .wrapContentHeight()
-                        .padding(8.dp)
+                        .heightIn(min = textFieldHeight)
                         .border(
                             width = 1.dp,
-                            color = MaterialTheme.colorScheme.secondary,  // border color
+                            color = MaterialTheme.colorScheme.secondary,
+                            shape = RoundedCornerShape(12.dp)
+                        )
+                        .background(
+                            color = MaterialTheme.colorScheme.onPrimary,
                             shape = RoundedCornerShape(12.dp)
                         ),
-                    textStyle = TextStyle(fontSize = 16.sp, lineHeight = 20.sp),
-                    trailingIcon = {
-                        if (searchQuery.isNotEmpty()) {
-                            IconButton(onClick = { viewModel.onSearchQueryChange("") }) {
-                                Icon(Icons.Filled.Close, contentDescription = "Clear", tint = MaterialTheme.colorScheme.onSurface)
+                    decorationBox = { innerTextField ->
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .heightIn(min = textFieldHeight)
+                                .padding(vertical = 12.dp, horizontal = 16.dp)
+                        ) {
+                            // Input field
+                            Box(Modifier.weight(1f)) {
+                                if (searchQuery.isEmpty()) {
+                                    Text(
+                                        text = "Search...",
+                                        style = TextStyle(fontSize = 16.sp, color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f))
+                                    )
+                                }
+                                innerTextField()
+                            }
+                            // Clear button
+                            if (searchQuery.isNotEmpty()) {
+                                Box(modifier = Modifier
+                                    .clickable { viewModel.onSearchQueryChange("") }
+                            ) {
+                                    Icon(
+                                        imageVector = Icons.Filled.Close,
+                                        contentDescription = "Clear",
+                                        tint = MaterialTheme.colorScheme.onSurface
+                                    )
+                                }
                             }
                         }
-                    },
-                    colors = TextFieldDefaults.colors(
-                        unfocusedIndicatorColor = Color.Transparent,
-                        focusedIndicatorColor = Color.Transparent,
-                        unfocusedContainerColor = MaterialTheme.colorScheme.onPrimary,
-                        focusedContainerColor = MaterialTheme.colorScheme.onPrimary,
-                    )
+                    }
                 )
-
             }
         },
         modifier = Modifier

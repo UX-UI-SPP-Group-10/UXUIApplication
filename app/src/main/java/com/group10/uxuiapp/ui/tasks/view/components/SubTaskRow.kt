@@ -52,7 +52,7 @@ fun SubTaskRow(
     val coroutineScope = rememberCoroutineScope()
     var debounceJob by remember { mutableStateOf<Job?>(null) }
     val animatedEndPadding by animateDpAsState(
-        targetValue = if (selectedTask == task) 45.dp else 0.dp,
+        targetValue = if (selectedTask?.id == task.id) 45.dp else 0.dp,
         animationSpec = tween(durationMillis = 200), label = ""
     )
 
@@ -78,7 +78,11 @@ fun SubTaskRow(
                 .padding(start = 1.dp, end = 1.dp),
             contentAlignment = Alignment.CenterEnd
         ) {
-            Delete(onClick = { viewModel.deleteSupTask(selectedTask!!) })
+            Delete(onClick = {
+                viewModel.deleteSupTask(selectedTask!!)
+                viewModel.selectTaskForChange(null, null)
+            }
+            )
         }
         Card(
             modifier = Modifier
@@ -103,8 +107,9 @@ fun SubTaskRow(
         ) {
             Row(
                 modifier = Modifier
-                    .padding(vertical = 0.dp, horizontal = 12.dp)
-                    .fillMaxWidth(),
+                    .padding(12.dp)
+                    .fillMaxWidth()
+                    .alpha(if (task.isComplete) 0.6f else 1f),
                 horizontalArrangement = Arrangement.Start,
                 verticalAlignment = Alignment.CenterVertically
             ) {
@@ -122,8 +127,7 @@ fun SubTaskRow(
                     modifier = Modifier.size(28.dp)
                 )
 
-                // 3) Editable text
-                TextField(
+                BasicTextField(
                     value = textValue,
                     onValueChange = { newText ->
                         if (newText.length <= 20) {
@@ -143,21 +147,12 @@ fun SubTaskRow(
                     textStyle = MaterialTheme.typography.bodyLarge.copy(
                         textDecoration = if (isChecked) TextDecoration.LineThrough else null,
                         fontWeight = FontWeight.Medium,
-                        color = if (isChecked) {
-                            MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
-                        } else {
-                            MaterialTheme.colorScheme.onSurface
-                        }
-                    ),
-                    colors = TextFieldDefaults.colors(
-                        unfocusedContainerColor = Color.Transparent, // No background
-                        focusedContainerColor = Color.Transparent,  // No background on focus
-                        unfocusedIndicatorColor = Color.Transparent, // No underline
-                        focusedIndicatorColor = Color.Transparent // No underline
+                        color = MaterialTheme.colorScheme.onSurface
                     ),
                     modifier = Modifier
                         .width(225.dp)
-                        .focusRequester(focusRequester),
+                        .focusRequester(focusRequester)
+                        .padding(start = 8.dp),
                     keyboardOptions = KeyboardOptions.Default.copy(
                         imeAction = ImeAction.Done
                     ),
