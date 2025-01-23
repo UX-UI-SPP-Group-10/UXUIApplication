@@ -108,7 +108,8 @@ fun SubTaskRow(
             Row(
                 modifier = Modifier
                     .padding(12.dp)
-                    .fillMaxWidth(),
+                    .fillMaxWidth()
+                    .alpha(if (task.isComplete) 0.6f else 1f),
                 horizontalArrangement = Arrangement.Start,
                 verticalAlignment = Alignment.CenterVertically
             ) {
@@ -146,11 +147,7 @@ fun SubTaskRow(
                     textStyle = MaterialTheme.typography.bodyLarge.copy(
                         textDecoration = if (isChecked) TextDecoration.LineThrough else null,
                         fontWeight = FontWeight.Medium,
-                        color = if (isChecked) {
-                            MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
-                        } else {
-                            MaterialTheme.colorScheme.onSurface
-                        }
+                        color = MaterialTheme.colorScheme.onSurface
                     ),
                     modifier = Modifier
                         .width(225.dp)
