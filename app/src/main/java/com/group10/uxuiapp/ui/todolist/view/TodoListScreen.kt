@@ -207,9 +207,6 @@ fun TodoListScreen(viewModel: TodoListViewModel, appNavigator: AppNavigator) {
         OptionsPopup(
             expanded = selectedTodoList != null,
             onDismissRequest = { viewModel.selectTodoList(null) },
-            onClose = {
-                viewModel.selectTodoList(null)
-            },
             onDelete = {
                 viewModel.removeTodoList(selectedTodoList!!)
                 viewModel.selectTodoList(null)
