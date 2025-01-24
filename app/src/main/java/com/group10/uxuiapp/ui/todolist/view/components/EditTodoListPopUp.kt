@@ -54,7 +54,7 @@ fun EditTodolistDialog(
     var selectedDate by remember { mutableStateOf("") }
     var selectedTags by remember { mutableStateOf(todoList.tags ?: "") }
     var isRepeating by remember { mutableStateOf(todoList.isRepeating) }
-    var selectedDay by remember { mutableStateOf<Int?>(null) }
+    var selectedDay by remember { mutableStateOf<Int?>(todoList.repeatDay) }
     var gifUrl by remember { mutableStateOf((todoList.gifUrl)) }
     var selectedBackgroundColor by remember { mutableStateOf(todoList.backgroundColor ?: "") }
 

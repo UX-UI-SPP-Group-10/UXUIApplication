@@ -275,9 +275,39 @@ fun TodoListCard(
                             innerTextField()
                     }
                 )
-
-                DueByDate(todoList = todoList)
-
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(4.dp, Alignment.End),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    if (todoList.isRepeating) {
+                        var day = ""
+                        when (todoList.repeatDay) {
+                            1 -> day = "Mon"
+                            2 -> day = "Tue"
+                            3 -> day = "Wed"
+                            4 -> day = "Thu"
+                            5 -> day = "Fri"
+                            6 -> day = "Sat"
+                            7 -> day = "Sun"
+                        }
+                        Box(
+                            modifier = Modifier.size(15.dp)
+                        ) {
+                            Icon(
+                                painter = painterResource(id = R.drawable.repeat),
+                                contentDescription = "Repeat",
+                                tint = Color(android.graphics.Color.parseColor(todoList.textColor)),
+                                modifier = Modifier.align(Alignment.Center)
+                            )
+                        }
+                        Text(
+                            text = "${day} ",
+                            color = Color(android.graphics.Color.parseColor(todoList.textColor)),
+                            style = MaterialTheme.typography.bodySmall
+                        )
+                    }
+                    DueByDate(todoList = todoList)
+                }
                 TagsDisplay(tags = todoList.tags, color = Color(android.graphics.Color.parseColor(todoList.textColor)))
             }
 
@@ -285,19 +315,6 @@ fun TodoListCard(
                 horizontalArrangement = Arrangement.spacedBy(4.dp, Alignment.End),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-
-                Box(
-                    modifier = Modifier.size(30.dp),
-                ) {
-                    if (todoList.isRepeating) { // Check if the list is repeatable
-                        Icon(
-                            painter = painterResource(id = R.drawable.repeat),
-                            contentDescription = "Repeat",
-                            tint = Color(android.graphics.Color.parseColor(todoList.textColor)),
-                            modifier = Modifier.align(Alignment.Center)
-                        )
-                    }
-                }
 
                 Box(modifier = Modifier
                     .size(30.dp)
