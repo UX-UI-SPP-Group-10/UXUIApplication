@@ -82,6 +82,7 @@ import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.text.font.FontWeight
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.giphy.sdk.analytics.GiphyPingbacks.context
 
@@ -165,40 +166,64 @@ fun TodoListScreen(viewModel: TodoListViewModel, appNavigator: AppNavigator) {
                     bottom = innerPadding.calculateBottomPadding() + extraBottomPadding
                 )
             ) {
-                items(todoLists.value, key = { it.todoList.id }) { item ->
-                    ReorderableItem(
-                        reorderableLazyListState,
-                        key = item.todoList.id,
-                        animateItemModifier = Modifier.animateItem()
-                    ) { isDragging ->
-                        val elevation by animateDpAsState(if (isDragging) 12.dp else 4.dp)
-                        LaunchedEffect(isDragging) {
-                            viewModel.setDraggingState(isDragging)
-                            if (!isDragging) {
-                                // Save the updated order when dragging stops
-                                viewModel.updateAllListIndexes(todoLists.value)
-                            }
-                        }
-                        TodoListCard(
-                            elevation = elevation,
-                            todoList = item.todoList,
-                            onPositionChange = { offset, list ->
-                                popupOffset.value = offset
-                                viewModel.selectTodoList(list)
-                            },
-                            viewModel = viewModel,
-                            appNavigator = appNavigator,
-                            scope = this,
-                            focusManager = focusManager
-                        )
-                    }
-                    if (selectedTodoList == item.todoList) {
-                        Spacer(
+                if (todoLists.value.isEmpty()) {
+                    item {
+                        Box(
                             modifier = Modifier
-                                .fillMaxWidth()
-                                .height(10.dp) // spacer when active
-                        )
-                        Log.d("LazyColumn", "Adding Spacer below TodoList: ${item.todoList.title}")
+                                .fillMaxSize()
+                                .padding(top = 100.dp),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Text(
+                                text = "Create a new list to get started",
+                                style = TextStyle(
+                                    fontSize = 20.sp,
+                                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f),
+                                    fontWeight = FontWeight.Bold
+                                ),
+                                modifier = Modifier.padding(16.dp)
+                            )
+                        }
+                    }
+                } else {
+                    items(todoLists.value, key = { it.todoList.id }) { item ->
+                        ReorderableItem(
+                            reorderableLazyListState,
+                            key = item.todoList.id,
+                            animateItemModifier = Modifier.animateItem()
+                        ) { isDragging ->
+                            val elevation by animateDpAsState(if (isDragging) 12.dp else 4.dp)
+                            LaunchedEffect(isDragging) {
+                                viewModel.setDraggingState(isDragging)
+                                if (!isDragging) {
+                                    // Save the updated order when dragging stops
+                                    viewModel.updateAllListIndexes(todoLists.value)
+                                }
+                            }
+                            TodoListCard(
+                                elevation = elevation,
+                                todoList = item.todoList,
+                                onPositionChange = { offset, list ->
+                                    popupOffset.value = offset
+                                    viewModel.selectTodoList(list)
+                                },
+                                viewModel = viewModel,
+                                appNavigator = appNavigator,
+                                scope = this,
+                                focusManager = focusManager
+                            )
+                        }
+                        if (selectedTodoList == item.todoList) {
+                            Spacer(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .height(10.dp) // spacer when active
+                            )
+                            Log.d(
+                                "LazyColumn",
+                                "Adding Spacer below TodoList: ${item.todoList.title}"
+                            )
+                        }
                     }
                 }
             }
