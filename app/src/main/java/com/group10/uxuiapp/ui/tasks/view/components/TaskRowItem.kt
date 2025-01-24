@@ -1,5 +1,6 @@
 package com.group10.uxuiapp.ui.tasks.view.components
 
+import android.util.Log
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
@@ -19,6 +20,7 @@ import androidx.compose.ui.unit.sp
 import com.group10.uxuiapp.data.data_class.TaskItem
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Card
@@ -40,11 +42,13 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.input.key.KeyEventType
 import androidx.compose.ui.input.key.onKeyEvent
 import androidx.compose.ui.input.key.type
+import androidx.compose.ui.semantics.SemanticsProperties.Selected
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.tooling.preview.Preview
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import okhttp3.internal.concurrent.Task
 
 @Composable
 fun TaskRowItem(
@@ -62,9 +66,13 @@ fun TaskRowItem(
     val coroutineScope = rememberCoroutineScope()
     var debounceJob by remember { mutableStateOf<Job?>(null) }
     val animatedEndPadding by animateDpAsState(
-        targetValue = if (selectedTask == task) 45.dp else 0.dp,
-        animationSpec = tween(durationMillis = 200), label = "" // Adjust duration for smoothness
+        targetValue = if (selectedTask?.id == task.id) 45.dp else 0.dp,
+        animationSpec = tween(durationMillis = 300),
+        label = ""
     )
+
+    // Check if this task has subtasks
+    val hasSubTasks = taskItemWithSubTask.find { it.taskItem.id == task.id }?.subTasks?.isNotEmpty() == true
 
     val boxWhith = Modifier
         .fillMaxWidth()
@@ -109,7 +117,8 @@ fun TaskRowItem(
             Row(
                 modifier = Modifier
                     .padding(vertical = 0.dp, horizontal = 12.dp)   // This is the inner padding
-                    .fillMaxWidth(),
+                    .fillMaxWidth()
+                    .alpha(if (task.isComplete) 0.6f else 1f),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 // 2) Checkbox
@@ -132,8 +141,7 @@ fun TaskRowItem(
                     modifier = Modifier.size(28.dp)
                 )
 
-                // 3) Editable text
-                TextField(
+                BasicTextField(
                     value = textValue,
                     onValueChange = { newText ->
                         if (newText.length <= 20) {
@@ -150,21 +158,12 @@ fun TaskRowItem(
                     textStyle = MaterialTheme.typography.bodyLarge.copy(
                         textDecoration = if (isChecked) TextDecoration.LineThrough else null,
                         fontWeight = FontWeight.Medium,
-                        color = if (isChecked) {
-                            MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
-                        } else {
-                            MaterialTheme.colorScheme.onSurface
-                        }
-                    ),
-                    colors = TextFieldDefaults.colors(
-                        unfocusedContainerColor = Color.Transparent, // No background
-                        focusedContainerColor = Color.Transparent,  // No background on focus
-                        unfocusedIndicatorColor = Color.Transparent, // No underline
-                        focusedIndicatorColor = Color.Transparent // No underline
+                        color = MaterialTheme.colorScheme.onSurface
                     ),
                     modifier = Modifier
                         .width(225.dp)
-                        .focusRequester(focusRequester),
+                        .focusRequester(focusRequester)
+                        .padding(start = 8.dp),
                     keyboardOptions = KeyboardOptions.Default.copy(
                         imeAction = ImeAction.Done
                     ),
@@ -175,7 +174,6 @@ fun TaskRowItem(
                     )
                 )
 
-
                 Box(
                     modifier = Modifier.fillMaxWidth(),
                     contentAlignment = Alignment.CenterEnd
@@ -185,6 +183,16 @@ fun TaskRowItem(
                         horizontalArrangement = Arrangement.spacedBy(6.dp, Alignment.End),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
+                        if (hasSubTasks) {
+                            TaskFolderButton(
+                                onClick = {
+                                    isFoldet = !isFoldet
+                                    viewModel.updateTaskItem(task, isFolded = isFoldet)
+                                },
+                                isFoldet = isFoldet
+                            )
+                        }
+
                         AddSubTaskButton(onClick = {
                             val newSubTask = SubTask(label = "", taskItemId = task.id)
                             viewModel.addSupTask(newSubTask)
@@ -197,13 +205,6 @@ fun TaskRowItem(
                             }
                         })
 
-                        TaskFolderButton(
-                            onClick = {
-                                isFoldet = !isFoldet
-                                viewModel.updateTaskItem(task, isFolded = isFoldet)
-                            },
-                            isFoldet = isFoldet
-                        )
                     }
                 }
             }

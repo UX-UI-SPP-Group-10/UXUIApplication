@@ -1,65 +1,53 @@
 package com.group10.uxuiapp.ui.tasks.view
 
-import android.util.Log
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.slideInVertically
-import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectTapGestures
-import androidx.compose.foundation.gestures.snapping.snapFlingBehavior
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.calculateEndPadding
 import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
-import com.group10.uxuiapp.R
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.ui.Alignment
-import com.group10.uxuiapp.data.data_class.TaskItem
-import com.group10.uxuiapp.ui.tasks.view.components.TaskRowItem
-import com.group10.uxuiapp.ui.tasks.view.components.buttons.AddTaskButton
-import com.group10.uxuiapp.ui.navigation.AppNavigator
-import com.group10.uxuiapp.ui.tasks.view.components.EditTaskPopup
-import com.group10.uxuiapp.ui.tasks.viewmodel.TaskViewModel
-import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.rememberSwipeToDismissBoxState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.ui.focus.FocusDirection
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
-import com.group10.uxuiapp.ui.tasks.view.components.buttons.SettingsButton
+import com.group10.uxuiapp.R
+import com.group10.uxuiapp.data.data_class.TaskItem
+import com.group10.uxuiapp.ui.navigation.AppNavigator
 import com.group10.uxuiapp.ui.tasks.view.components.SubTaskRow
-import kotlinx.coroutines.coroutineScope
+import com.group10.uxuiapp.ui.tasks.view.components.TaskRowItem
+import com.group10.uxuiapp.ui.tasks.view.components.buttons.AddTaskButton
+import com.group10.uxuiapp.ui.tasks.view.components.buttons.SettingsButton
+import com.group10.uxuiapp.ui.tasks.viewmodel.TaskViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
@@ -203,25 +191,41 @@ fun TaskScreen(todoListId: Int, appNavigator: AppNavigator, viewModel: TaskViewM
                         verticalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
                         items(
-                            items = sortedTasks,
-                            key = { task -> task.id }
-                        ) { task ->
-                            TaskRowItem(task = task, viewModel = viewModel, focusManager = focusManager, focusRequester = focusRequester)
-                            val taskWithSubTasks =
-                                taskItemWithSubTask.find { it.taskItem.id == task.id }
-
-                            if (taskWithSubTasks != null && !task.isFolded) {
-                                val sortedSubTasks =
-                                    remember(taskWithSubTasks.subTasks, sortByComplete.value) {
-                                        if (sortByComplete.value) {
-                                            taskWithSubTasks.subTasks.sortedBy { subTask -> subTask.isComplete }
-                                        } else {
-                                            taskWithSubTasks.subTasks
-                                        }
+                            items = sortedTasks.flatMap { task ->
+                                val taskWithSubTasks = taskItemWithSubTask.find { it.taskItem.id == task.id }
+                                val sortedSubTasks = taskWithSubTasks?.subTasks?.let { subTasks ->
+                                    if (sortByComplete.value) {
+                                        subTasks.sortedBy { it.isComplete }
+                                    } else {
+                                        subTasks
                                     }
-                                sortedSubTasks.forEach { subTask ->
-                                    SubTaskRow(task = subTask, viewModel = viewModel, focusManager = focusManager, focusRequester = focusRequester)
+                                }.orEmpty()
+                                // If the task is folded, only include the task itself
+                                if (task.isFolded) {
+                                    listOf(task to null)
+                                } else {
+                                    // Combine the task and its subtasks for rendering
+                                    listOf(task to null) + sortedSubTasks.map { task to it }
                                 }
+                            },
+                            key = { (task, subTask) ->
+                                subTask?.let { "${task.id}_${it.id}" } ?: task.id // Unique key for task and subtask
+                            }
+                        ) { (task, subTask) ->
+                            if (subTask == null) {
+                                TaskRowItem(
+                                    task = task,
+                                    viewModel = viewModel,
+                                    focusManager = focusManager,
+                                    focusRequester = focusRequester
+                                )
+                            } else {
+                                SubTaskRow(
+                                    task = subTask,
+                                    viewModel = viewModel,
+                                    focusManager = focusManager,
+                                    focusRequester = focusRequester
+                                )
                             }
                         }
                     }

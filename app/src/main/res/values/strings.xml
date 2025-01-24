@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">UXUIApplication</string>
+    <string name="app_name">10 Todolist</string>
     <string name="channel_name">Your Channel Name</string>
     <string name="channel_description">Your Channel Description</string>
 </resources>

@@ -123,7 +123,7 @@ class TaskViewModel(private val taskDataSource: TaskDataSource) : ViewModel() {
     }
 
     fun selectTaskForChange(taskItem: TaskItem? = null, subTask: SubTask? = null) {
-        Log.d(TAG, "Selecting TaskItem: ${taskItem?.id.toString()}")
+        Log.d(TAG, "Selecting TaskItem: ${taskItem?.id.toString()}, SubTask: ${subTask?.id.toString()}")
         _selectedTask.value = taskItem
         _selectedSubTask.value = subTask
     }
@@ -148,12 +148,23 @@ class TaskViewModel(private val taskDataSource: TaskDataSource) : ViewModel() {
 
     fun deleteSupTask(subTask: SubTask) {
         viewModelScope.launch {
-            Log.d(TAG, "Deleting TaskItem: $subTask")
             try {
+                // Delete the subtask from the database
                 taskDataSource.deleteSubTask(subTask)
-                Log.d(TAG, "TaskItem deleted successfully: $subTask")
+
+                // Update the local state
+                _lists.value = _lists.value.map { taskWithSubTask ->
+                    if (taskWithSubTask.taskItem.id == subTask.taskItemId) {
+                        // Create a new instance with updated subTasks
+                        taskWithSubTask.copy(
+                            subTasks = taskWithSubTask.subTasks.filter { it.id != subTask.id }
+                        )
+                    } else {
+                        taskWithSubTask
+                    }
+                }
             } catch (e: Exception) {
-                Log.e(TAG, "Error deleting TaskItem: ${e.message}", e)
+                Log.e(TAG, "Error deleting SubTask: ${e.message}", e)
             }
         }
     }

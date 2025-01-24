@@ -37,7 +37,6 @@ import com.group10.uxuiapp.R
 fun OptionsPopup(
     expanded: Boolean,
     onDismissRequest: () -> Unit,
-    onClose: () -> Unit,
     onDelete: () -> Unit,
     onUpdate: () -> Unit,
     onGifSelect: () -> Unit,
@@ -47,7 +46,7 @@ fun OptionsPopup(
 ) {
     val showDialog = remember { mutableStateOf(false) }
     val boxHeight = 50.dp
-    val boxWidth = 240.dp
+    val boxWidth = 180.dp
 
     if (expanded) {
         // Wrap your card in a Popup
@@ -72,17 +71,7 @@ fun OptionsPopup(
                     modifier = Modifier
                         .padding(horizontal = 8.dp, vertical = 8.dp)
                 ) {
-                    // 1) Close
-                    IconButton(onClick = onClose) {
-                        Icon(
-                            painter = painterResource(id = R.drawable.close),
-                            contentDescription = "Close",
-                            tint = MaterialTheme.colorScheme.onTertiaryContainer
-                        )
-                    }
-                    Spacer(modifier = Modifier.width(8.dp))
-
-                    // 2) Select GIF
+                    // 1) Select GIF
                     IconButton(onClick = onGifSelect) {
                         Icon(
                             painter = painterResource(id = R.drawable.gif),
@@ -90,9 +79,9 @@ fun OptionsPopup(
                             tint = MaterialTheme.colorScheme.onTertiaryContainer
                         )
                     }
-                    Spacer(modifier = Modifier.width(8.dp))
+                    Spacer(modifier = Modifier.width(9.dp))
 
-                    // 3) Rename
+                    // 2) chan visuel
                     IconButton(onClick = onUpdate) {
                         Icon(
                             painter = painterResource(id = R.drawable.edit),
@@ -100,7 +89,7 @@ fun OptionsPopup(
                             tint = MaterialTheme.colorScheme.onTertiaryContainer
                         )
                     }
-                    Spacer(modifier = Modifier.width(8.dp))
+                    Spacer(modifier = Modifier.width(9.dp))
 
                     // 4) Delete
                     IconButton(onClick =  {showDialog.value = true}) {

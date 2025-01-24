@@ -1,10 +1,12 @@
 package com.group10.uxuiapp.ui.todolist.view.components
 
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -52,7 +54,7 @@ fun EditTodolistDialog(
     var selectedDate by remember { mutableStateOf("") }
     var selectedTags by remember { mutableStateOf(todoList.tags ?: "") }
     var isRepeating by remember { mutableStateOf(todoList.isRepeating) }
-    var selectedDay by remember { mutableStateOf<Int?>(null) }
+    var selectedDay by remember { mutableStateOf<Int?>(todoList.repeatDay) }
     var gifUrl by remember { mutableStateOf((todoList.gifUrl)) }
     var selectedBackgroundColor by remember { mutableStateOf(todoList.backgroundColor ?: "") }
 
